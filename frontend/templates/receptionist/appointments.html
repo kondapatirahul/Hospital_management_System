@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: htmlHead('Appointments Coordination - Receptionist')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('receptionist-appointments')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Appointment Coordination & Scheduling', 'Search, filter, check-in, reschedule, or cancel outpatient appointments')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- SEARCH, FILTER & SORT BAR -->
+            <div class="filter-bar">
+                <form th:action="@{/receptionist/appointments}" th:object="${filter}" method="get" style="display: flex; gap: 10px; flex-wrap: wrap; flex: 1; align-items: center;">
+                    <!-- Filter Date -->
+                    <input type="date" th:field="*{date}" class="form-control" style="max-width: 170px;" title="Filter by date">
+
+                    <!-- Filter Status -->
+                    <select th:field="*{status}" class="form-control" style="max-width: 170px;">
+                        <option value="">-- All Statuses --</option>
+                        <option value="SCHEDULED">Scheduled</option>
+                        <option value="CHECKED_IN">Checked In</option>
+                        <option value="IN_CONSULTATION">In Consultation</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="CANCELLED">Cancelled</option>
+                        <option value="RESCHEDULED">Rescheduled</option>
+                    </select>
+
+                    <!-- Filter Department -->
+                    <select th:field="*{departmentId}" class="form-control" style="max-width: 180px;">
+                        <option value="">-- All Departments --</option>
+                        <option th:each="dept : ${departments}" th:value="${dept.id}" th:text="${dept.name}">Cardiology</option>
+                    </select>
+
+                    <!-- Filter Doctor -->
+                    <select th:field="*{doctorId}" class="form-control" style="max-width: 190px;">
+                        <option value="">-- All Doctors --</option>
+                        <option th:each="doc : ${doctors}" th:value="${doc.id}" th:text="${'Dr. ' + doc.fullName}">Dr. Wright</option>
+                    </select>
+
+                    <!-- Keyword Search -->
+                    <input type="text" th:field="*{keyword}" class="form-control filter-input"
+                           placeholder="Search patient name, ID, or doctor..."
+                           data-table-search="#appointmentsMasterTable">
+
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                    <a th:href="@{/receptionist/appointments}" class="btn btn-outline">Reset</a>
+                </form>
+
+                <a th:href="@{/receptionist/appointments/new}" class="btn btn-teal">
+                    ➕ Book Appointment
+                </a>
+            </div>
+
+            <!-- APPOINTMENTS TABLE CARD -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>🗓️ Appointment Records (<span th:text="${#lists.size(appointments)}">4</span>)</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div th:if="${#lists.isEmpty(appointments)}" style="padding: 40px; text-align: center; color: #64748b;">
+                        <div style="font-size: 32px; margin-bottom: 8px;">📅</div>
+                        <h4>No Matching Appointments</h4>
+                        <p style="font-size: 0.885rem; margin-top: 4px;">Try clearing filters or schedule a new patient appointment.</p>
+                        <a th:href="@{/receptionist/appointments/new}" class="btn btn-teal" style="margin-top: 14px;">Schedule Appointment</a>
+                    </div>
+
+                    <div th:unless="${#lists.isEmpty(appointments)}" class="table-responsive">
+                        <table id="appointmentsMasterTable" class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Date & Slot</th>
+                                    <th>Patient Info</th>
+                                    <th>Doctor & Dept</th>
+                                    <th>Room</th>
+                                    <th>Reason / Notes</th>
+                                    <th>Status</th>
+                                    <th>Check-In / Out</th>
+                                    <th>Modify</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="appt : ${appointments}">
+                                    <td>
+                                        <strong style="color: #0f172a;" th:text="${#temporals.format(appt.appointmentDate, 'MMM d, yyyy')}">Oct 27, 2026</strong>
+                                        <div style="font-size: 0.8rem; color: #0284c7; font-weight: 600;" th:text="${appt.appointmentSlot}">09:30 AM</div>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight: 700; color: #0f2c59;" th:text="${appt.patient.fullName}">Sarah Jenkins</div>
+                                        <div style="font-size: 0.72rem; font-family: monospace; color: #64748b;" th:text="${appt.patient.patientId + ' • ' + appt.patient.phone}">PAT-0001</div>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight: 600; color: #0f2c59;" th:text="${'Dr. ' + appt.doctor.fullName}">Dr. Marcus Vance</div>
+                                        <div style="font-size: 0.75rem; color: #0d9488;" th:text="${appt.department.name}">General Medicine</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-secondary" th:text="${appt.doctor.roomNumber}">Room 101</span>
+                                    </td>
+                                    <td style="max-width: 180px; font-size: 0.825rem; color: #475569;" th:text="${appt.reasonForVisit != null ? appt.reasonForVisit : 'Routine visit'}">
+                                        Allergy check
+                                    </td>
+                                    <td>
+                                        <span class="badge" th:classappend="${appt.status.badgeClass}" th:text="${appt.status.displayName}">Scheduled</span>
+                                    </td>
+                                    <td>
+                                        <!-- Check-In Action -->
+                                        <form th:if="${appt.status.name() == 'SCHEDULED' or appt.status.name() == 'RESCHEDULED'}"
+                                              th:action="@{/receptionist/appointments/{id}/check-in(id=${appt.id})}" method="post">
+                                            <button type="submit" class="btn btn-teal btn-sm" title="Patient Arrived - Issue Queue Token">
+                                                ✓ Check In
+                                            </button>
+                                        </form>
+
+                                        <!-- Direct Check-out Action -->
+                                        <form th:if="${appt.status.name() == 'CHECKED_IN' or appt.status.name() == 'IN_CONSULTATION'}"
+                                              th:action="@{/receptionist/appointments/{id}/check-out(id=${appt.id})}" method="post">
+                                            <button type="submit" class="btn btn-primary btn-sm" title="Mark Consultation Completed">
+                                                Complete
+                                            </button>
+                                        </form>
+
+                                        <span th:if="${appt.status.name() == 'COMPLETED'}" style="color: #059669; font-size: 0.75rem; font-weight: 700;">
+                                            ✓ Done
+                                        </span>
+                                        <span th:if="${appt.status.name() == 'CANCELLED'}" style="color: #ef4444; font-size: 0.75rem;">
+                                            Cancelled
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; gap: 6px;" th:if="${appt.status.name() == 'SCHEDULED' or appt.status.name() == 'RESCHEDULED'}">
+                                            <!-- Reschedule Modal Trigger -->
+                                            <button type="button" class="btn btn-outline btn-sm"
+                                                    data-modal-target="rescheduleModal"
+                                                    th:data-action-url="@{/receptionist/appointments/{id}/reschedule(id=${appt.id})}"
+                                                    th:data-appt-info="${'Patient ' + appt.patient.fullName + ' with Dr. ' + appt.doctor.fullName}">
+                                                Reschedule
+                                            </button>
+
+                                            <!-- Cancel Modal Trigger -->
+                                            <button type="button" class="btn btn-danger-outline btn-sm"
+                                                    data-modal-target="cancelModal"
+                                                    th:data-action-url="@{/receptionist/appointments/{id}/cancel(id=${appt.id})}"
+                                                    th:data-appt-info="${'Cancel visit for ' + appt.patient.fullName + ' with Dr. ' + appt.doctor.fullName}">
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- RESCHEDULE MODAL -->
+<div id="rescheduleModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>Reschedule Appointment</h3>
+            <button type="button" class="modal-close-btn">&times;</button>
+        </div>
+        <form method="post" th:object="${rescheduleDto}">
+            <div class="modal-body">
+                <p class="modal-appt-info" style="font-size: 0.885rem; color: #0284c7; font-weight: 600; margin-bottom: 16px;">
+                    Current Appointment
+                </p>
+
+                <div class="form-group">
+                    <label class="form-label required">Select New Date</label>
+                    <input type="date" name="newDate" class="form-control" required th:min="${#temporals.format(currentDate, 'yyyy-MM-dd')}">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">Select New Time Slot</label>
+                    <select name="newSlot" class="form-control" required>
+                        <option value="">-- Choose Time Slot --</option>
+                        <option value="09:00 AM">09:00 AM</option>
+                        <option value="09:30 AM">09:30 AM</option>
+                        <option value="10:00 AM">10:00 AM</option>
+                        <option value="10:30 AM">10:30 AM</option>
+                        <option value="11:00 AM">11:00 AM</option>
+                        <option value="11:30 AM">11:30 AM</option>
+                        <option value="02:00 PM">02:00 PM</option>
+                        <option value="02:30 PM">02:30 PM</option>
+                        <option value="03:00 PM">03:00 PM</option>
+                        <option value="03:30 PM">03:30 PM</option>
+                        <option value="04:00 PM">04:00 PM</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Rescheduling Note</label>
+                    <input type="text" name="rescheduleReason" class="form-control" placeholder="Patient requested shift">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+                <button type="submit" class="btn btn-primary">Confirm Reschedule</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- CANCEL MODAL -->
+<div id="cancelModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 style="color: #ef4444;">Cancel Appointment</h3>
+            <button type="button" class="modal-close-btn">&times;</button>
+        </div>
+        <form method="post">
+            <div class="modal-body">
+                <p class="modal-appt-info" style="font-size: 0.885rem; color: #475569; margin-bottom: 16px;">
+                    Are you sure you want to cancel this visit?
+                </p>
+                <div class="form-group">
+                    <label class="form-label">Cancellation Reason</label>
+                    <textarea name="cancellationReason" class="form-control" rows="3" placeholder="Reason for cancellation (patient requested, physician unavailable, etc.)"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" data-modal-close>Keep Appointment</button>
+                <button type="submit" class="btn btn-danger-outline" style="background:#ef4444; color:#fff; border-color:#ef4444;">
+                    Yes, Cancel Appointment
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: htmlHead('Register New Patient - Receptionist')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('new-patient')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Register New Patient', 'Generate unique hospital patient ID and create official medical intake record')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <div class="dashboard-grid">
+                <!-- Registration Form -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📝 Intake Registration Form</div>
+                        <div>
+                            Next Generated ID: <strong style="color: #0d9488; font-family: monospace; font-size: 1rem;" th:text="${previewPatientId}">PAT-2026-0005</strong>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/receptionist/patients/new}" th:object="${patientDto}" method="post">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label required">Patient Full Name</label>
+                                    <input type="text" th:field="*{fullName}" class="form-control" placeholder="e.g. Johnathan Smith" required>
+                                    <div th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="text-danger"></div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label required">Primary Contact Phone</label>
+                                    <input type="tel" th:field="*{phone}" class="form-control" placeholder="+1 (555) 000-0000" required>
+                                    <div th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="text-danger"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" th:field="*{email}" class="form-control" placeholder="patient@example.com">
+                                    <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Date of Birth</label>
+                                    <input type="date" th:field="*{dateOfBirth}" class="form-control"
+                                           th:max="${#temporals.format(currentDate, 'yyyy-MM-dd')}">
+                                    <div th:if="${#fields.hasErrors('dateOfBirth')}" th:errors="*{dateOfBirth}" class="text-danger"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Gender</label>
+                                    <select th:field="*{gender}" class="form-control">
+                                        <option value="">-- Select Gender --</option>
+                                        <option value="MALE">Male</option>
+                                        <option value="FEMALE">Female</option>
+                                        <option value="OTHER">Other</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Blood Group</label>
+                                    <select th:field="*{bloodGroup}" class="form-control">
+                                        <option value="">-- Select Blood Group --</option>
+                                        <option value="A+">A+</option>
+                                        <option value="A-">A-</option>
+                                        <option value="B+">B+</option>
+                                        <option value="B-">B-</option>
+                                        <option value="AB+">AB+</option>
+                                        <option value="AB-">AB-</option>
+                                        <option value="O+">O+</option>
+                                        <option value="O-">O-</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Residential Address</label>
+                                <input type="text" th:field="*{address}" class="form-control" placeholder="Street Address, City, State, ZIP">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Emergency Contact Name</label>
+                                    <input type="text" th:field="*{emergencyContactName}" class="form-control" placeholder="e.g. Mary Smith (Spouse)">
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Emergency Contact Phone</label>
+                                    <input type="tel" th:field="*{emergencyContactPhone}" class="form-control" placeholder="Emergency contact telephone">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Known Drug/Food Allergies</label>
+                                    <input type="text" th:field="*{allergies}" class="form-control" placeholder="e.g. Penicillin, Sulfa, Iodine">
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Chronic / Pre-existing Conditions</label>
+                                    <input type="text" th:field="*{chronicConditions}" class="form-control" placeholder="e.g. Diabetes, Hypertension">
+                                </div>
+                            </div>
+
+                            <!-- Optional Portal Access Setup -->
+                            <div style="background: #f8fafc; padding: 18px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 10px; margin-bottom: 20px;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                                    <input type="checkbox" id="createAccountCheck" th:field="*{createAccount}">
+                                    <label for="createAccountCheck" style="font-weight: 600; font-size: 0.9rem; color: #0f2c59; cursor: pointer;">
+                                        Enable Patient Online Portal Access
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label class="form-label">Portal Initial Password (if portal enabled)</label>
+                                    <input type="password" th:field="*{password}" class="form-control" placeholder="Default: Password@123 (or set custom)">
+                                </div>
+                            </div>
+
+                            <div style="display: flex; gap: 12px;">
+                                <button type="submit" class="btn btn-teal btn-lg">
+                                    Complete Intake & Generate Patient ID
+                                </button>
+                                <a th:href="@{/receptionist/patients}" class="btn btn-outline btn-lg">
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Guidelines Card -->
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">ℹ️ Registration Rules</div>
+                        </div>
+                        <div class="card-body" style="font-size: 0.885rem; color: #475569; line-height: 1.6;">
+                            <p><strong>Unique Identification:</strong> Every newly registered patient is assigned a formatted identifier <code>PAT-YYYY-XXXX</code> based on current intake sequence.</p>
+
+                            <p style="margin-top: 12px;"><strong>Emergency Contact:</strong> Always ensure an emergency contact person and reachable phone number are recorded for pediatric or elderly patients.</p>
+
+                            <p style="margin-top: 12px;"><strong>Portal Access:</strong> If email is provided and portal access is selected, the patient can sign into their personal dashboard to review lab reports, invoices, and schedule future visits.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

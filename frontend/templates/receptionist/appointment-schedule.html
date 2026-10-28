@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: htmlHead('Schedule Appointment - Receptionist')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('schedule-appt')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Schedule Patient Appointment', 'Select patient, attending physician, department, date, and available clinic time slot')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <div class="dashboard-grid">
+                <!-- Appointment Booking Form -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🗓️ Schedule Consultation</div>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/receptionist/appointments/new}" th:object="${bookingDto}" method="post">
+                            <!-- Select Patient -->
+                            <div class="form-group">
+                                <label class="form-label required">Select Patient</label>
+                                <select th:field="*{patientId}" class="form-control" required>
+                                    <option value="">-- Choose Patient from Registry --</option>
+                                    <option th:each="p : ${patients}"
+                                            th:value="${p.id}"
+                                            th:text="${p.fullName + ' (' + p.patientId + ' - ' + p.phone + ')'}">
+                                        Sarah Jenkins (PAT-2026-0001)
+                                    </option>
+                                </select>
+                                <div th:if="${#fields.hasErrors('patientId')}" th:errors="*{patientId}" class="text-danger"></div>
+                                <div class="form-text">
+                                    Patient not listed? <a th:href="@{/receptionist/patients/new}" style="color: #0d9488; font-weight: 600;">Register new patient first</a>.
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <!-- Department -->
+                                <div class="form-group">
+                                    <label class="form-label required">Medical Department</label>
+                                    <select id="departmentSelect" th:field="*{departmentId}" class="form-control" required>
+                                        <option value="">-- Choose Department --</option>
+                                        <option th:each="dept : ${departments}"
+                                                th:value="${dept.id}"
+                                                th:text="${dept.name}">Cardiology</option>
+                                    </select>
+                                    <div th:if="${#fields.hasErrors('departmentId')}" th:errors="*{departmentId}" class="text-danger"></div>
+                                </div>
+
+                                <!-- Doctor (dynamic loading via script.js) -->
+                                <div class="form-group">
+                                    <label class="form-label required">Physician / Specialist</label>
+                                    <select id="doctorSelect" th:field="*{doctorId}" class="form-control" required disabled>
+                                        <option value="">-- Select Department First --</option>
+                                    </select>
+                                    <div th:if="${#fields.hasErrors('doctorId')}" th:errors="*{doctorId}" class="text-danger"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <!-- Appointment Date -->
+                                <div class="form-group">
+                                    <label class="form-label required">Appointment Date</label>
+                                    <input type="date" th:field="*{appointmentDate}" class="form-control"
+                                           th:min="${#temporals.format(currentDate, 'yyyy-MM-dd')}" required>
+                                    <div th:if="${#fields.hasErrors('appointmentDate')}" th:errors="*{appointmentDate}" class="text-danger"></div>
+                                </div>
+
+                                <!-- Time Slot -->
+                                <div class="form-group">
+                                    <label class="form-label required">Available Time Slot</label>
+                                    <select th:field="*{appointmentSlot}" class="form-control" required>
+                                        <option value="">-- Choose Slot --</option>
+                                        <option value="09:00 AM">09:00 AM</option>
+                                        <option value="09:30 AM">09:30 AM</option>
+                                        <option value="10:00 AM">10:00 AM</option>
+                                        <option value="10:30 AM">10:30 AM</option>
+                                        <option value="11:00 AM">11:00 AM</option>
+                                        <option value="11:30 AM">11:30 AM</option>
+                                        <option value="02:00 PM">02:00 PM</option>
+                                        <option value="02:30 PM">02:30 PM</option>
+                                        <option value="03:00 PM">03:00 PM</option>
+                                        <option value="03:30 PM">03:30 PM</option>
+                                        <option value="04:00 PM">04:00 PM</option>
+                                    </select>
+                                    <div th:if="${#fields.hasErrors('appointmentSlot')}" th:errors="*{appointmentSlot}" class="text-danger"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Chief Complaint / Reason for Visit</label>
+                                <textarea th:field="*{reasonForVisit}" class="form-control" rows="3"
+                                          placeholder="Chief complaint or symptoms (e.g. Chest tightness, periodic migraine, routine follow-up)"></textarea>
+                            </div>
+
+                            <div style="display: flex; gap: 12px; margin-top: 10px;">
+                                <button type="submit" class="btn btn-teal btn-lg">
+                                    Confirm & Book Appointment
+                                </button>
+                                <a th:href="@{/receptionist/appointments}" class="btn btn-outline btn-lg">
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Doctor Details Side Panel -->
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">👨‍⚕️ Physician Info</div>
+                        </div>
+                        <div class="card-body">
+                            <div style="background: #f0fdfa; padding: 14px; border-radius: 8px; border: 1px solid #99f6e4; margin-bottom: 16px;">
+                                <div style="font-size: 0.8rem; color: #0f766e; font-weight: 700;">CONSULTATION FEE</div>
+                                <div id="doctorFeeDisplay" style="font-size: 1.4rem; font-weight: 800; color: #0d9488;">$50.00</div>
+                                <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">
+                                    Hours: <span id="doctorHoursDisplay">Mon - Fri, 09:00 AM - 05:00 PM</span>
+                                </div>
+                            </div>
+
+                            <h4 style="font-size: 0.9rem; color: #0f2c59; margin-bottom: 8px;">Desk Protocol:</h4>
+                            <ul style="font-size: 0.825rem; color: #475569; padding-left: 18px; line-height: 1.6;">
+                                <li>Ensure patient has no conflicting appointment slots on the same date.</li>
+                                <li>If the visit is for today, advise the patient to wait in the lobby; their token will be announced.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>
