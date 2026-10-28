@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Patient Medical Chart - Doctor')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('doctor-patients')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Patient Medical Chart & Clinical History', 'Confidential electronic health record viewer for clinical diagnosis and care')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Back navigation link -->
+            <div style="margin-bottom: 16px;">
+                <a th:href="@{/doctor/patients}" class="btn btn-outline btn-sm">
+                    ← Back to Patients Roster
+                </a>
+            </div>
+
+            <!-- Patient Profile & Critical Alerts Banner -->
+            <div class="card" style="background: #ffffff; border: 1px solid #cbd5e1; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
+                <div class="card-body" style="padding: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                                <h2 style="font-size: 1.5rem; font-weight: 700; color: #0f2c59;" th:text="${patient.fullName}">Sarah Jenkins</h2>
+                                <span class="badge badge-secondary" style="font-size: 0.85rem;" th:text="${patient.patientId}">PAT-2026-0001</span>
+                            </div>
+                            <p style="color: #475569; font-size: 0.875rem;">
+                                Gender: <strong th:text="${patient.gender != null ? patient.gender : 'Unspecified'}">FEMALE</strong> |
+                                DOB: <span th:text="${patient.dateOfBirth != null ? #temporals.format(patient.dateOfBirth, 'MMM d, yyyy') : 'Unknown'}">May 14, 1992</span> |
+                                Phone: <span th:text="${patient.phone}">+1 (555) 234-5678</span> |
+                                Emergency Contact: <span th:text="${patient.emergencyContactName != null ? patient.emergencyContactName + ' (' + patient.emergencyContactPhone + ')' : 'None'}">David Jenkins</span>
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <div style="text-align: center; background: #f0fdfa; border: 1px solid #99f6e4; padding: 10px 18px; border-radius: 8px;">
+                                <div style="font-size: 0.75rem; color: #0d9488; font-weight: 700; text-transform: uppercase;">Blood Group</div>
+                                <div style="font-size: 1.4rem; font-weight: 800; color: #0f2c59;" th:text="${patient.bloodGroup != null ? patient.bloodGroup : 'N/A'}">A+</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Critical Clinical Banner: Allergies & Chronic Conditions -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 18px;">
+                        <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 14px 18px;">
+                            <div style="display: flex; align-items: center; gap: 8px; color: #991b1b; font-weight: 700; font-size: 0.85rem; margin-bottom: 4px;">
+                                <span>⚠️ DOCUMENTED ALLERGIES</span>
+                            </div>
+                            <div style="font-size: 0.95rem; font-weight: 700; color: #b91c1c;"
+                                 th:text="${patient.allergies != null && !patient.allergies.isBlank() ? patient.allergies : 'No known drug allergies reported'}">
+                                Penicillin, Peanuts
+                            </div>
+                        </div>
+
+                        <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 14px 18px;">
+                            <div style="display: flex; align-items: center; gap: 8px; color: #92400e; font-weight: 700; font-size: 0.85rem; margin-bottom: 4px;">
+                                <span>📋 CHRONIC CONDITIONS</span>
+                            </div>
+                            <div style="font-size: 0.95rem; font-weight: 600; color: #78350f;"
+                                 th:text="${patient.chronicConditions != null && !patient.chronicConditions.isBlank() ? patient.chronicConditions : 'No chronic conditions recorded'}">
+                                Mild Asthma
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two-Column Layout for Medical Records and Prescriptions -->
+            <div style="display: grid; grid-template-columns: 1fr; gap: 24px;">
+
+                <!-- Previous Visits & Consultations -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>🩺 Consultation History & Recorded Diagnoses (<span th:text="${#lists.size(medicalRecords)}">0</span>)</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${#lists.isEmpty(medicalRecords)}" style="text-align: center; color: #64748b; padding: 24px;">
+                            No prior consultation records on file for this patient.
+                        </div>
+
+                        <div th:each="mr : ${medicalRecords}" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; margin-bottom: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
+                                <div>
+                                    <h4 style="color: #0f2c59; font-size: 1.05rem; font-weight: 700;" th:text="${mr.diagnosis}">
+                                        Acute Bronchitis with Mild Asthma Exacerbation
+                                    </h4>
+                                    <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">
+                                        Visit Date: <strong th:text="${#temporals.format(mr.visitDate, 'EEEE, MMM d, yyyy')}">Oct 14, 2026</strong> |
+                                        Attending Physician: <span th:text="${'Dr. ' + mr.doctor.fullName}">Dr. Marcus Vance</span>
+                                    </div>
+                                </div>
+                                <span class="badge badge-info" th:if="${mr.vitalSigns != null}" th:text="${mr.vitalSigns}">
+                                    BP: 118/76 mmHg | Pulse: 78 bpm
+                                </span>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; font-size: 0.875rem;">
+                                <div th:if="${mr.symptoms != null and !mr.symptoms.isBlank()}">
+                                    <strong style="color: #334155;">Reported Symptoms:</strong>
+                                    <p style="color: #475569; margin-top: 2px;" th:text="${mr.symptoms}">Persistent cough</p>
+                                </div>
+                                <div th:if="${mr.followUpInstructions != null and !mr.followUpInstructions.isBlank()}">
+                                    <strong style="color: #334155;">Follow-up Plan:</strong>
+                                    <p style="color: #475569; margin-top: 2px;" th:text="${mr.followUpInstructions}">Follow up in 2 weeks</p>
+                                </div>
+                            </div>
+
+                            <div th:if="${mr.clinicalNotes != null and !mr.clinicalNotes.isBlank()}" style="margin-top: 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px;">
+                                <strong style="color: #0f2c59; font-size: 0.8rem; text-transform: uppercase;">Clinical Notes & Observations:</strong>
+                                <p style="color: #334155; font-size: 0.875rem; margin-top: 4px; white-space: pre-line;" th:text="${mr.clinicalNotes}">
+                                    Bilateral expiratory wheezing noted. Advised rest.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prescriptions History -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>💊 Prescriptions & Medication Regimens (<span th:text="${#lists.size(prescriptions)}">0</span>)</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Medication</th>
+                                        <th>Dosage</th>
+                                        <th>Frequency</th>
+                                        <th>Duration</th>
+                                        <th>Prescribing Doctor</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:if="${#lists.isEmpty(prescriptions)}">
+                                        <td colspan="7" style="text-align: center; color: #64748b; padding: 24px;">
+                                            No prescription records found for this patient.
+                                        </td>
+                                    </tr>
+                                    <tr th:each="rx : ${prescriptions}">
+                                        <td th:text="${#temporals.format(rx.prescriptionDate, 'MMM d, yyyy')}">Oct 14, 2026</td>
+                                        <td>
+                                            <strong style="color: #0f2c59;" th:text="${rx.medicationName}">Amoxicillin-Clavulanate</strong>
+                                            <div th:if="${rx.instructions != null and !rx.instructions.isBlank()}"
+                                                 style="font-size: 0.75rem; color: #64748b;" th:text="${rx.instructions}">
+                                                Complete full course
+                                            </div>
+                                        </td>
+                                        <td th:text="${rx.dosage}">625 mg</td>
+                                        <td th:text="${rx.frequency}">Twice daily</td>
+                                        <td th:text="${rx.duration}">7 days</td>
+                                        <td th:text="${'Dr. ' + rx.doctor.fullName}">Dr. Marcus Vance</td>
+                                        <td>
+                                            <span class="badge" th:classappend="${rx.status == 'Active' ? 'badge-success' : 'badge-secondary'}"
+                                                  th:text="${rx.status}">Active</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lab Reports -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>🧪 Diagnostic Lab Reports (<span th:text="${#lists.size(labReports)}">0</span>)</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Test Name</th>
+                                        <th>Category</th>
+                                        <th>Requested</th>
+                                        <th>Completed</th>
+                                        <th>Status</th>
+                                        <th>Results Summary</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:if="${#lists.isEmpty(labReports)}">
+                                        <td colspan="6" style="text-align: center; color: #64748b; padding: 24px;">
+                                            No lab reports available for this patient.
+                                        </td>
+                                    </tr>
+                                    <tr th:each="lab : ${labReports}">
+                                        <td>
+                                            <strong style="color: #0f2c59;" th:text="${lab.testName}">Complete Blood Count</strong>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-info" th:text="${lab.testCategory}">Hematology</span>
+                                        </td>
+                                        <td th:text="${#temporals.format(lab.requestedDate, 'MMM d, yyyy')}">Oct 14, 2026</td>
+                                        <td th:text="${lab.completedDate != null ? #temporals.format(lab.completedDate, 'MMM d, yyyy') : 'Pending'}">-</td>
+                                        <td>
+                                            <span class="badge" th:classappend="${lab.status.badgeClass}" th:text="${lab.status.displayName}">Completed</span>
+                                        </td>
+                                        <td style="max-width: 320px; font-size: 0.8rem; color: #334155;">
+                                            <div th:text="${lab.summaryResult}">Normal ranges</div>
+                                            <div th:if="${lab.doctorNotes != null}" style="color: #0d9488; font-style: italic; margin-top: 2px;" th:text="${lab.doctorNotes}"></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

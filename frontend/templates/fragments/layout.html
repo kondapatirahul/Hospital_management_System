@@ -27,6 +27,7 @@
     <div class="sidebar-role-badge">
         <span sec:authorize="hasRole('PATIENT')">👤 PATIENT PORTAL</span>
         <span sec:authorize="hasRole('RECEPTIONIST')">📋 RECEPTION DESK</span>
+        <span sec:authorize="hasRole('DOCTOR')">👨‍⚕️ DOCTOR PORTAL</span>
     </div>
 
     <nav class="sidebar-nav">
@@ -150,6 +151,49 @@
                 </li>
             </ul>
         </div>
+
+        <!-- DOCTOR NAVIGATION -->
+        <div sec:authorize="hasRole('DOCTOR')">
+            <div class="nav-section-title">Clinical Practice</div>
+            <ul class="nav-list">
+                <li class="nav-item" th:classappend="${activeNav == 'doctor-dashboard' ? 'active' : ''}">
+                    <a th:href="@{/doctor/dashboard}">
+                        <span class="nav-icon">📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'doctor-appointments' ? 'active' : ''}">
+                    <a th:href="@{/doctor/appointments}">
+                        <span class="nav-icon">📅</span>
+                        <span>My Appointments</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'doctor-patients' ? 'active' : ''}">
+                    <a th:href="@{/doctor/patients}">
+                        <span class="nav-icon">👥</span>
+                        <span>Patient Directory</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'doctor-consultations' ? 'active' : ''}">
+                    <a th:href="@{/doctor/consultations}">
+                        <span class="nav-icon">📝</span>
+                        <span>Consultation History</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'doctor-prescriptions' ? 'active' : ''}">
+                    <a th:href="@{/doctor/prescriptions}">
+                        <span class="nav-icon">💊</span>
+                        <span>Prescriptions</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'doctor-availability' ? 'active' : ''}">
+                    <a th:href="@{/doctor/availability}">
+                        <span class="nav-icon">⏱️</span>
+                        <span>Availability & Slots</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
     </nav>
 
     <!-- Sidebar Bottom User Status -->
@@ -160,6 +204,7 @@
                 <div class="name" th:text="${currentUser != null ? currentUser.fullName : 'Guest'}">User Name</div>
                 <div class="role-label" sec:authorize="hasRole('PATIENT')" th:text="${currentPatient != null ? currentPatient.patientId : 'Patient'}">PAT-0000</div>
                 <div class="role-label" sec:authorize="hasRole('RECEPTIONIST')">Hospital Receptionist</div>
+                <div class="role-label" sec:authorize="hasRole('DOCTOR')" th:text="${currentDoctor != null ? currentDoctor.qualification : 'Doctor'}">Doctor</div>
             </div>
         </div>
     </div>

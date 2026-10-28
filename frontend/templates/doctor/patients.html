@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Patient Directory - Doctor')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('doctor-patients')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Clinical Patient Directory', 'Access medical charts, allergy profiles, and consultation histories for your patients')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Patient Directory Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>👥 Patient Roster (<span th:text="${#lists.size(patients)}">0</span>)</span>
+                    </div>
+                    <form th:action="@{/doctor/patients}" method="get" style="display: flex; gap: 8px;">
+                        <input type="text" name="search" class="form-control" style="width: 280px;"
+                               placeholder="Search patient name or ID..." th:value="${searchQuery != null ? searchQuery : ''}">
+                        <button type="submit" class="btn btn-primary btn-sm">Search</button>
+                        <a th:if="${searchQuery != null and !searchQuery.isBlank()}" th:href="@{/doctor/patients}" class="btn btn-outline btn-sm">Reset</a>
+                    </form>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Patient ID</th>
+                                    <th>Patient Full Name</th>
+                                    <th>Phone / Contact</th>
+                                    <th>Blood Group</th>
+                                    <th>Known Allergies</th>
+                                    <th>Chronic Conditions</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(patients)}">
+                                    <td colspan="7" style="text-align: center; color: #64748b; padding: 36px;">
+                                        No patient records found.
+                                    </td>
+                                </tr>
+                                <tr th:each="p : ${patients}">
+                                    <td>
+                                        <span class="badge badge-secondary" th:text="${p.patientId}">PAT-2026-0001</span>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight: 700; color: #0f2c59; font-size: 0.95rem;" th:text="${p.fullName}">Sarah Jenkins</div>
+                                        <div style="font-size: 0.75rem; color: #64748b;" th:text="${p.gender != null ? p.gender : 'Unspecified'}">FEMALE</div>
+                                    </td>
+                                    <td>
+                                        <div style="font-size: 0.85rem; color: #334155;" th:text="${p.phone}">+1 (555) 234-5678</div>
+                                        <div style="font-size: 0.75rem; color: #64748b;" th:text="${p.email != null ? p.email : 'No email'}">sarah@email.com</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-info" th:text="${p.bloodGroup != null ? p.bloodGroup : 'N/A'}">A+</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${p.allergies != null and p.allergies != 'None' and p.allergies != 'None known'}"
+                                              class="badge badge-danger" th:text="${p.allergies}">Penicillin</span>
+                                        <span th:if="${p.allergies == null or p.allergies == 'None' or p.allergies == 'None known'}"
+                                              style="color: #64748b; font-size: 0.825rem;">None</span>
+                                    </td>
+                                    <td style="font-size: 0.825rem; color: #475569;" th:text="${p.chronicConditions != null ? p.chronicConditions : 'None'}">
+                                        Mild Asthma
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/doctor/patients/{id}(id=${p.id})}" class="btn btn-teal btn-sm">
+                                            🩺 Medical History
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

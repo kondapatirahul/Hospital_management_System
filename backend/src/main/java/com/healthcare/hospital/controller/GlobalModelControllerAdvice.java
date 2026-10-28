@@ -1,8 +1,10 @@
 package com.healthcare.hospital.controller;
 
 import com.healthcare.hospital.config.CustomUserDetails;
+import com.healthcare.hospital.entity.Doctor;
 import com.healthcare.hospital.entity.Patient;
 import com.healthcare.hospital.entity.User;
+import com.healthcare.hospital.service.DoctorService;
 import com.healthcare.hospital.service.NotificationService;
 import com.healthcare.hospital.service.PatientService;
 import org.springframework.security.core.Authentication;
@@ -18,10 +20,14 @@ public class GlobalModelControllerAdvice {
 
     private final NotificationService notificationService;
     private final PatientService patientService;
+    private final DoctorService doctorService;
 
-    public GlobalModelControllerAdvice(NotificationService notificationService, PatientService patientService) {
+    public GlobalModelControllerAdvice(NotificationService notificationService,
+                                       PatientService patientService,
+                                       DoctorService doctorService) {
         this.notificationService = notificationService;
         this.patientService = patientService;
+        this.doctorService = doctorService;
     }
 
     @ModelAttribute
@@ -39,6 +45,9 @@ public class GlobalModelControllerAdvice {
             if (currentUser.getRole().name().equals("ROLE_PATIENT")) {
                 Optional<Patient> currentPatient = patientService.getPatientByUsername(currentUser.getUsername());
                 currentPatient.ifPresent(p -> model.addAttribute("currentPatient", p));
+            } else if (currentUser.getRole().name().equals("ROLE_DOCTOR")) {
+                Optional<Doctor> currentDoctor = doctorService.getDoctorByUsername(currentUser.getUsername());
+                currentDoctor.ifPresent(d -> model.addAttribute("currentDoctor", d));
             }
         }
     }

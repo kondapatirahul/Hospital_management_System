@@ -16,6 +16,8 @@ public class HomeController {
                     return "redirect:/receptionist/dashboard";
                 } else if (authority.getAuthority().equals("ROLE_PATIENT")) {
                     return "redirect:/patient/dashboard";
+                } else if (authority.getAuthority().equals("ROLE_DOCTOR")) {
+                    return "redirect:/doctor/dashboard";
                 }
             }
         }

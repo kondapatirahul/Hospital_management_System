@@ -42,6 +42,7 @@ public class SecurityConfig {
                 ).permitAll()
                 .requestMatchers("/patient/**").hasRole("PATIENT")
                 .requestMatchers("/receptionist/**").hasRole("RECEPTIONIST")
+                .requestMatchers("/doctor/**").hasRole("DOCTOR")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

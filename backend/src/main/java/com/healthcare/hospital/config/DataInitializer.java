@@ -27,6 +27,7 @@ public class DataInitializer implements CommandLineRunner {
     private final LabReportRepository labReportRepository;
     private final InvoiceRepository invoiceRepository;
     private final NotificationRepository notificationRepository;
+    private final DoctorAvailabilityRepository doctorAvailabilityRepository;
     private final PasswordEncoder passwordEncoder;
 
     public DataInitializer(UserRepository userRepository,
@@ -40,6 +41,7 @@ public class DataInitializer implements CommandLineRunner {
                            LabReportRepository labReportRepository,
                            InvoiceRepository invoiceRepository,
                            NotificationRepository notificationRepository,
+                           DoctorAvailabilityRepository doctorAvailabilityRepository,
                            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.departmentRepository = departmentRepository;
@@ -52,12 +54,14 @@ public class DataInitializer implements CommandLineRunner {
         this.labReportRepository = labReportRepository;
         this.invoiceRepository = invoiceRepository;
         this.notificationRepository = notificationRepository;
+        this.doctorAvailabilityRepository = doctorAvailabilityRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) {
         if (userRepository.count() > 0) {
+            seedDoctorUsersAndAvailabilityIfMissing();
             return; // Seed data already present
         }
 
@@ -118,6 +122,13 @@ public class DataInitializer implements CommandLineRunner {
                 "James Miller",
                 RoleType.ROLE_PATIENT
         ));
+
+        // Create and link doctor user accounts
+        attachDoctorUser(drWright, "dr.wright@hospital.com", "Dr. Alexander Wright", defaultHashedPassword);
+        attachDoctorUser(drGomez, "dr.gomez@hospital.com", "Dr. Elena Gomez", defaultHashedPassword);
+        attachDoctorUser(drChen, "dr.chen@hospital.com", "Dr. Robert Chen", defaultHashedPassword);
+        attachDoctorUser(drPatel, "dr.patel@hospital.com", "Dr. Sarah Patel", defaultHashedPassword);
+        attachDoctorUser(drVance, "dr.vance@hospital.com", "Dr. Marcus Vance", defaultHashedPassword);
 
         // 4. Patients
         Patient patient1 = patientRepository.save(new Patient(
@@ -214,8 +225,8 @@ public class DataInitializer implements CommandLineRunner {
         queueEntryRepository.save(q2);
 
         // 7. Medical Records for Sarah Jenkins
-        medicalRecordRepository.save(new MedicalRecord(
-                patient1, drVance, today.minusDays(14),
+        MedicalRecord mr1 = medicalRecordRepository.save(new MedicalRecord(
+                patient1, drVance, pastAppt, today.minusDays(14),
                 "Persistent dry cough, mild fever (99.8 F), throat irritation, nocturnal wheezing.",
                 "Acute Bronchitis with Mild Asthma Exacerbation",
                 "Chest sounds revealed slight bilateral expiratory wheezing. No focal consolidation. Throat mildly erythematous. Advised rest, increased fluid intake, and prescribed oral bronchodilator.",
@@ -224,7 +235,7 @@ public class DataInitializer implements CommandLineRunner {
         ));
 
         medicalRecordRepository.save(new MedicalRecord(
-                patient1, drVance, today.minusMonths(6),
+                patient1, drVance, null, today.minusMonths(6),
                 "General fatigue and routine annual physical examination.",
                 "Annual Wellness Exam - Generally Healthy",
                 "Heart sounds normal S1 and S2. Lungs clear to auscultation bilaterally. Abdomen soft, non-tender. Advised routine blood screen and lipid panel.",
@@ -234,7 +245,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // 8. Prescriptions for Sarah Jenkins
         prescriptionRepository.save(new Prescription(
-                patient1, drVance, today.minusDays(14),
+                patient1, drVance, pastAppt, mr1, today.minusDays(14),
                 "Amoxicillin-Clavulanate (Augmentin)", "625 mg",
                 "Twice daily after meals", "7 days",
                 "Complete full 7-day course even if symptoms improve early. Take with water.",
@@ -242,7 +253,7 @@ public class DataInitializer implements CommandLineRunner {
         ));
 
         prescriptionRepository.save(new Prescription(
-                patient1, drVance, today.minusDays(14),
+                patient1, drVance, pastAppt, mr1, today.minusDays(14),
                 "Albuterol Sulfate Inhalation Aerosol", "90 mcg/actuation",
                 "1 to 2 puffs every 4-6 hours as needed", "30 days",
                 "Rinse mouth after use. Keep rescue inhaler handy at all times.",
@@ -250,7 +261,7 @@ public class DataInitializer implements CommandLineRunner {
         ));
 
         prescriptionRepository.save(new Prescription(
-                patient1, drVance, today.minusDays(14),
+                patient1, drVance, pastAppt, mr1, today.minusDays(14),
                 "Cetirizine Hydrochloride (Zyrtec)", "10 mg",
                 "Once daily in the evening", "30 days",
                 "May cause mild drowsiness. Avoid alcohol while taking.",
@@ -338,5 +349,60 @@ public class DataInitializer implements CommandLineRunner {
                 "Invoice INV-2026-0002 for $73.75 has been generated and is due on " + today.plusDays(12) + ".",
                 "INVOICE_GENERATED"
         ));
+
+        // 12. Doctor Availability Slots
+        seedSampleAvailability(drVance, drWright, today);
+    }
+
+    private void attachDoctorUser(Doctor doctor, String email, String fullName, String encodedPassword) {
+        User user = userRepository.findByUsername(email).orElseGet(() ->
+                userRepository.save(new User(email, encodedPassword, fullName, RoleType.ROLE_DOCTOR))
+        );
+        doctor.setUser(user);
+        doctorRepository.save(doctor);
+    }
+
+    private void seedSampleAvailability(Doctor drVance, Doctor drWright, LocalDate today) {
+        doctorAvailabilityRepository.save(new DoctorAvailability(
+                drVance, today, LocalTime.of(9, 0), LocalTime.of(13, 0), "AVAILABLE", "Morning Clinic"
+        ));
+        doctorAvailabilityRepository.save(new DoctorAvailability(
+                drVance, today, LocalTime.of(14, 0), LocalTime.of(17, 30), "AVAILABLE", "Afternoon Consultation"
+        ));
+        doctorAvailabilityRepository.save(new DoctorAvailability(
+                drVance, today.plusDays(1), LocalTime.of(9, 0), LocalTime.of(14, 0), "AVAILABLE", "Regular OPD"
+        ));
+
+        doctorAvailabilityRepository.save(new DoctorAvailability(
+                drWright, today, LocalTime.of(9, 30), LocalTime.of(16, 0), "AVAILABLE", "Cardiology Clinic"
+        ));
+        doctorAvailabilityRepository.save(new DoctorAvailability(
+                drWright, today.plusDays(1), LocalTime.of(10, 0), LocalTime.of(15, 0), "AVAILABLE", "OPD & ECG review"
+        ));
+    }
+
+    private void seedDoctorUsersAndAvailabilityIfMissing() {
+        String defaultHashedPassword = passwordEncoder.encode("Password@123");
+        List<Doctor> doctors = doctorRepository.findAll();
+        for (Doctor doctor : doctors) {
+            if (doctor.getUser() == null && doctor.getEmail() != null) {
+                User user = userRepository.findByUsername(doctor.getEmail()).orElseGet(() ->
+                        userRepository.save(new User(
+                                doctor.getEmail(),
+                                defaultHashedPassword,
+                                "Dr. " + doctor.getFullName(),
+                                RoleType.ROLE_DOCTOR
+                        ))
+                );
+                doctor.setUser(user);
+                doctorRepository.save(doctor);
+            }
+        }
+
+        if (doctorAvailabilityRepository.count() == 0 && !doctors.isEmpty()) {
+            Doctor firstDoc = doctors.get(0);
+            Doctor secondDoc = doctors.size() > 1 ? doctors.get(1) : firstDoc;
+            seedSampleAvailability(firstDoc, secondDoc, LocalDate.now());
+        }
     }
 }
