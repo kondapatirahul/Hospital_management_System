@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - CareFlow HMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="auth-page">
+
+<div class="auth-card">
+    <div class="auth-header">
+        <div class="logo-badge">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </div>
+        <h1>CareFlow HMS</h1>
+        <p>Enterprise Healthcare Management Portal</p>
+    </div>
+
+    <div class="auth-body">
+        <!-- Flash messages -->
+        <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+        <!-- Quick 1-Click Demo Login Box -->
+        <div class="demo-account-box">
+            <h4>Quick Demo 1-Click Fill</h4>
+            <div class="demo-btn-group">
+                <button type="button" class="btn-demo" onclick="fillDemoCredentials('receptionist')">
+                    📋 Receptionist Demo
+                </button>
+                <button type="button" class="btn-demo" onclick="fillDemoCredentials('patient')">
+                    👤 Patient Demo
+                </button>
+            </div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 8px; text-align: center;">
+                Default Password: <strong>Password@123</strong>
+            </div>
+        </div>
+
+        <form th:action="@{/login}" method="post">
+            <div class="form-group">
+                <label for="username" class="form-label required">Email Address / Username</label>
+                <input type="text" id="username" name="username" class="form-control"
+                       placeholder="e.g. receptionist@hospital.com or patient@hospital.com" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label required">Password</label>
+                <input type="password" id="password" name="password" class="form-control"
+                       placeholder="Enter your account password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 10px;">
+                Sign In to Portal
+            </button>
+        </form>
+
+        <div style="margin-top: 24px; text-align: center; font-size: 0.85rem; color: #64748b;">
+            New patient without an account?
+            <a th:href="@{/register}" style="color: #0d9488; font-weight: 600; text-decoration: none;">
+                Create Patient Portal Account
+            </a>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

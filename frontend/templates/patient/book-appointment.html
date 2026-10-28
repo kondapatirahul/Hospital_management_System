@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: htmlHead('Book Appointment - Patient Portal')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('book')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Book a Doctor Consultation', 'Schedule your outpatient clinic appointment with our medical specialists')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <div class="dashboard-grid">
+                <!-- Booking Form Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📝 Consultation Booking Form</div>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/patient/appointments/book}" th:object="${bookingDto}" method="post">
+                            <input type="hidden" th:field="*{patientId}">
+
+                            <div class="form-row">
+                                <!-- Department -->
+                                <div class="form-group">
+                                    <label class="form-label required">Medical Department</label>
+                                    <select id="departmentSelect" th:field="*{departmentId}" class="form-control" required>
+                                        <option value="">-- Choose Department --</option>
+                                        <option th:each="dept : ${departments}"
+                                                th:value="${dept.id}"
+                                                th:text="${dept.name}">Cardiology</option>
+                                    </select>
+                                    <div th:if="${#fields.hasErrors('departmentId')}" th:errors="*{departmentId}" class="text-danger"></div>
+                                </div>
+
+                                <!-- Doctor (dynamic loading via script.js) -->
+                                <div class="form-group">
+                                    <label class="form-label required">Doctor / Specialist</label>
+                                    <select id="doctorSelect" th:field="*{doctorId}" class="form-control" required disabled>
+                                        <option value="">-- Select Department First --</option>
+                                    </select>
+                                    <div th:if="${#fields.hasErrors('doctorId')}" th:errors="*{doctorId}" class="text-danger"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <!-- Appointment Date -->
+                                <div class="form-group">
+                                    <label class="form-label required">Appointment Date</label>
+                                    <input type="date" th:field="*{appointmentDate}" class="form-control"
+                                           th:min="${#temporals.format(currentDate, 'yyyy-MM-dd')}" required>
+                                    <div th:if="${#fields.hasErrors('appointmentDate')}" th:errors="*{appointmentDate}" class="text-danger"></div>
+                                </div>
+
+                                <!-- Time Slot -->
+                                <div class="form-group">
+                                    <label class="form-label required">Preferred Time Slot</label>
+                                    <select th:field="*{appointmentSlot}" class="form-control" required>
+                                        <option value="">-- Select Time Slot --</option>
+                                        <option value="09:00 AM">09:00 AM</option>
+                                        <option value="09:30 AM">09:30 AM</option>
+                                        <option value="10:00 AM">10:00 AM</option>
+                                        <option value="10:30 AM">10:30 AM</option>
+                                        <option value="11:00 AM">11:00 AM</option>
+                                        <option value="11:30 AM">11:30 AM</option>
+                                        <option value="02:00 PM">02:00 PM</option>
+                                        <option value="02:30 PM">02:30 PM</option>
+                                        <option value="03:00 PM">03:00 PM</option>
+                                        <option value="03:30 PM">03:30 PM</option>
+                                        <option value="04:00 PM">04:00 PM</option>
+                                    </select>
+                                    <div th:if="${#fields.hasErrors('appointmentSlot')}" th:errors="*{appointmentSlot}" class="text-danger"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Symptoms / Reason for Visit</label>
+                                <textarea th:field="*{reasonForVisit}" class="form-control" rows="3"
+                                          placeholder="Describe your current symptoms or specific concerns for the physician (e.g. persistent dry cough, chest tightness, routine blood check)"></textarea>
+                            </div>
+
+                            <div style="display: flex; gap: 12px; margin-top: 10px;">
+                                <button type="submit" class="btn btn-teal btn-lg">
+                                    Confirm Appointment Booking
+                                </button>
+                                <a th:href="@{/patient/appointments}" class="btn btn-outline btn-lg">
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Doctor Details & Instructions Card -->
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">ℹ️ Visit Guidelines</div>
+                        </div>
+                        <div class="card-body" style="font-size: 0.885rem;">
+                            <div style="margin-bottom: 16px; padding: 12px; background: #f0fdfa; border-radius: 8px; border: 1px solid #99f6e4;">
+                                <div style="font-weight: 700; color: #0f766e; margin-bottom: 4px;">Consultation Fee Estimate</div>
+                                <div style="font-size: 1.4rem; font-weight: 800; color: #0d9488;" id="doctorFeeDisplay">$50.00</div>
+                                <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">Working Hours: <span id="doctorHoursDisplay">Mon - Fri, 09:00 AM - 05:00 PM</span></div>
+                            </div>
+
+                            <h4 style="font-size: 0.9rem; color: #0f2c59; margin-bottom: 8px;">What to bring to your visit:</h4>
+                            <ul style="padding-left: 20px; color: #475569; line-height: 1.6;">
+                                <li>Valid photo government ID</li>
+                                <li>Your generated Patient ID: <strong th:text="${patient.patientId}">PAT-2026-0001</strong></li>
+                                <li>Any previous lab test reports or medical discharge summaries</li>
+                                <li>Current medication bottles or list</li>
+                            </ul>
+
+                            <div style="margin-top: 16px; font-size: 0.8rem; color: #64748b;">
+                                💡 <em>On the day of your appointment, present your Patient ID to the receptionist desk for immediate check-in and queue token issuance.</em>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

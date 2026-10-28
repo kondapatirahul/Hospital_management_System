@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: htmlHead('Billing & Invoices - Patient Portal')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('invoices')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Invoices & Payment Records', 'Itemized billing statements, payment receipts, and outstanding hospital balances')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Invoices Table Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">💳 Billing History & Statements</div>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="window.print()">
+                        🖨️ Print Statements
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div th:if="${#lists.isEmpty(invoices)}" style="padding: 40px; text-align: center; color: #64748b;">
+                        <div style="font-size: 32px; margin-bottom: 8px;">🧾</div>
+                        <h4>No Invoices Found</h4>
+                        <p style="font-size: 0.885rem; margin-top: 4px;">Billing statements generated for visits and procedures will appear here.</p>
+                    </div>
+
+                    <div th:unless="${#lists.isEmpty(invoices)}" class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Invoice #</th>
+                                    <th>Date</th>
+                                    <th>Service Description</th>
+                                    <th>Amount</th>
+                                    <th>Tax & Disc</th>
+                                    <th>Total Due</th>
+                                    <th>Status</th>
+                                    <th>Payment Details</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="inv : ${invoices}">
+                                    <td>
+                                        <strong style="color: #0284c7; font-family: monospace; font-size: 0.95rem;" th:text="${inv.invoiceNumber}">INV-2026-0001</strong>
+                                    </td>
+                                    <td>
+                                        <span th:text="${#temporals.format(inv.invoiceDate, 'MMM d, yyyy')}">Oct 13, 2026</span>
+                                        <div th:if="${inv.dueDate != null}" style="font-size: 0.72rem; color: #94a3b8;" th:text="${'Due: ' + #temporals.format(inv.dueDate, 'MMM d')}">Due: Oct 27</div>
+                                    </td>
+                                    <td style="max-width: 250px; font-weight: 500;" th:text="${inv.serviceDescription}">
+                                        Outpatient Consultation & Vitals
+                                    </td>
+                                    <td>
+                                        <span th:text="${'$' + #numbers.formatDecimal(inv.amount, 1, 2)}">$50.00</span>
+                                    </td>
+                                    <td style="font-size: 0.8rem; color: #64748b;">
+                                        <div th:text="${'+$' + #numbers.formatDecimal(inv.tax, 1, 2) + ' tax'}">+$2.50 tax</div>
+                                        <div th:if="${inv.discount > 0}" style="color: #059669;" th:text="${'-$' + #numbers.formatDecimal(inv.discount, 1, 2) + ' disc'}">-$5.00 disc</div>
+                                    </td>
+                                    <td>
+                                        <strong style="color: #0f172a; font-size: 1rem;" th:text="${'$' + #numbers.formatDecimal(inv.totalAmount, 1, 2)}">$52.50</strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge" th:classappend="${inv.status.badgeClass}" th:text="${inv.status.displayName}">Paid</span>
+                                    </td>
+                                    <td style="font-size: 0.825rem;">
+                                        <div th:if="${inv.status.name() == 'PAID'}">
+                                            <span style="color: #059669; font-weight: 600;" th:text="${inv.paymentMethod}">Credit Card</span>
+                                            <div style="font-size: 0.72rem; color: #64748b;" th:text="${#temporals.format(inv.paymentDate, 'MMM d, yyyy')}">Oct 13, 2026</div>
+                                        </div>
+                                        <div th:unless="${inv.status.name() == 'PAID'}" style="color: #d97706; font-size: 0.8rem;">
+                                            Payment Outstanding
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div th:if="${inv.status.name() == 'PENDING'}">
+                                            <button type="button" class="btn btn-teal btn-sm"
+                                                    data-modal-target="payModal"
+                                                    th:data-action-url="@{/patient/invoices/{id}/pay(id=${inv.id})}"
+                                                    th:data-appt-info="${'Settle ' + inv.invoiceNumber + ' for $' + #numbers.formatDecimal(inv.totalAmount, 1, 2)}">
+                                                Pay Now
+                                            </button>
+                                        </div>
+                                        <div th:unless="${inv.status.name() == 'PENDING'}">
+                                            <button type="button" class="btn btn-outline btn-sm" onclick="window.print()">
+                                                Receipt
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- PAY INVOICE MODAL -->
+<div id="payModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>Settle Hospital Invoice</h3>
+            <button type="button" class="modal-close-btn">&times;</button>
+        </div>
+        <form method="post">
+            <div class="modal-body">
+                <p class="modal-appt-info" style="font-size: 0.95rem; font-weight: 700; color: #0d9488; margin-bottom: 16px;">
+                    Invoice Details
+                </p>
+
+                <div class="form-group">
+                    <label class="form-label required">Select Payment Method</label>
+                    <select name="paymentMethod" class="form-control" required>
+                        <option value="Credit Card (Visa/Mastercard)">Credit Card (Visa/Mastercard)</option>
+                        <option value="Debit Card">Debit Card</option>
+                        <option value="Health Insurance Co-Pay">Health Insurance Co-Pay</option>
+                        <option value="UPI / Online NetBanking">UPI / Online NetBanking</option>
+                        <option value="Cash at Reception">Cash at Reception Desk</option>
+                    </select>
+                </div>
+
+                <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.825rem; color: #475569;">
+                    🔒 <strong>Secure Demonstration Checkout:</strong> This confirms patient balance settlement in the hospital management database.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+                <button type="submit" class="btn btn-teal">Complete Payment</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

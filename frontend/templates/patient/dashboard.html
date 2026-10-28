@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Patient Dashboard')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('dashboard')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Patient Portal Dashboard', 'Overview of upcoming visits, active prescriptions, and medical records')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Welcome Greeting Banner -->
+            <div class="card" style="background: linear-gradient(135deg, #0f2c59, #1e40af); color: #fff; border:none; margin-bottom: 24px;">
+                <div class="card-body" style="padding: 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+                    <div>
+                        <div style="font-size: 0.85rem; color: #93c5fd; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">
+                            Welcome back, Patient Portal
+                        </div>
+                        <h2 style="font-size: 1.6rem; font-weight: 700; margin-top: 4px; color:#fff;" th:text="${patient.fullName}">Sarah Jenkins</h2>
+                        <p style="color: #cbd5e1; font-size: 0.885rem; margin-top: 6px;">
+                            Patient ID: <strong style="color: #5eead4;" th:text="${patient.patientId}">PAT-2026-0001</strong> |
+                            Blood Group: <strong style="color: #fff;" th:text="${patient.bloodGroup != null ? patient.bloodGroup : 'Not recorded'}">A+</strong> |
+                            Allergies: <span style="color: #fca5a5;" th:text="${patient.allergies != null ? patient.allergies : 'None'}">Penicillin</span>
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <a th:href="@{/patient/appointments/book}" class="btn btn-teal btn-lg">
+                            ➕ Book Appointment
+                        </a>
+                        <a th:href="@{/patient/profile}" class="btn btn-outline" style="background: rgba(255,255,255,0.1); color:#fff; border-color: rgba(255,255,255,0.25);">
+                            Edit Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Stats Grid -->
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <p>Upcoming Visits</p>
+                        <h3 th:text="${upcomingCount}">1</h3>
+                        <div class="stat-subtitle">Confirmed appointments</div>
+                    </div>
+                    <div class="stat-icon blue">📅</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <p>Active Medicines</p>
+                        <h3 th:text="${activePrescriptionsCount}">2</h3>
+                        <div class="stat-subtitle">Current regimen</div>
+                    </div>
+                    <div class="stat-icon teal">💊</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <p>Pending Lab Tests</p>
+                        <h3 th:text="${pendingLabsCount}">1</h3>
+                        <div class="stat-subtitle">Processing in lab</div>
+                    </div>
+                    <div class="stat-icon amber">🧪</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <p>Pending Invoices</p>
+                        <h3 th:text="${pendingInvoicesCount}">1</h3>
+                        <div class="stat-subtitle">Awaiting settlement</div>
+                    </div>
+                    <div class="stat-icon green">💳</div>
+                </div>
+            </div>
+
+            <!-- Two-Column Layout -->
+            <div class="dashboard-grid">
+                <!-- Left: Next Scheduled Appointments -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>📅 Upcoming Appointments</span>
+                        </div>
+                        <a th:href="@{/patient/appointments}" class="btn btn-outline btn-sm">View All</a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div th:if="${#lists.isEmpty(upcomingAppointments)}" style="padding: 32px; text-align: center; color: #64748b;">
+                            <p>You have no upcoming appointments scheduled.</p>
+                            <a th:href="@{/patient/appointments/book}" class="btn btn-teal btn-sm" style="margin-top: 10px;">Book Visit Now</a>
+                        </div>
+
+                        <div th:unless="${#lists.isEmpty(upcomingAppointments)}" class="table-responsive">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date & Slot</th>
+                                        <th>Doctor / Specialty</th>
+                                        <th>Room</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="appt : ${upcomingAppointments}">
+                                        <td>
+                                            <strong style="color: #0f172a;" th:text="${#temporals.format(appt.appointmentDate, 'MMM d, yyyy')}">Oct 27, 2026</strong>
+                                            <div style="font-size: 0.775rem; color: #64748b;" th:text="${appt.appointmentSlot}">09:30 AM</div>
+                                        </td>
+                                        <td>
+                                            <div style="font-weight: 600; color: #0f2c59;" th:text="${'Dr. ' + appt.doctor.fullName}">Dr. Marcus Vance</div>
+                                            <div style="font-size: 0.775rem; color: #0d9488;" th:text="${appt.department.name}">General Medicine</div>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-secondary" th:text="${appt.doctor.roomNumber}">Room 101</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge" th:classappend="${appt.status.badgeClass}" th:text="${appt.status.displayName}">Scheduled</span>
+                                        </td>
+                                        <td>
+                                            <a th:href="@{/patient/appointments}" class="btn btn-outline btn-sm">Manage</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Active Prescriptions & Lab Results -->
+                <div>
+                    <!-- Active Prescriptions Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">💊 Active Prescriptions</div>
+                            <a th:href="@{/patient/prescriptions}" class="btn btn-outline btn-sm">View All</a>
+                        </div>
+                        <div class="card-body p-0">
+                            <div th:if="${#lists.isEmpty(recentPrescriptions)}" style="padding: 24px; text-align: center; color: #64748b; font-size: 0.85rem;">
+                                No active prescription medications.
+                            </div>
+                            <div th:unless="${#lists.isEmpty(recentPrescriptions)}" style="padding: 16px 20px;">
+                                <div th:each="rx : ${recentPrescriptions}" style="padding: 12px 0; border-bottom: 1px solid #f1f5f9;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <strong style="color: #0f2c59; font-size: 0.9rem;" th:text="${rx.medicationName}">Amoxicillin</strong>
+                                        <span class="badge badge-info" th:text="${rx.dosage}">500 mg</span>
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: #64748b; margin-top: 4px;" th:text="${rx.frequency + ' • ' + rx.duration}">Twice daily • 7 days</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Notifications -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">🔔 Recent Alerts</div>
+                            <a th:href="@{/patient/notifications}" class="btn btn-outline btn-sm">All</a>
+                        </div>
+                        <div class="card-body" style="padding: 16px 20px;">
+                            <div th:if="${#lists.isEmpty(recentNotifications)}" style="color: #64748b; font-size: 0.85rem; text-align: center;">
+                                No unread notifications.
+                            </div>
+                            <div th:unless="${#lists.isEmpty(recentNotifications)}">
+                                <div th:each="notif : ${recentNotifications}" style="margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9;">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                        <strong style="font-size: 0.85rem; color: #0f2c59;" th:text="${notif.title}">Appointment Reminder</strong>
+                                        <span style="font-size: 0.7rem; color: #94a3b8;" th:text="${#temporals.format(notif.createdAt, 'MMM d, h:mm a')}">Oct 27</span>
+                                    </div>
+                                    <p style="font-size: 0.8rem; color: #475569; margin-top: 4px; line-height: 1.4;" th:text="${notif.message}">Your visit is scheduled.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>
