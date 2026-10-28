@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="htmlHead(pageTitle)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle != null ? pageTitle + ' - CareFlow HMS' : 'CareFlow Healthcare Management'}">CareFlow HMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- SIDEBAR FRAGMENT -->
+<aside th:fragment="sidebar(activeNav)" class="app-sidebar">
+    <div class="sidebar-header">
+        <div class="brand-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </div>
+        <div class="brand-text">
+            <h2>CareFlow HMS</h2>
+            <span>Hospital Portal</span>
+        </div>
+    </div>
+
+    <!-- Active Role Indicator -->
+    <div class="sidebar-role-badge">
+        <span sec:authorize="hasRole('PATIENT')">👤 PATIENT PORTAL</span>
+        <span sec:authorize="hasRole('RECEPTIONIST')">📋 RECEPTION DESK</span>
+    </div>
+
+    <nav class="sidebar-nav">
+        <!-- PATIENT NAVIGATION -->
+        <div sec:authorize="hasRole('PATIENT')">
+            <div class="nav-section-title">Clinical Care</div>
+            <ul class="nav-list">
+                <li class="nav-item" th:classappend="${activeNav == 'dashboard' ? 'active' : ''}">
+                    <a th:href="@{/patient/dashboard}">
+                        <span class="nav-icon">📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'appointments' ? 'active' : ''}">
+                    <a th:href="@{/patient/appointments}">
+                        <span class="nav-icon">📅</span>
+                        <span>My Appointments</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'book' ? 'active' : ''}">
+                    <a th:href="@{/patient/appointments/book}">
+                        <span class="nav-icon">➕</span>
+                        <span>Book Appointment</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'medical' ? 'active' : ''}">
+                    <a th:href="@{/patient/medical-history}">
+                        <span class="nav-icon">🩺</span>
+                        <span>Medical History</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'prescriptions' ? 'active' : ''}">
+                    <a th:href="@{/patient/prescriptions}">
+                        <span class="nav-icon">💊</span>
+                        <span>Prescriptions</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'labs' ? 'active' : ''}">
+                    <a th:href="@{/patient/lab-reports}">
+                        <span class="nav-icon">🧪</span>
+                        <span>Lab Reports</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-section-title">Account & Billing</div>
+            <ul class="nav-list">
+                <li class="nav-item" th:classappend="${activeNav == 'invoices' ? 'active' : ''}">
+                    <a th:href="@{/patient/invoices}">
+                        <span class="nav-icon">💳</span>
+                        <span>Invoices & Payments</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'notifications' ? 'active' : ''}">
+                    <a th:href="@{/patient/notifications}">
+                        <span class="nav-icon">🔔</span>
+                        <span>Notifications</span>
+                        <span th:if="${unreadNotificationCount != null and unreadNotificationCount > 0}"
+                              class="badge badge-danger" style="margin-left:auto; padding:2px 6px; font-size:10px;"
+                              th:text="${unreadNotificationCount}">0</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'profile' ? 'active' : ''}">
+                    <a th:href="@{/patient/profile}">
+                        <span class="nav-icon">⚙️</span>
+                        <span>My Profile</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- RECEPTIONIST NAVIGATION -->
+        <div sec:authorize="hasRole('RECEPTIONIST')">
+            <div class="nav-section-title">Front Desk Operations</div>
+            <ul class="nav-list">
+                <li class="nav-item" th:classappend="${activeNav == 'receptionist-dashboard' ? 'active' : ''}">
+                    <a th:href="@{/receptionist/dashboard}">
+                        <span class="nav-icon">📈</span>
+                        <span>Desk Overview</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'queue' ? 'active' : ''}">
+                    <a th:href="@{/receptionist/queue}">
+                        <span class="nav-icon">⏱️</span>
+                        <span>Waiting Queue</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'receptionist-appointments' ? 'active' : ''}">
+                    <a th:href="@{/receptionist/appointments}">
+                        <span class="nav-icon">📆</span>
+                        <span>All Appointments</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'schedule-appt' ? 'active' : ''}">
+                    <a th:href="@{/receptionist/appointments/new}">
+                        <span class="nav-icon">🗓️</span>
+                        <span>Schedule Appointment</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-section-title">Patient Management</div>
+            <ul class="nav-list">
+                <li class="nav-item" th:classappend="${activeNav == 'patients' ? 'active' : ''}">
+                    <a th:href="@{/receptionist/patients}">
+                        <span class="nav-icon">👥</span>
+                        <span>Patient Directory</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'new-patient' ? 'active' : ''}">
+                    <a th:href="@{/receptionist/patients/new}">
+                        <span class="nav-icon">📝</span>
+                        <span>Register Patient</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'doctors' ? 'active' : ''}">
+                    <a th:href="@{/receptionist/doctors}">
+                        <span class="nav-icon">👨‍⚕️</span>
+                        <span>Doctor Schedules</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Sidebar Bottom User Status -->
+    <div class="sidebar-footer">
+        <div class="user-mini-card">
+            <div class="user-avatar-sm" th:text="${currentUser != null ? #strings.substring(currentUser.fullName,0,1) : 'U'}">U</div>
+            <div class="user-mini-info">
+                <div class="name" th:text="${currentUser != null ? currentUser.fullName : 'Guest'}">User Name</div>
+                <div class="role-label" sec:authorize="hasRole('PATIENT')" th:text="${currentPatient != null ? currentPatient.patientId : 'Patient'}">PAT-0000</div>
+                <div class="role-label" sec:authorize="hasRole('RECEPTIONIST')">Hospital Receptionist</div>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- TOP NAVBAR FRAGMENT -->
+<header th:fragment="navbar(pageTitle, pageSubtitle)" class="top-navbar">
+    <div class="navbar-left">
+        <button id="mobileNavToggle" class="btn btn-outline btn-sm" style="display:none;">☰</button>
+        <div class="page-title">
+            <h1 th:text="${pageTitle}">Dashboard</h1>
+            <p th:text="${pageSubtitle}">Welcome back to CareFlow Healthcare Management System</p>
+        </div>
+    </div>
+
+    <div class="navbar-right">
+        <div class="nav-date-badge">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span th:text="${#temporals.format(currentDate, 'EEEE, MMM d, yyyy')}">Monday, Oct 27, 2026</span>
+        </div>
+
+        <!-- Notification Bell (Patient only) -->
+        <a sec:authorize="hasRole('PATIENT')" th:href="@{/patient/notifications}" class="nav-notify-btn" title="Notifications">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span th:if="${unreadNotificationCount != null and unreadNotificationCount > 0}"
+                  class="notify-counter" th:text="${unreadNotificationCount}">1</span>
+        </a>
+
+        <!-- Logout Form (POST method for Spring Security CSRF compliance) -->
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="btn-logout" title="Sign Out">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                <span>Logout</span>
+            </button>
+        </form>
+    </div>
+</header>
+
+</body>
+</html>

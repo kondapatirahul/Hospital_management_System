@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: htmlHead('Notifications - Patient Portal')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('notifications')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Notification Center', 'Appointment reminders, laboratory status alerts, and queue updates')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🔔 Patient Alerts & Notifications</div>
+                    <form th:action="@{/patient/notifications/read-all}" method="post">
+                        <button type="submit" class="btn btn-outline btn-sm">Mark All as Read</button>
+                    </form>
+                </div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(notifications)}" style="padding: 40px; text-align: center; color: #64748b;">
+                        <div style="font-size: 32px; margin-bottom: 8px;">🔕</div>
+                        <h4>No Notifications</h4>
+                        <p style="font-size: 0.885rem; margin-top: 4px;">You have no active alerts or reminders at this time.</p>
+                    </div>
+
+                    <div th:unless="${#lists.isEmpty(notifications)}">
+                        <div th:each="n : ${notifications}"
+                             style="padding: 16px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; transition: all 0.2s;"
+                             th:styleappend="${!n.readStatus ? 'background: #f0fdfa; border-color: #99f6e4;' : 'background: #ffffff;'}">
+
+                            <div style="display: flex; gap: 14px; align-items: flex-start;">
+                                <div style="font-size: 22px;">
+                                    <span th:if="${n.type == 'QUEUE_UPDATE'}">⏱️</span>
+                                    <span th:if="${n.type == 'APPOINTMENT_REMINDER'}">📅</span>
+                                    <span th:if="${n.type == 'LAB_READY'}">🧪</span>
+                                    <span th:if="${n.type == 'INVOICE_GENERATED'}">💳</span>
+                                    <span th:if="${n.type != 'QUEUE_UPDATE' and n.type != 'APPOINTMENT_REMINDER' and n.type != 'LAB_READY' and n.type != 'INVOICE_GENERATED'}">ℹ️</span>
+                                </div>
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <strong style="color: #0f2c59; font-size: 0.95rem;" th:text="${n.title}">Notification Title</strong>
+                                        <span th:if="${!n.readStatus}" class="badge badge-warning" style="font-size: 0.65rem;">NEW</span>
+                                    </div>
+                                    <p style="font-size: 0.885rem; color: #475569; margin-top: 4px;" th:text="${n.message}">Message content</p>
+                                    <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 6px;" th:text="${#temporals.format(n.createdAt, 'MMM d, yyyy - h:mm a')}">Oct 27, 2026 - 10:00 AM</div>
+                                </div>
+                            </div>
+
+                            <div th:if="${!n.readStatus}">
+                                <form th:action="@{/patient/notifications/{id}/read(id=${n.id})}" method="post">
+                                    <button type="submit" class="btn btn-outline btn-sm" title="Mark as read">
+                                        ✓ Mark Read
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

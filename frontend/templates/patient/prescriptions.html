@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: htmlHead('Prescriptions - Patient Portal')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('prescriptions')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Prescriptions & Medication Schedule', 'Active treatment regimens, dosage frequency, and physician instructions')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Header Search Bar -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <input type="text" class="form-control" style="max-width: 320px;" placeholder="Search medications..." data-table-search="#prescriptionsTable">
+                <span class="badge badge-info" style="font-size: 0.85rem; padding: 6px 12px;">
+                    Take medications strictly as instructed
+                </span>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">💊 Medication Orders & Directions</div>
+                </div>
+                <div class="card-body p-0">
+                    <div th:if="${#lists.isEmpty(prescriptions)}" style="padding: 40px; text-align: center; color: #64748b;">
+                        <div style="font-size: 32px; margin-bottom: 8px;">💊</div>
+                        <h4>No Prescriptions on File</h4>
+                        <p style="font-size: 0.885rem; margin-top: 4px;">Medications prescribed by attending doctors will appear here automatically.</p>
+                    </div>
+
+                    <div th:unless="${#lists.isEmpty(prescriptions)}" class="table-responsive">
+                        <table id="prescriptionsTable" class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Date Prescribed</th>
+                                    <th>Medication Name</th>
+                                    <th>Dosage</th>
+                                    <th>Frequency & Timing</th>
+                                    <th>Duration</th>
+                                    <th>Special Instructions</th>
+                                    <th>Prescribed By</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="rx : ${prescriptions}">
+                                    <td>
+                                        <strong th:text="${#temporals.format(rx.prescriptionDate, 'MMM d, yyyy')}">Oct 13, 2026</strong>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight: 700; color: #0f2c59; font-size: 0.95rem;" th:text="${rx.medicationName}">Amoxicillin</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-primary" style="font-size: 0.8rem;" th:text="${rx.dosage}">625 mg</span>
+                                    </td>
+                                    <td>
+                                        <strong style="color: #0f766e;" th:text="${rx.frequency}">Twice daily after meals</strong>
+                                    </td>
+                                    <td th:text="${rx.duration}">7 days</td>
+                                    <td style="max-width: 250px; font-size: 0.825rem; color: #475569;" th:text="${rx.instructions}">
+                                        Take with water after meals. Finish entire course.
+                                    </td>
+                                    <td>
+                                        <div style="font-size: 0.85rem; font-weight: 600; color: #0f2c59;" th:text="${'Dr. ' + rx.doctor.fullName}">Dr. Marcus Vance</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge" th:classappend="${rx.status == 'Active' ? 'badge-success' : 'badge-secondary'}" th:text="${rx.status}">Active</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pharmacy Assistance Note -->
+            <div class="card" style="background: #f0fdfa; border-color: #99f6e4;">
+                <div class="card-body" style="display: flex; align-items: center; gap: 16px;">
+                    <div style="font-size: 28px;">🏥</div>
+                    <div style="font-size: 0.885rem; color: #115e59;">
+                        <strong>Need a refill or medication guidance?</strong> Present your Patient ID <strong th:text="${patient.patientId}">PAT-2026-0001</strong> at the Ground Floor Hospital Pharmacy counter or contact the pharmacy desk at ext. 404.
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: htmlHead('Medical History - Patient Portal')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('medical')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Medical History & Visit Records', 'Complete timeline of past clinical consultations, recorded vitals, and physician notes')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Patient Vitals & Health Snapshot Card -->
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header">
+                    <div class="card-title">🩺 Health Baseline & Alerts</div>
+                </div>
+                <div class="card-body">
+                    <div class="stat-grid" style="margin-bottom: 0;">
+                        <div style="background: #f8fafc; padding: 14px 18px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <div style="font-size: 0.75rem; color: #64748b; font-weight: 700;">BLOOD GROUP</div>
+                            <div style="font-size: 1.25rem; font-weight: 800; color: #ef4444;" th:text="${patient.bloodGroup != null ? patient.bloodGroup : 'N/A'}">A+</div>
+                        </div>
+                        <div style="background: #f8fafc; padding: 14px 18px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <div style="font-size: 0.75rem; color: #64748b; font-weight: 700;">KNOWN ALLERGIES</div>
+                            <div style="font-size: 0.95rem; font-weight: 700; color: #d97706;" th:text="${patient.allergies != null ? patient.allergies : 'None documented'}">Penicillin, Peanuts</div>
+                        </div>
+                        <div style="background: #f8fafc; padding: 14px 18px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <div style="font-size: 0.75rem; color: #64748b; font-weight: 700;">CHRONIC CONDITIONS</div>
+                            <div style="font-size: 0.95rem; font-weight: 700; color: #0f2c59;" th:text="${patient.chronicConditions != null ? patient.chronicConditions : 'None'}">Mild Asthma</div>
+                        </div>
+                        <div style="background: #f8fafc; padding: 14px 18px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <div style="font-size: 0.75rem; color: #64748b; font-weight: 700;">EMERGENCY CONTACT</div>
+                            <div style="font-size: 0.85rem; font-weight: 600; color: #0d9488;" th:text="${patient.emergencyContactName + ' (' + patient.emergencyContactPhone + ')'}">David Jenkins (+1 555-234-9999)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medical Visits Timeline -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📋 Clinical Encounters Timeline</div>
+                </div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(records)}" style="padding: 40px; text-align: center; color: #64748b;">
+                        <div style="font-size: 32px; margin-bottom: 8px;">📑</div>
+                        <h4>No Medical Records on File</h4>
+                        <p style="font-size: 0.885rem; margin-top: 4px;">Visit summaries will appear here after consultation with your physician.</p>
+                    </div>
+
+                    <div th:unless="${#lists.isEmpty(records)}">
+                        <div th:each="record : ${records}" class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px;">
+                                <div>
+                                    <h3 style="font-size: 1.1rem; font-weight: 700; color: #0f2c59;" th:text="${record.diagnosis}">Acute Bronchitis with Mild Asthma Exacerbation</h3>
+                                    <div style="font-size: 0.825rem; color: #0d9488; font-weight: 600; margin-top: 2px;" th:text="${'Attending: Dr. ' + record.doctor.fullName + ' (' + record.doctor.qualification + ')'}">
+                                        Attending: Dr. Marcus Vance
+                                    </div>
+                                </div>
+                                <span class="badge badge-primary" style="font-size: 0.8rem;" th:text="${#temporals.format(record.visitDate, 'MMMM d, yyyy')}">October 13, 2026</span>
+                            </div>
+
+                            <!-- Recorded Vitals Pill -->
+                            <div th:if="${record.vitalSigns != null}" style="margin: 12px 0; padding: 8px 14px; background: #f0fdfa; border-radius: 6px; border-left: 4px solid #0d9488; font-size: 0.85rem;">
+                                <strong>Vitals Recorded: </strong>
+                                <span style="color: #0f766e;" th:text="${record.vitalSigns}">BP: 118/76 mmHg | Pulse: 78 bpm | Temp: 98.6 F</span>
+                            </div>
+
+                            <!-- Symptoms -->
+                            <div style="font-size: 0.885rem; color: #475569; margin-top: 8px;">
+                                <strong style="color: #0f172a;">Presented Symptoms: </strong>
+                                <span th:text="${record.symptoms}">Persistent dry cough, nocturnal wheezing.</span>
+                            </div>
+
+                            <!-- Clinical Notes -->
+                            <div style="font-size: 0.885rem; color: #475569; margin-top: 6px;">
+                                <strong style="color: #0f172a;">Clinical Notes: </strong>
+                                <span th:text="${record.clinicalNotes}">Chest sounds revealed slight bilateral expiratory wheezing.</span>
+                            </div>
+
+                            <!-- Follow up Instructions -->
+                            <div th:if="${record.followUpInstructions != null}" style="font-size: 0.85rem; color: #2563eb; margin-top: 8px; background: #eff6ff; padding: 6px 12px; border-radius: 6px;">
+                                📌 <strong>Follow-up Instructions: </strong>
+                                <span th:text="${record.followUpInstructions}">Follow up in 2 weeks or immediately if symptoms worsen.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>
