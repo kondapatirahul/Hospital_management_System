@@ -1,1 +1,190 @@
-<!DOCTYPE html><html lang="en" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CareFlow Enterprise Workflows</title><style>body{font-family:Arial,sans-serif;background:#f3f6fb;color:#243047;margin:0}.wrap{max-width:1400px;margin:auto;padding:28px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}.card{background:#fff;padding:20px;border:1px solid #e0e7f0;border-radius:14px}.card a{color:#234b85;font-weight:bold}header{margin-bottom:26px}</style></head><body><main class="wrap"><header><p>CARE­FLOW / ENTERPRISE</p><h1>Clinical & Operational Workflows</h1><p>Central directory for the additional M3/M4 modules. Each module has a list, filters, lifecycle actions and a creation form.</p></header><section class="grid"><article class="card"><small>Laboratory</small><h3>LabOrder</h3><p>Laboratory order intake and status tracking.</p><a href="/laboratory/enterprise/labOrder">Open workflow →</a></article><article class="card"><small>Laboratory</small><h3>LabQualityControl</h3><p>Laboratory quality control checks.</p><a href="/laboratory/enterprise/labQualityControl">Open workflow →</a></article><article class="card"><small>Laboratory</small><h3>LabInstrument</h3><p>Laboratory instrument maintenance.</p><a href="/laboratory/enterprise/labInstrument">Open workflow →</a></article><article class="card"><small>Laboratory</small><h3>LabReagent</h3><p>Laboratory reagent inventory.</p><a href="/laboratory/enterprise/labReagent">Open workflow →</a></article><article class="card"><small>Laboratory</small><h3>LabResultReview</h3><p>Laboratory result review and authorization.</p><a href="/laboratory/enterprise/labResultReview">Open workflow →</a></article><article class="card"><small>Billing</small><h3>InvoiceAdjustment</h3><p>Invoice adjustment requests.</p><a href="/billing/enterprise/invoiceAdjustment">Open workflow →</a></article><article class="card"><small>Billing</small><h3>RefundRequest</h3><p>Billing refund approvals.</p><a href="/billing/enterprise/refundRequest">Open workflow →</a></article><article class="card"><small>Billing</small><h3>InsuranceClaim</h3><p>Insurance claim lifecycle.</p><a href="/billing/enterprise/insuranceClaim">Open workflow →</a></article><article class="card"><small>Billing</small><h3>PaymentReconciliation</h3><p>Daily payment reconciliation.</p><a href="/billing/enterprise/paymentReconciliation">Open workflow →</a></article><article class="card"><small>Billing</small><h3>FinancialPeriod</h3><p>Financial period close controls.</p><a href="/billing/enterprise/financialPeriod">Open workflow →</a></article><article class="card"><small>Pharmacy</small><h3>PharmacyRecall</h3><p>Medicine recall tracking.</p><a href="/pharmacy/enterprise/pharmacyRecall">Open workflow →</a></article><article class="card"><small>Pharmacy</small><h3>PharmacyStocktake</h3><p>Pharmacy stocktake sessions.</p><a href="/pharmacy/enterprise/pharmacyStocktake">Open workflow →</a></article><article class="card"><small>Pharmacy</small><h3>ControlledMedicineRegister</h3><p>Controlled medicine register.</p><a href="/pharmacy/enterprise/controlledMedicineRegister">Open workflow →</a></article><article class="card"><small>Pharmacy</small><h3>SupplierContract</h3><p>Supplier contract tracking.</p><a href="/pharmacy/enterprise/supplierContract">Open workflow →</a></article><article class="card"><small>Pharmacy</small><h3>PurchaseApproval</h3><p>Purchase approval workflow.</p><a href="/pharmacy/enterprise/purchaseApproval">Open workflow →</a></article><article class="card"><small>Staff</small><h3>WardRound</h3><p>Ward round observations.</p><a href="/staff/enterprise/wardRound">Open workflow →</a></article><article class="card"><small>Staff</small><h3>NursingObservation</h3><p>Nursing observation chart.</p><a href="/staff/enterprise/nursingObservation">Open workflow →</a></article><article class="card"><small>Staff</small><h3>PatientTransfer</h3><p>Patient transfer workflow.</p><a href="/staff/enterprise/patientTransfer">Open workflow →</a></article><article class="card"><small>Staff</small><h3>DischargeChecklist</h3><p>Discharge readiness checklist.</p><a href="/staff/enterprise/dischargeChecklist">Open workflow →</a></article><article class="card"><small>Staff</small><h3>IncidentReport</h3><p>Clinical incident reporting.</p><a href="/staff/enterprise/incidentReport">Open workflow →</a></article><article class="card"><small>Admin</small><h3>StaffCredential</h3><p>Staff credential and expiry tracking.</p><a href="/admin/enterprise/staffCredential">Open workflow →</a></article><article class="card"><small>Admin</small><h3>AccessReview</h3><p>Periodic access review.</p><a href="/admin/enterprise/accessReview">Open workflow →</a></article><article class="card"><small>Admin</small><h3>DataRetentionPolicy</h3><p>Data retention policy management.</p><a href="/admin/enterprise/dataRetentionPolicy">Open workflow →</a></article><article class="card"><small>Admin</small><h3>BackupRun</h3><p>Backup execution history.</p><a href="/admin/enterprise/backupRun">Open workflow →</a></article><article class="card"><small>Admin</small><h3>ServiceRequest</h3><p>Internal IT/service request tracking.</p><a href="/admin/enterprise/serviceRequest">Open workflow →</a></article><article class="card"><small>Receptionist</small><h3>AppointmentWaitlist</h3><p>Appointment waitlist management.</p><a href="/receptionist/enterprise/appointmentWaitlist">Open workflow →</a></article><article class="card"><small>Doctor</small><h3>Referral</h3><p>Clinical referral tracking.</p><a href="/doctor/enterprise/referral">Open workflow →</a></article><article class="card"><small>Patient</small><h3>ConsentRecord</h3><p>Patient consent record management.</p><a href="/patient/enterprise/consentRecord">Open workflow →</a></article><article class="card"><small>Admin</small><h3>DocumentRegistry</h3><p>Medical document registry metadata.</p><a href="/admin/enterprise/documentRegistry">Open workflow →</a></article><article class="card"><small>Admin</small><h3>CommunicationLog</h3><p>Patient communication history.</p><a href="/admin/enterprise/communicationLog">Open workflow →</a></article></section></main></body></html>
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>CareFlow Enterprise Workflows</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            color: #243047;
+            margin: 0
+        }
+
+        .wrap {
+            max-width: 1400px;
+            margin: auto;
+            padding: 28px
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px
+        }
+
+        .card {
+            background: #fff;
+            padding: 20px;
+            border: 1px solid #e0e7f0;
+            border-radius: 14px
+        }
+
+        .card a {
+            color: #234b85;
+            font-weight: bold
+        }
+
+        header {
+            margin-bottom: 26px
+        }
+    </style>
+</head>
+
+<body>
+    <main class="wrap">
+        <header>
+            <p>CARE­FLOW / ENTERPRISE</p>
+            <h1>Clinical & Operational Workflows</h1>
+            <p>Central directory for the additional M3/M4 modules. Each module has a list, filters, lifecycle actions
+                and a creation form.</p>
+        </header>
+        <section class="grid">
+            <article class="card"><small>Laboratory</small>
+                <h3>LabOrder</h3>
+                <p>Laboratory order intake and status tracking.</p><a href="/laboratory/enterprise/labOrder">Open
+                    workflow →</a>
+            </article>
+            <article class="card"><small>Laboratory</small>
+                <h3>LabQualityControl</h3>
+                <p>Laboratory quality control checks.</p><a href="/laboratory/enterprise/labQualityControl">Open
+                    workflow →</a>
+            </article>
+            <article class="card"><small>Laboratory</small>
+                <h3>LabInstrument</h3>
+                <p>Laboratory instrument maintenance.</p><a href="/laboratory/enterprise/labInstrument">Open workflow
+                    →</a>
+            </article>
+            <article class="card"><small>Laboratory</small>
+                <h3>LabReagent</h3>
+                <p>Laboratory reagent inventory.</p><a href="/laboratory/enterprise/labReagent">Open workflow →</a>
+            </article>
+            <article class="card"><small>Laboratory</small>
+                <h3>LabResultReview</h3>
+                <p>Laboratory result review and authorization.</p><a href="/laboratory/enterprise/labResultReview">Open
+                    workflow →</a>
+            </article>
+            <article class="card"><small>Billing</small>
+                <h3>InvoiceAdjustment</h3>
+                <p>Invoice adjustment requests.</p><a href="/billing/enterprise/invoiceAdjustment">Open workflow →</a>
+            </article>
+            <article class="card"><small>Billing</small>
+                <h3>RefundRequest</h3>
+                <p>Billing refund approvals.</p><a href="/billing/enterprise/refundRequest">Open workflow →</a>
+            </article>
+            <article class="card"><small>Billing</small>
+                <h3>InsuranceClaim</h3>
+                <p>Insurance claim lifecycle.</p><a href="/billing/enterprise/insuranceClaim">Open workflow →</a>
+            </article>
+            <article class="card"><small>Billing</small>
+                <h3>PaymentReconciliation</h3>
+                <p>Daily payment reconciliation.</p><a href="/billing/enterprise/paymentReconciliation">Open workflow
+                    →</a>
+            </article>
+            <article class="card"><small>Billing</small>
+                <h3>FinancialPeriod</h3>
+                <p>Financial period close controls.</p><a href="/billing/enterprise/financialPeriod">Open workflow →</a>
+            </article>
+            <article class="card"><small>Pharmacy</small>
+                <h3>PharmacyRecall</h3>
+                <p>Medicine recall tracking.</p><a href="/pharmacy/enterprise/pharmacyRecall">Open workflow →</a>
+            </article>
+            <article class="card"><small>Pharmacy</small>
+                <h3>PharmacyStocktake</h3>
+                <p>Pharmacy stocktake sessions.</p><a href="/pharmacy/enterprise/pharmacyStocktake">Open workflow →</a>
+            </article>
+            <article class="card"><small>Pharmacy</small>
+                <h3>ControlledMedicineRegister</h3>
+                <p>Controlled medicine register.</p><a href="/pharmacy/enterprise/controlledMedicineRegister">Open
+                    workflow →</a>
+            </article>
+            <article class="card"><small>Pharmacy</small>
+                <h3>SupplierContract</h3>
+                <p>Supplier contract tracking.</p><a href="/pharmacy/enterprise/supplierContract">Open workflow →</a>
+            </article>
+            <article class="card"><small>Pharmacy</small>
+                <h3>PurchaseApproval</h3>
+                <p>Purchase approval workflow.</p><a href="/pharmacy/enterprise/purchaseApproval">Open workflow →</a>
+            </article>
+            <article class="card"><small>Staff</small>
+                <h3>WardRound</h3>
+                <p>Ward round observations.</p><a href="/staff/enterprise/wardRound">Open workflow →</a>
+            </article>
+            <article class="card"><small>Staff</small>
+                <h3>NursingObservation</h3>
+                <p>Nursing observation chart.</p><a href="/staff/enterprise/nursingObservation">Open workflow →</a>
+            </article>
+            <article class="card"><small>Staff</small>
+                <h3>PatientTransfer</h3>
+                <p>Patient transfer workflow.</p><a href="/staff/enterprise/patientTransfer">Open workflow →</a>
+            </article>
+            <article class="card"><small>Staff</small>
+                <h3>DischargeChecklist</h3>
+                <p>Discharge readiness checklist.</p><a href="/staff/enterprise/dischargeChecklist">Open workflow →</a>
+            </article>
+            <article class="card"><small>Staff</small>
+                <h3>IncidentReport</h3>
+                <p>Clinical incident reporting.</p><a href="/staff/enterprise/incidentReport">Open workflow →</a>
+            </article>
+            <article class="card"><small>Admin</small>
+                <h3>StaffCredential</h3>
+                <p>Staff credential and expiry tracking.</p><a href="/admin/enterprise/staffCredential">Open workflow
+                    →</a>
+            </article>
+            <article class="card"><small>Admin</small>
+                <h3>AccessReview</h3>
+                <p>Periodic access review.</p><a href="/admin/enterprise/accessReview">Open workflow →</a>
+            </article>
+            <article class="card"><small>Admin</small>
+                <h3>DataRetentionPolicy</h3>
+                <p>Data retention policy management.</p><a href="/admin/enterprise/dataRetentionPolicy">Open workflow
+                    →</a>
+            </article>
+            <article class="card"><small>Admin</small>
+                <h3>BackupRun</h3>
+                <p>Backup execution history.</p><a href="/admin/enterprise/backupRun">Open workflow →</a>
+            </article>
+            <article class="card"><small>Admin</small>
+                <h3>ServiceRequest</h3>
+                <p>Internal IT/service request tracking.</p><a href="/admin/enterprise/serviceRequest">Open workflow
+                    →</a>
+            </article>
+            <article class="card"><small>Receptionist</small>
+                <h3>AppointmentWaitlist</h3>
+                <p>Appointment waitlist management.</p><a href="/receptionist/enterprise/appointmentWaitlist">Open
+                    workflow →</a>
+            </article>
+            <article class="card"><small>Doctor</small>
+                <h3>Referral</h3>
+                <p>Clinical referral tracking.</p><a href="/doctor/enterprise/referral">Open workflow →</a>
+            </article>
+            <article class="card"><small>Patient</small>
+                <h3>ConsentRecord</h3>
+                <p>Patient consent record management.</p><a href="/patient/enterprise/consentRecord">Open workflow →</a>
+            </article>
+            <article class="card"><small>Admin</small>
+                <h3>DocumentRegistry</h3>
+                <p>Medical document registry metadata.</p><a href="/admin/enterprise/documentRegistry">Open workflow
+                    →</a>
+            </article>
+            <article class="card"><small>Admin</small>
+                <h3>CommunicationLog</h3>
+                <p>Patient communication history.</p><a href="/admin/enterprise/communicationLog">Open workflow →</a>
+            </article>
+        </section>
+    </main>
+</body>
+
+</html>
