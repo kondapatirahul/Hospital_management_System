@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Create Purchase Order')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('pharmacy-purchases')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Create Purchase Order', 'Generate and authorize wholesale procurement orders for medications')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <div class="card" style="max-width: 950px; margin: 0 auto;">
+                <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 class="card-title">New Purchase Order</h3>
+                    <a th:href="@{/pharmacy/purchases}" class="btn btn-outline btn-sm">&larr; Back to Orders</a>
+                </div>
+
+                <div class="card-body">
+                    <form th:action="@{/pharmacy/purchases/save}" th:object="${poDto}" method="post">
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
+                            <div class="form-group">
+                                <label class="form-label" for="poNumber">PO Number (Auto-assigned)</label>
+                                <input type="text" id="poNumber" th:field="*{poNumber}" class="form-control" readonly />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="supplierId">Target Supplier / Wholesaler *</label>
+                                <select id="supplierId" th:field="*{supplierId}" class="form-control" required>
+                                    <option value="">-- Select Approved Supplier --</option>
+                                    <option th:each="s : ${suppliers}" th:value="${s.id}"
+                                            th:text="${s.name + ' (' + s.supplierCode + ' - ' + s.paymentTerms + ')'}">Apex Pharma</option>
+                                </select>
+                                <div class="text-danger" style="font-size:0.8rem; color:var(--danger);" th:if="${#fields.hasErrors('supplierId')}" th:errors="*{supplierId}"></div>
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
+                            <div class="form-group">
+                                <label class="form-label" for="orderDate">Order Placement Date *</label>
+                                <input type="date" id="orderDate" th:field="*{orderDate}" class="form-control" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="expectedDeliveryDate">Expected Delivery Date</label>
+                                <input type="date" id="expectedDeliveryDate" th:field="*{expectedDeliveryDate}" class="form-control" />
+                            </div>
+                        </div>
+
+                        <!-- PO Items Line Table -->
+                        <div style="margin-top:24px; margin-bottom:24px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                                <h4 style="margin:0; font-size:1.1rem; color:var(--primary-navy);">Order Line Items</h4>
+                                <button type="button" id="addPoItemRowBtn" class="btn btn-outline btn-sm">➕ Add Line Item</button>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="data-table" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:45%;">Formulary Medication *</th>
+                                            <th style="width:20%;">Ordered Qty *</th>
+                                            <th style="width:20%;">Estimated Cost ($) *</th>
+                                            <th style="width:15%; text-align:right;">Subtotal</th>
+                                            <th style="width:40px;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="poItemsTableBody">
+                                        <tr th:each="item, iter : *{items}">
+                                            <td>
+                                                <select th:name="${'items[' + iter.index + '].medicineId'}" class="form-control po-medicine-select" required>
+                                                    <option value="">-- Choose Medicine --</option>
+                                                    <option th:each="m : ${medicines}" th:value="${m.id}"
+                                                            th:data-cost="${m.purchasePrice}"
+                                                            th:text="${m.name + ' (' + m.dosageForm + ' ' + m.strength + ')'}">Medicine</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="number" th:name="${'items[' + iter.index + '].orderedQuantity'}"
+                                                       class="form-control po-qty-input" min="1" value="10" required />
+                                            </td>
+                                            <td>
+                                                <input type="number" step="0.01" th:name="${'items[' + iter.index + '].unitCost'}"
+                                                       class="form-control po-cost-input" min="0" value="0.00" required />
+                                            </td>
+                                            <td class="po-row-subtotal font-semibold text-right">$0.00</td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-outline btn-sm remove-row-btn" style="color:var(--danger);">✕</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="3" style="text-align:right; font-weight:700; padding:12px;">Total Order Estimated Value:</td>
+                                            <td id="poGrandTotal" style="text-align:right; font-weight:800; font-size:1.2rem; color:var(--accent-teal);">$0.00</td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:24px;">
+                            <label class="form-label" for="remarks">Order Remarks & Special Shipping Instructions</label>
+                            <textarea id="remarks" th:field="*{remarks}" class="form-control" rows="2"
+                                      placeholder="Cold-chain handling required, delivery window 8am - 4pm..."></textarea>
+                        </div>
+
+                        <div style="display:flex; justify-content:flex-end; gap:12px;">
+                            <a th:href="@{/pharmacy/purchases}" class="btn btn-outline">Cancel</a>
+                            <button type="submit" class="btn btn-teal">Authorize & Issue PO</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Template for JavaScript Row Cloning -->
+<template id="medicineSelectTemplate">
+    <option value="">-- Choose Medicine --</option>
+    <option th:each="m : ${medicines}" th:value="${m.id}"
+            th:data-cost="${m.purchasePrice}"
+            th:text="${m.name + ' (' + m.dosageForm + ' ' + m.strength + ')'}">Medicine</option>
+</template>
+
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/pharmacy.js}"></script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Dispense Prescription')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('pharmacy-prescriptions')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Prescription Dispensing Workspace', 'Verify physician orders, select eligible FEFO batches, and execute concurrency-safe dispensing')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Doctor Prescription Card (Preserved Doctor Orders) -->
+            <div class="dispense-card">
+                <div class="dispense-banner">
+                    <div>
+                        <div style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:#99f6e4;">Doctor's Original Prescription</div>
+                        <h2 style="font-size:1.4rem; font-weight:700; margin-top:2px; color:#fff;" th:text="${prescription.medicationName}">Augmentin 625mg</h2>
+                    </div>
+                    <div style="text-align:right;">
+                        <span class="badge"
+                              th:classappend="${prescription.dispenseStatus == 'DISPENSED' ? 'badge-success' : (prescription.dispenseStatus == 'PARTIALLY_DISPENSED' ? 'badge-warning' : 'badge-danger')}"
+                              style="font-size:0.9rem; padding:6px 12px;"
+                              th:text="${prescription.dispenseStatus}">PENDING</span>
+                        <div style="font-size:0.75rem; color:#cbd5e1; margin-top:4px;" th:text="${'Prescribed on ' + #temporals.format(prescription.prescriptionDate, 'MMM d, yyyy')}">Date</div>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom:16px;">
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; display:block;">Patient</span>
+                        <strong th:text="${prescription.patient.fullName}">Sarah Jenkins</strong>
+                        <div style="font-size:0.8rem; color:var(--text-secondary);" th:text="${prescription.patient.patientId}">PAT-0001</div>
+                    </div>
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; display:block;">Prescribing Physician</span>
+                        <strong th:text="${'Dr. ' + prescription.doctor.fullName}">Dr. Alexander Wright</strong>
+                        <div style="font-size:0.8rem; color:var(--text-secondary);" th:text="${prescription.doctor.qualification}">Cardiologist</div>
+                    </div>
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; display:block;">Dosage & Frequency</span>
+                        <strong th:text="${prescription.dosage}">625 mg</strong>, <span th:text="${prescription.frequency}">Twice daily</span>
+                    </div>
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; display:block;">Duration</span>
+                        <span th:text="${prescription.duration != null ? prescription.duration : 'As directed'}">7 days</span>
+                    </div>
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; display:block;">Prescribed Total</span>
+                        <strong style="font-size:1.1rem;" th:text="${prescription.prescribedQuantity}">14</strong>
+                    </div>
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; display:block;">Already Dispensed</span>
+                        <strong style="font-size:1.1rem; color:var(--text-secondary);" th:text="${prescription.dispensedQuantity}">0</strong>
+                    </div>
+                    <div>
+                        <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; display:block;">Remaining to Dispense</span>
+                        <strong id="prescribedRemainingQty"
+                                th:data-remaining="${prescription.getRemainingQuantity()}"
+                                style="font-size:1.2rem; color:var(--danger);"
+                                th:text="${prescription.getRemainingQuantity()}">14</strong>
+                    </div>
+                </div>
+
+                <div th:if="${prescription.instructions}" style="background:#f8fafc; padding:12px 16px; border-radius:var(--radius-sm); border-left:4px solid var(--accent-teal);">
+                    <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--text-secondary);">Physician Instructions for Patient:</span>
+                    <p style="margin-top:2px; font-size:0.9rem;" th:text="${prescription.instructions}">Instructions</p>
+                </div>
+            </div>
+
+            <!-- Fully Dispensed Notice -->
+            <div th:if="${prescription.isFullyDispensed()}" class="alert alert-success" style="margin-bottom:24px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <div>
+                    <strong>This prescription has been fully dispensed.</strong> No further items are pending.
+                    Duplicate dispensing is restricted.
+                </div>
+            </div>
+
+            <!-- Dispense Execution Form (Only visible if remaining > 0) -->
+            <div th:if="${!prescription.isFullyDispensed()}" class="card">
+                <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h3 class="card-title">FEFO Batch Stock Allocation</h3>
+                        <p style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">
+                            Select eligible batches to dispense. Batches are sorted with earliest expiration date first.
+                        </p>
+                    </div>
+                    <button type="button" id="autoAllocFefoBtn" class="btn btn-teal btn-sm">
+                        ⚡ Auto-Allocate FEFO Batches
+                    </button>
+                </div>
+
+                <div class="card-body">
+                    <form th:action="@{/pharmacy/prescriptions/{id}/dispense(id=${prescription.id})}" th:object="${dispenseDto}" method="post">
+                        <input type="hidden" th:field="*{prescriptionId}" />
+
+                        <!-- Medicine Selector (Matching or Alternative) -->
+                        <div class="form-group" style="margin-bottom:20px;">
+                            <label class="form-label" for="medicineId">Dispensed Formulary Medicine *</label>
+                            <select id="medicineId" th:field="*{medicineId}" class="form-control" required
+                                    onchange="location.href='?medicineId=' + this.value;">
+                                <option th:each="m : ${medicines}" th:value="${m.id}"
+                                        th:text="${m.name + ' (' + m.medicineCode + ') - Available Stock: ' + m.totalStock}"
+                                        th:selected="${selectedMedicine != null and selectedMedicine.id == m.id}">Augmentin</option>
+                            </select>
+                        </div>
+
+                        <!-- Available Batches Table -->
+                        <div class="table-responsive" style="margin-bottom:20px;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>FEFO Priority</th>
+                                        <th>Batch Number</th>
+                                        <th>Expiry Date</th>
+                                        <th>Available Qty</th>
+                                        <th>Unit Price</th>
+                                        <th style="width:160px;">Quantity to Dispense</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="b, iter : ${eligibleBatches}">
+                                        <td>
+                                            <span th:if="${iter.index == 0}" class="fefo-badge">⭐ 1st Priority</span>
+                                            <span th:if="${iter.index > 0}" style="font-size:0.85rem; color:var(--text-muted);" th:text="${'#' + (iter.index + 1)}">#2</span>
+                                            <input type="hidden" th:name="${'allocations[' + iter.index + '].batchId'}" th:value="${b.id}" />
+                                        </td>
+                                        <td style="font-family:monospace; font-weight:700;" th:text="${b.batchNumber}">BAT-001</td>
+                                        <td>
+                                            <span th:text="${#temporals.format(b.expiryDate, 'MMM d, yyyy')}">Dec 31, 2026</span>
+                                            <div style="font-size:0.75rem; color:var(--text-muted);" th:text="${b.getDaysUntilExpiry() + ' days left'}">30 days</div>
+                                        </td>
+                                        <td>
+                                            <strong th:text="${b.currentQuantity}">45</strong>
+                                        </td>
+                                        <td th:text="${'$' + #numbers.formatDecimal(b.unitPrice, 1, 2)}">$18.50</td>
+                                        <td>
+                                            <input type="number"
+                                                   th:name="${'allocations[' + iter.index + '].quantity'}"
+                                                   class="form-control batch-dispense-input"
+                                                   min="0"
+                                                   th:max="${b.currentQuantity}"
+                                                   th:data-price="${b.unitPrice}"
+                                                   value="0"
+                                                   placeholder="0" />
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(eligibleBatches)}">
+                                        <td colspan="6" style="text-align:center; padding:30px; color:var(--danger); font-weight:600;">
+                                            ⚠️ No eligible, unexpired batches with stock are available for this medicine.
+                                            Please stock in new batches or order replenishment via Purchase Orders.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Summary & Remarks -->
+                        <div style="background:#f8fafc; border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                            <div>
+                                <span style="font-size:0.85rem; color:var(--text-muted); display:block;">Dispense Summary</span>
+                                <div>
+                                    Total Units Selected: <strong id="summaryTotalUnits" style="font-size:1.2rem; color:var(--primary-blue);">0</strong> |
+                                    Estimated Amount: <strong id="summaryTotalCost" style="font-size:1.2rem; color:var(--accent-teal);">$0.00</strong>
+                                </div>
+                            </div>
+                            <div style="font-size:0.85rem; color:var(--text-muted);">
+                                Partial dispensing is supported. Unfulfilled balance will remain pending in the queue.
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:24px;">
+                            <label class="form-label" for="remarks">Pharmacist Dispensing Remarks / Patient Advisory</label>
+                            <input type="text" id="remarks" th:field="*{remarks}" class="form-control"
+                                   placeholder="e.g. Dispensed 10 of 14 units due to batch availability. Advised to take with breakfast." />
+                        </div>
+
+                        <div style="display:flex; justify-content:flex-end; gap:12px;">
+                            <a th:href="@{/pharmacy/prescriptions}" class="btn btn-outline">Cancel</a>
+                            <button type="submit" class="btn btn-teal" th:disabled="${#lists.isEmpty(eligibleBatches)}">
+                                Confirm & Dispense Stock
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Past Dispensation History for This Prescription -->
+            <div class="card" th:if="${!#lists.isEmpty(pastDispensations)}" style="margin-top:24px;">
+                <div class="card-header">
+                    <h3 class="card-title">Dispensation History for this Prescription</h3>
+                </div>
+                <div class="card-body" style="padding:0;">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Token / Receipt</th>
+                                    <th>Dispensation Date</th>
+                                    <th>Dispensed By</th>
+                                    <th>Units</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="disp : ${pastDispensations}">
+                                    <td style="font-family:monospace; font-weight:700;" th:text="${disp.dispensationNumber}">DISP-001</td>
+                                    <td th:text="${#temporals.format(disp.dispensationDate, 'MMM d, yyyy HH:mm')}">Date</td>
+                                    <td th:text="${disp.dispensedBy}">Pharmacist</td>
+                                    <td style="font-weight:700;" th:text="${disp.totalQuantity}">10</td>
+                                    <td th:text="${'$' + #numbers.formatDecimal(disp.totalAmount, 1, 2)}">$185.00</td>
+                                    <td>
+                                        <span class="badge badge-success" th:text="${disp.status}">COMPLETED</span>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/pharmacy/dispensations/{id}(id=${disp.id})}" class="btn btn-outline btn-sm">View Receipt &rarr;</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/pharmacy.js}"></script>
+</body>
+</html>

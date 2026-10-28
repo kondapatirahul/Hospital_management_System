@@ -4,5 +4,6 @@ public enum RoleType {
     ROLE_PATIENT,
     ROLE_RECEPTIONIST,
     ROLE_DOCTOR,
-    ROLE_ADMIN
+    ROLE_ADMIN,
+    ROLE_PHARMACIST
 }

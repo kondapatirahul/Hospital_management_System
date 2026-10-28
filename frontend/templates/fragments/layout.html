@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${pageTitle != null ? pageTitle + ' - CareFlow HMS' : 'CareFlow Healthcare Management'}">CareFlow HMS</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/pharmacy.css}">
 </head>
 <body>
 
@@ -28,6 +29,7 @@
         <span sec:authorize="hasRole('PATIENT')">👤 PATIENT PORTAL</span>
         <span sec:authorize="hasRole('RECEPTIONIST')">📋 RECEPTION DESK</span>
         <span sec:authorize="hasRole('DOCTOR')">👨‍⚕️ DOCTOR PORTAL</span>
+        <span sec:authorize="hasAnyRole('PHARMACIST', 'ADMIN')">💊 PHARMACY DISPENSARY</span>
     </div>
 
     <nav class="sidebar-nav">
@@ -194,6 +196,93 @@
                 </li>
             </ul>
         </div>
+
+        <!-- PHARMACY NAVIGATION (M3) -->
+        <div sec:authorize="hasAnyRole('PHARMACIST', 'ADMIN')">
+            <div class="nav-section-title">Pharmacy Operations</div>
+            <ul class="nav-list">
+                <li class="nav-item" th:classappend="${activeNav == 'pharmacy-dashboard' ? 'active' : ''}">
+                    <a th:href="@{/pharmacy/dashboard}">
+                        <span class="nav-icon">📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'pharmacy-prescriptions' ? 'active' : ''}">
+                    <a th:href="@{/pharmacy/prescriptions}">
+                        <span class="nav-icon">📋</span>
+                        <span>Prescription Queue</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'pharmacy-dispensations' ? 'active' : ''}">
+                    <a th:href="@{/pharmacy/dispensations}">
+                        <span class="nav-icon">💊</span>
+                        <span>Dispensing History</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-section-title">Inventory & Stock</div>
+            <ul class="nav-list">
+                <li class="nav-item" th:classappend="${activeNav == 'pharmacy-medicines' ? 'active' : ''}">
+                    <a th:href="@{/pharmacy/medicines}">
+                        <span class="nav-icon">📦</span>
+                        <span>Medicine Inventory</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'pharmacy-batches' ? 'active' : ''}">
+                    <a th:href="@{/pharmacy/batches}">
+                        <span class="nav-icon">🏷️</span>
+                        <span>Batch Management</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'pharmacy-stock-in' ? 'active' : ''}">
+                    <a th:href="@{/pharmacy/stock/in}">
+                        <span class="nav-icon">📥</span>
+                        <span>Stock-In Receipt</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'pharmacy-stock-adjust' ? 'active' : ''}">
+                    <a th:href="@{/pharmacy/stock/adjust}">
+                        <span class="nav-icon">⚖️</span>
+                        <span>Stock Adjustment</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'pharmacy-alerts' ? 'active' : ''}">
+                    <a th:href="@{/pharmacy/alerts/expiry}">
+                        <span class="nav-icon">⚠️</span>
+                        <span>Expiry Alerts</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-section-title">Procurement & Reports</div>
+            <ul class="nav-list">
+                <li class="nav-item" th:classappend="${activeNav == 'pharmacy-suppliers' ? 'active' : ''}">
+                    <a th:href="@{/pharmacy/suppliers}">
+                        <span class="nav-icon">🏢</span>
+                        <span>Suppliers</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'pharmacy-purchases' ? 'active' : ''}">
+                    <a th:href="@{/pharmacy/purchases}">
+                        <span class="nav-icon">🛒</span>
+                        <span>Purchase Orders</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'pharmacy-reports' ? 'active' : ''}">
+                    <a th:href="@{/pharmacy/reports}">
+                        <span class="nav-icon">📈</span>
+                        <span>Reports & Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'pharmacy-audit' ? 'active' : ''}">
+                    <a th:href="@{/pharmacy/audit-logs}">
+                        <span class="nav-icon">🛡️</span>
+                        <span>Audit Trail</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
     </nav>
 
     <!-- Sidebar Bottom User Status -->
@@ -205,6 +294,7 @@
                 <div class="role-label" sec:authorize="hasRole('PATIENT')" th:text="${currentPatient != null ? currentPatient.patientId : 'Patient'}">PAT-0000</div>
                 <div class="role-label" sec:authorize="hasRole('RECEPTIONIST')">Hospital Receptionist</div>
                 <div class="role-label" sec:authorize="hasRole('DOCTOR')" th:text="${currentDoctor != null ? currentDoctor.qualification : 'Doctor'}">Doctor</div>
+                <div class="role-label" sec:authorize="hasAnyRole('PHARMACIST', 'ADMIN')">Hospital Pharmacist</div>
             </div>
         </div>
     </div>

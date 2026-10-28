@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Prescription Queue')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('pharmacy-prescriptions')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Doctor Prescriptions Queue', 'Active orders prescribed by physicians awaiting pharmacy verification and dispensing')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Filter Bar -->
+            <div class="quick-filter-bar">
+                <form th:action="@{/pharmacy/prescriptions}" method="get" style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; flex:1;">
+                    <div class="search-input-group">
+                        <input type="text" name="query" class="form-control" placeholder="Search by patient name, patient ID, medication, doctor..."
+                               th:value="${query}" />
+                    </div>
+
+                    <select name="status" class="form-control" style="width:200px;">
+                        <option value="ALL" th:selected="${selectedStatus == 'ALL'}">All Statuses</option>
+                        <option value="PENDING" th:selected="${selectedStatus == 'PENDING'}">Pending Dispense</option>
+                        <option value="PARTIALLY_DISPENSED" th:selected="${selectedStatus == 'PARTIALLY_DISPENSED'}">Partially Dispensed</option>
+                        <option value="DISPENSED" th:selected="${selectedStatus == 'DISPENSED'}">Fully Dispensed</option>
+                    </select>
+
+                    <button type="submit" class="btn btn-primary">Filter Queue</button>
+                    <a th:href="@{/pharmacy/prescriptions}" class="btn btn-outline">Reset</a>
+                </form>
+
+                <div>
+                    <a th:href="@{/pharmacy/dispensations}" class="btn btn-outline">💊 View Past Dispensations</a>
+                </div>
+            </div>
+
+            <!-- Prescriptions Table -->
+            <div class="card">
+                <div class="card-body" style="padding:0;">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Rx ID</th>
+                                    <th>Prescribed Date</th>
+                                    <th>Patient Details</th>
+                                    <th>Attending Physician</th>
+                                    <th>Medication & Strength</th>
+                                    <th>Dosage & Frequency</th>
+                                    <th>Prescribed Qty</th>
+                                    <th>Dispensed Qty</th>
+                                    <th>Remaining</th>
+                                    <th>Dispense Status</th>
+                                    <th style="text-align:right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="rx : ${prescriptionsPage.content}">
+                                    <td style="font-family:monospace; font-weight:700;" th:text="${'#' + rx.id}">#101</td>
+                                    <td th:text="${#temporals.format(rx.prescriptionDate, 'MMM d, yyyy')}">Oct 28, 2026</td>
+                                    <td>
+                                        <strong th:text="${rx.patient.fullName}">Sarah Jenkins</strong>
+                                        <div style="font-size:0.75rem; color:var(--text-muted);" th:text="${rx.patient.patientId + ' (' + rx.patient.gender + ', ' + rx.patient.bloodGroup + ')'}">PAT-0001</div>
+                                    </td>
+                                    <td>
+                                        <strong th:text="${'Dr. ' + rx.doctor.fullName}">Dr. Alexander Wright</strong>
+                                        <div style="font-size:0.75rem; color:var(--text-muted);" th:text="${rx.doctor.qualification}">Cardiology</div>
+                                    </td>
+                                    <td>
+                                        <strong style="color:var(--primary-blue);" th:text="${rx.medicationName}">Augmentin 625mg</strong>
+                                    </td>
+                                    <td>
+                                        <span th:text="${rx.dosage}">625mg</span>,
+                                        <span style="font-size:0.8rem; color:var(--text-secondary);" th:text="${rx.frequency}">Twice daily</span>
+                                        <div style="font-size:0.75rem; color:var(--text-muted);" th:if="${rx.duration}" th:text="${'Duration: ' + rx.duration}">7 days</div>
+                                    </td>
+                                    <td style="font-weight:700;" th:text="${rx.prescribedQuantity}">14</td>
+                                    <td th:text="${rx.dispensedQuantity}">0</td>
+                                    <td>
+                                        <span style="font-weight:700;"
+                                              th:style="${rx.getRemainingQuantity() > 0 ? 'color:var(--danger);' : 'color:var(--success);'}"
+                                              th:text="${rx.getRemainingQuantity()}">14</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge"
+                                              th:classappend="${rx.dispenseStatus == 'DISPENSED' ? 'badge-success' : (rx.dispenseStatus == 'PARTIALLY_DISPENSED' ? 'badge-warning' : 'badge-danger')}"
+                                              th:text="${rx.dispenseStatus}">PENDING</span>
+                                    </td>
+                                    <td style="text-align:right;">
+                                        <a th:href="@{/pharmacy/prescriptions/{id}(id=${rx.id})}"
+                                           class="btn btn-sm"
+                                           th:classappend="${rx.isFullyDispensed() ? 'btn-outline' : 'btn-teal'}">
+                                            <span th:text="${rx.isFullyDispensed() ? 'View Details' : 'Dispense &rarr;'}">Dispense &rarr;</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${prescriptionsPage.totalElements == 0}">
+                                    <td colspan="11" style="text-align:center; padding:35px; color:var(--text-muted);">
+                                        No prescriptions found matching your query.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="card-footer" th:if="${prescriptionsPage.totalPages > 1}"
+                     style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px;">
+                    <div style="color:var(--text-muted); font-size:0.875rem;">
+                        Page <span th:text="${prescriptionsPage.number + 1}">1</span> of <span th:text="${prescriptionsPage.totalPages}">5</span>
+                    </div>
+                    <div style="display:flex; gap:6px;">
+                        <a th:if="${prescriptionsPage.hasPrevious()}"
+                           th:href="@{/pharmacy/prescriptions(page=${prescriptionsPage.number - 1}, query=${query}, status=${selectedStatus})}"
+                           class="btn btn-outline btn-sm">&larr; Previous</a>
+                        <a th:if="${prescriptionsPage.hasNext()}"
+                           th:href="@{/pharmacy/prescriptions(page=${prescriptionsPage.number + 1}, query=${query}, status=${selectedStatus})}"
+                           class="btn btn-outline btn-sm">Next &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/pharmacy.js}"></script>
+</body>
+</html>

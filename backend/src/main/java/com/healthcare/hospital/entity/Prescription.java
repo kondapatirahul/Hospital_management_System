@@ -49,6 +49,15 @@ public class Prescription {
     @Column(length = 30)
     private String status = "Active"; // Active, Completed
 
+    @Column(name = "prescribed_quantity")
+    private Integer prescribedQuantity = 10;
+
+    @Column(name = "dispensed_quantity")
+    private Integer dispensedQuantity = 0;
+
+    @Column(name = "dispense_status", length = 30)
+    private String dispenseStatus = "PENDING"; // PENDING, PARTIALLY_DISPENSED, DISPENSED
+
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -65,6 +74,9 @@ public class Prescription {
         this.duration = duration;
         this.instructions = instructions;
         this.status = status != null ? status : "Active";
+        this.prescribedQuantity = calculateDefaultQuantity(duration, frequency);
+        this.dispensedQuantity = 0;
+        this.dispenseStatus = "PENDING";
         this.createdAt = LocalDateTime.now();
     }
 
@@ -80,7 +92,32 @@ public class Prescription {
         this.duration = duration;
         this.instructions = instructions;
         this.status = status != null ? status : "Active";
+        this.prescribedQuantity = calculateDefaultQuantity(duration, frequency);
+        this.dispensedQuantity = 0;
+        this.dispenseStatus = "PENDING";
         this.createdAt = LocalDateTime.now();
+    }
+
+    private int calculateDefaultQuantity(String duration, String frequency) {
+        // Sensible default based on duration if parseable
+        if (duration != null && duration.toLowerCase().contains("day")) {
+            String digits = duration.replaceAll("\\D+", "");
+            if (!digits.isEmpty()) {
+                try {
+                    int days = Integer.parseInt(digits);
+                    int perDay = 1;
+                    if (frequency != null) {
+                        String freqLower = frequency.toLowerCase();
+                        if (freqLower.contains("twice") || freqLower.contains("2 times") || freqLower.contains("bid")) perDay = 2;
+                        else if (freqLower.contains("three") || freqLower.contains("3 times") || freqLower.contains("tid")) perDay = 3;
+                        else if (freqLower.contains("four") || freqLower.contains("4 times") || freqLower.contains("qid")) perDay = 4;
+                    }
+                    return Math.max(1, days * perDay);
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+        return 10;
     }
 
     public Long getId() {
@@ -177,6 +214,38 @@ public class Prescription {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Integer getPrescribedQuantity() {
+        return prescribedQuantity != null ? prescribedQuantity : 10;
+    }
+
+    public void setPrescribedQuantity(Integer prescribedQuantity) {
+        this.prescribedQuantity = prescribedQuantity;
+    }
+
+    public Integer getDispensedQuantity() {
+        return dispensedQuantity != null ? dispensedQuantity : 0;
+    }
+
+    public void setDispensedQuantity(Integer dispensedQuantity) {
+        this.dispensedQuantity = dispensedQuantity;
+    }
+
+    public String getDispenseStatus() {
+        return dispenseStatus != null ? dispenseStatus : "PENDING";
+    }
+
+    public void setDispenseStatus(String dispenseStatus) {
+        this.dispenseStatus = dispenseStatus;
+    }
+
+    public int getRemainingQuantity() {
+        return Math.max(0, getPrescribedQuantity() - getDispensedQuantity());
+    }
+
+    public boolean isFullyDispensed() {
+        return getRemainingQuantity() == 0 || "DISPENSED".equalsIgnoreCase(dispenseStatus);
     }
 
     public LocalDateTime getCreatedAt() {

@@ -1,0 +1,12 @@
+package com.healthcare.hospital.enums;
+
+public enum StockAdjustmentReason {
+    INVENTORY_COUNT_CORRECTION,
+    DAMAGED_IN_STORAGE,
+    EXPIRED_STOCK_REMOVAL,
+    RETURN_TO_SUPPLIER,
+    PATIENT_RETURN,
+    SPILLAGE_OR_BREAKAGE,
+    THEFT_OR_SHRINKAGE,
+    AUDIT_RECONCILIATION
+}

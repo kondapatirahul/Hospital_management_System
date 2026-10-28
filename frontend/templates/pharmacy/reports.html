@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Pharmacy Reports')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('pharmacy-reports')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Pharmacy Reports & Analytics', 'Comprehensive database-driven reports for inventory valuation, stock movement, and dispensing summaries')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Tab Navigation Header -->
+            <div class="tab-nav no-print">
+                <a th:href="@{/pharmacy/reports(tab='inventory')}" class="tab-btn" th:classappend="${activeTab == 'inventory' ? 'active' : ''}">
+                    📦 Current Inventory
+                </a>
+                <a th:href="@{/pharmacy/reports(tab='low-stock')}" class="tab-btn" th:classappend="${activeTab == 'low-stock' ? 'active' : ''}">
+                    ⚠️ Low & Out of Stock
+                </a>
+                <a th:href="@{/pharmacy/reports(tab='movement', startDate=${startDate}, endDate=${endDate})}" class="tab-btn" th:classappend="${activeTab == 'movement' ? 'active' : ''}">
+                    🔄 Stock Movement
+                </a>
+                <a th:href="@{/pharmacy/reports(tab='dispensing', startDate=${startDate}, endDate=${endDate})}" class="tab-btn" th:classappend="${activeTab == 'dispensing' ? 'active' : ''}">
+                    💊 Dispensing Summary
+                </a>
+                <a th:href="@{/pharmacy/reports(tab='purchases', startDate=${startDate}, endDate=${endDate})}" class="tab-btn" th:classappend="${activeTab == 'purchases' ? 'active' : ''}">
+                    🏢 Supplier Purchases
+                </a>
+            </div>
+
+            <!-- Date Range Filter & Actions Bar -->
+            <div class="quick-filter-bar no-print" th:if="${activeTab != 'inventory' and activeTab != 'low-stock'}">
+                <form th:action="@{/pharmacy/reports}" method="get" style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; flex:1;">
+                    <input type="hidden" name="tab" th:value="${activeTab}" />
+
+                    <label style="font-weight:600; font-size:0.85rem;">Date Range:</label>
+                    <input type="date" name="startDate" class="form-control" style="width:160px;" th:value="${startDate}" />
+                    <span>to</span>
+                    <input type="date" name="endDate" class="form-control" style="width:160px;" th:value="${endDate}" />
+
+                    <div th:if="${activeTab == 'purchases'}" style="display:inline-block;">
+                        <select name="supplierId" class="form-control" style="width:200px;">
+                            <option value="">All Suppliers</option>
+                            <option th:each="s : ${suppliers}" th:value="${s.id}" th:text="${s.name}" th:selected="${selectedSupplierId == s.id}">Apex Pharma</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Generate Report</button>
+                </form>
+
+                <div style="display:flex; gap:10px;">
+                    <button type="button" class="btn btn-outline btn-print">🖨️ Print Report</button>
+                    <a th:if="${activeTab == 'movement'}" th:href="@{/pharmacy/reports/movement/export(startDate=${startDate}, endDate=${endDate})}" class="btn btn-teal">💾 Export CSV</a>
+                    <a th:if="${activeTab == 'dispensing'}" th:href="@{/pharmacy/reports/dispensations/export(startDate=${startDate}, endDate=${endDate})}" class="btn btn-teal">💾 Export CSV</a>
+                </div>
+            </div>
+
+            <!-- TAB 1: Current Inventory Valuation -->
+            <div class="card" th:if="${activeTab == 'inventory'}">
+                <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h3 class="card-title">Full Formulary Inventory Status</h3>
+                        <p style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">Real-time stock valuation and replenishment parameters</p>
+                    </div>
+                    <div style="display:flex; gap:10px;" class="no-print">
+                        <button type="button" class="btn btn-outline btn-print">🖨️ Print</button>
+                        <a th:href="@{/pharmacy/reports/inventory/export}" class="btn btn-teal">💾 Download CSV</a>
+                    </div>
+                </div>
+
+                <div class="card-body" style="padding:0;">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Medication Name</th>
+                                    <th>Generic Name</th>
+                                    <th>Category</th>
+                                    <th>Form & Strength</th>
+                                    <th>Reorder Lvl</th>
+                                    <th>Available Qty</th>
+                                    <th>Unit Price</th>
+                                    <th>Purchase Cost</th>
+                                    <th>Total Valuation</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="m : ${inventoryList}">
+                                    <td style="font-family:monospace; font-weight:700;" th:text="${m.medicineCode}">MED-0001</td>
+                                    <td>
+                                        <strong th:text="${m.name}">Augmentin</strong>
+                                        <div style="font-size:0.75rem; color:var(--text-muted);" th:text="${m.manufacturer}">GSK</div>
+                                    </td>
+                                    <td style="font-size:0.85rem;" th:text="${m.genericName != null ? m.genericName : '-'}">Generic</td>
+                                    <td><span class="badge badge-info" th:text="${m.category.name}">Category</span></td>
+                                    <td th:text="${m.dosageForm + ' ' + m.strength}">Tablet 625mg</td>
+                                    <td th:text="${m.reorderLevel}">20</td>
+                                    <td>
+                                        <strong style="font-size:1.05rem;"
+                                                th:style="${m.isOutOfStock() ? 'color:var(--danger);' : (m.isLowStock() ? 'color:var(--warning);' : 'color:var(--success);')}"
+                                                th:text="${m.totalStock}">120</strong>
+                                        <span style="font-size:0.75rem; color:var(--text-muted);" th:text="${m.unitOfMeasure}">Strips</span>
+                                    </td>
+                                    <td th:text="${'$' + #numbers.formatDecimal(m.unitPrice, 1, 2)}">$18.50</td>
+                                    <td th:text="${'$' + #numbers.formatDecimal(m.purchasePrice, 1, 2)}">$11.20</td>
+                                    <td style="font-weight:700; color:var(--accent-teal);"
+                                        th:text="${'$' + #numbers.formatDecimal(m.purchasePrice * m.totalStock, 1, 2)}">$1,344.00</td>
+                                    <td>
+                                        <span th:if="${m.isOutOfStock()}" class="pharmacy-badge-expired">OUT OF STOCK</span>
+                                        <span th:if="${m.isLowStock()}" class="pharmacy-badge-lowstock">LOW STOCK</span>
+                                        <span th:if="${!m.isOutOfStock() and !m.isLowStock()}" class="pharmacy-badge-active">IN STOCK</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: Low & Out of Stock -->
+            <div th:if="${activeTab == 'low-stock'}">
+                <div class="card" style="margin-bottom:24px; border-left:5px solid var(--danger);">
+                    <div class="card-header">
+                        <h3 class="card-title" style="color:var(--danger);">⛔ Out of Stock Medicines (Urgent Procurement)</h3>
+                    </div>
+                    <div class="card-body" style="padding:0;">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Code</th>
+                                        <th>Medicine Name</th>
+                                        <th>Category</th>
+                                        <th>Reorder Level</th>
+                                        <th>Available Stock</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="m : ${outOfStockList}">
+                                        <td style="font-family:monospace; font-weight:700;" th:text="${m.medicineCode}">MED-0008</td>
+                                        <td style="font-weight:700;" th:text="${m.name}">Ciprofloxacin</td>
+                                        <td th:text="${m.category.name}">Antibiotics</td>
+                                        <td th:text="${m.reorderLevel}">10</td>
+                                        <td style="color:var(--danger); font-weight:800;">0</td>
+                                        <td>
+                                            <a th:href="@{/pharmacy/purchases/new}" class="btn btn-teal btn-sm">🛒 Order Restock</a>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(outOfStockList)}">
+                                        <td colspan="6" style="text-align:center; padding:20px; color:var(--success); font-weight:600;">
+                                            ✅ No completely depleted medicines.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="border-left:5px solid var(--warning);">
+                    <div class="card-header">
+                        <h3 class="card-title" style="color:var(--warning);">⚠️ Low-Stock Medicines (Stock &le; Reorder Level)</h3>
+                    </div>
+                    <div class="card-body" style="padding:0;">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Code</th>
+                                        <th>Medicine Name</th>
+                                        <th>Category</th>
+                                        <th>Reorder Level</th>
+                                        <th>Current Stock</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="m : ${lowStockList}">
+                                        <td style="font-family:monospace; font-weight:700;" th:text="${m.medicineCode}">MED-0002</td>
+                                        <td style="font-weight:700;" th:text="${m.name}">Albuterol Inhaler</td>
+                                        <td th:text="${m.category.name}">Respiratory</td>
+                                        <td th:text="${m.reorderLevel}">15</td>
+                                        <td style="color:var(--warning); font-weight:800;" th:text="${m.totalStock}">8</td>
+                                        <td>
+                                            <a th:href="@{/pharmacy/purchases/new}" class="btn btn-teal btn-sm">🛒 Reorder</a>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(lowStockList)}">
+                                        <td colspan="6" style="text-align:center; padding:20px; color:var(--success); font-weight:600;">
+                                            ✅ All medications are above their reorder thresholds.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: Stock Movement -->
+            <div class="card" th:if="${activeTab == 'movement'}">
+                <div class="card-header">
+                    <h3 class="card-title">Stock Movement Audit Trail</h3>
+                </div>
+                <div class="card-body" style="padding:0;">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Tx Number</th>
+                                    <th>Date & Time</th>
+                                    <th>Transaction Type</th>
+                                    <th>Medication</th>
+                                    <th>Batch Lot</th>
+                                    <th>Quantity</th>
+                                    <th>Stock Before</th>
+                                    <th>Stock After</th>
+                                    <th>Reference / Source</th>
+                                    <th>Operator</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="tx : ${movementList}">
+                                    <td style="font-family:monospace; font-weight:700;" th:text="${tx.transactionNumber}">STX-001</td>
+                                    <td th:text="${#temporals.format(tx.transactionDate, 'MMM d, yyyy HH:mm')}">Date</td>
+                                    <td>
+                                        <span class="badge"
+                                              th:classappend="${tx.transactionType.name() == 'STOCK_IN' ? 'badge-success' : (tx.transactionType.name() == 'DISPENSED' ? 'badge-info' : 'badge-warning')}"
+                                              th:text="${tx.transactionType}">STOCK_IN</span>
+                                    </td>
+                                    <td th:text="${tx.medicine.name}">Augmentin</td>
+                                    <td style="font-family:monospace;" th:text="${tx.batch != null ? tx.batch.batchNumber : 'N/A'}">BAT-01</td>
+                                    <td style="font-weight:700;" th:text="${tx.quantity}">14</td>
+                                    <td th:text="${tx.previousStock}">100</td>
+                                    <td style="font-weight:700;" th:text="${tx.newStock}">86</td>
+                                    <td style="font-size:0.85rem;" th:text="${tx.referenceType + ': ' + (tx.referenceId != null ? tx.referenceId : '')}">Rx</td>
+                                    <td style="font-size:0.85rem;" th:text="${tx.performedBy}">pharmacist</td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(movementList)}">
+                                    <td colspan="10" style="text-align:center; padding:30px; color:var(--text-muted);">
+                                        No stock movements found within selected date range.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: Medicine-wise Dispensing Summaries -->
+            <div th:if="${activeTab == 'dispensing'}">
+                <div class="card" style="margin-bottom:24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">Medication Dispensing Summary (Aggregated Volume)</h3>
+                    </div>
+                    <div class="card-body" style="padding:0;">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Medicine Code</th>
+                                        <th>Medicine Name</th>
+                                        <th>Dosage Form</th>
+                                        <th style="text-align:right;">Total Units Dispensed</th>
+                                        <th style="text-align:right;">Total Revenue Generated</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="s : ${dispensingSummaries}">
+                                        <td style="font-family:monospace; font-weight:700;" th:text="${s.medicineCode}">MED-0001</td>
+                                        <td style="font-weight:700;" th:text="${s.medicineName}">Augmentin</td>
+                                        <td th:text="${s.dosageForm}">Tablet</td>
+                                        <td style="text-align:right; font-weight:800; color:var(--primary-blue);" th:text="${s.totalQuantity}">42</td>
+                                        <td style="text-align:right; font-weight:800; color:var(--accent-teal);"
+                                            th:text="${'$' + #numbers.formatDecimal(s.totalRevenue, 1, 2)}">$777.00</td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(dispensingSummaries)}">
+                                        <td colspan="5" style="text-align:center; padding:30px; color:var(--text-muted);">
+                                            No dispensing transactions recorded in selected window.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: Supplier Purchases -->
+            <div class="card" th:if="${activeTab == 'purchases'}">
+                <div class="card-header">
+                    <h3 class="card-title">Supplier Procurement Summary</h3>
+                </div>
+                <div class="card-body" style="padding:0;">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>PO Number</th>
+                                    <th>Supplier</th>
+                                    <th>Order Date</th>
+                                    <th>Total Lines</th>
+                                    <th>Status</th>
+                                    <th style="text-align:right;">Total Spend</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="po : ${purchasesList}">
+                                    <td style="font-family:monospace; font-weight:700;" th:text="${po.poNumber}">PO-2026-0001</td>
+                                    <td th:text="${po.supplier.name}">Apex Pharma</td>
+                                    <td th:text="${#temporals.format(po.orderDate, 'MMM d, yyyy')}">Date</td>
+                                    <td th:text="${po.items.size()}">2</td>
+                                    <td>
+                                        <span class="badge" th:classappend="${po.status.name() == 'RECEIVED' ? 'badge-success' : 'badge-info'}"
+                                              th:text="${po.status}">RECEIVED</span>
+                                    </td>
+                                    <td style="text-align:right; font-weight:800; color:var(--accent-teal);"
+                                        th:text="${'$' + #numbers.formatDecimal(po.totalAmount, 1, 2)}">$1,260.00</td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(purchasesList)}">
+                                    <td colspan="6" style="text-align:center; padding:30px; color:var(--text-muted);">
+                                        No purchase orders found matching parameters.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/pharmacy.js}"></script>
+</body>
+</html>

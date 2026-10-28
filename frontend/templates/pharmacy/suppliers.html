@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Suppliers Management')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('pharmacy-suppliers')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Pharmaceutical Suppliers Directory', 'Manage wholesale vendors, license accreditations, and payment terms')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Filter Bar -->
+            <div class="quick-filter-bar">
+                <form th:action="@{/pharmacy/suppliers}" method="get" style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; flex:1;">
+                    <div class="search-input-group">
+                        <input type="text" name="query" class="form-control" placeholder="Search supplier name, code, contact person, phone..."
+                               th:value="${query}" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Search</button>
+                    <a th:href="@{/pharmacy/suppliers}" class="btn btn-outline">Reset</a>
+                </form>
+
+                <div>
+                    <a th:href="@{/pharmacy/suppliers/new}" class="btn btn-teal">
+                        ➕ Register New Supplier
+                    </a>
+                </div>
+            </div>
+
+            <!-- Suppliers Table -->
+            <div class="card">
+                <div class="card-body" style="padding:0;">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Supplier Code</th>
+                                    <th>Supplier / Company Name</th>
+                                    <th>Contact Representative</th>
+                                    <th>Phone & Email</th>
+                                    <th>Address</th>
+                                    <th>License / Regulatory</th>
+                                    <th>Payment Terms</th>
+                                    <th>Status</th>
+                                    <th style="text-align:right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="s : ${suppliersPage.content}">
+                                    <td style="font-family:monospace; font-weight:700;" th:text="${s.supplierCode}">SUP-001</td>
+                                    <td>
+                                        <strong th:text="${s.name}">Apex Pharma Global</strong>
+                                    </td>
+                                    <td th:text="${s.contactPerson != null ? s.contactPerson : '-'}">David Vance</td>
+                                    <td>
+                                        <span th:text="${s.phone}">+1 555-0199</span>
+                                        <div style="font-size:0.75rem; color:var(--text-muted);" th:text="${s.email}">orders@apex.com</div>
+                                    </td>
+                                    <td style="font-size:0.85rem;" th:text="${s.address != null ? s.address : '-'}">Chicago, IL</td>
+                                    <td style="font-size:0.85rem; font-family:monospace;" th:text="${s.licenseNumber != null ? s.licenseNumber : '-'}">FDA-IL-98421</td>
+                                    <td>
+                                        <span class="badge badge-info" th:text="${s.paymentTerms != null ? s.paymentTerms : 'Standard'}">Net 30</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge" th:classappend="${s.active ? 'badge-success' : 'badge-danger'}"
+                                              th:text="${s.active ? 'Active' : 'Inactive'}">Active</span>
+                                    </td>
+                                    <td style="text-align:right;">
+                                        <div style="display:inline-flex; gap:6px;">
+                                            <a th:href="@{/pharmacy/suppliers/edit/{id}(id=${s.id})}" class="btn btn-outline btn-sm" title="Edit Supplier">✏️ Edit</a>
+                                            <a th:href="@{/pharmacy/purchases/new(supplierId=${s.id})}" class="btn btn-teal btn-sm" title="Create PO">🛒 Order</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${suppliersPage.totalElements == 0}">
+                                    <td colspan="9" style="text-align:center; padding:35px; color:var(--text-muted);">
+                                        No suppliers registered yet.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="card-footer" th:if="${suppliersPage.totalPages > 1}"
+                     style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px;">
+                    <div style="color:var(--text-muted); font-size:0.875rem;">
+                        Page <span th:text="${suppliersPage.number + 1}">1</span> of <span th:text="${suppliersPage.totalPages}">5</span>
+                    </div>
+                    <div style="display:flex; gap:6px;">
+                        <a th:if="${suppliersPage.hasPrevious()}"
+                           th:href="@{/pharmacy/suppliers(page=${suppliersPage.number - 1}, query=${query})}"
+                           class="btn btn-outline btn-sm">&larr; Previous</a>
+                        <a th:if="${suppliersPage.hasNext()}"
+                           th:href="@{/pharmacy/suppliers(page=${suppliersPage.number + 1}, query=${query})}"
+                           class="btn btn-outline btn-sm">Next &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/pharmacy.js}"></script>
+</body>
+</html>

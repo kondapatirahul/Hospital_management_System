@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Expiry & Batch Alerts')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('pharmacy-alerts')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Expiry & Near-Expiry Monitoring', 'Proactive surveillance of medication shelf-life to prevent dispensing expired drugs')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Expired Batches Warning Section -->
+            <div class="card" style="border-left: 5px solid var(--danger); margin-bottom: 24px;">
+                <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h3 class="card-title" style="color:var(--danger); display:flex; align-items:center; gap:8px;">
+                            <span>⛔ Expired Batches (Immediate Quarantine Required)</span>
+                        </h3>
+                        <p style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">
+                            These batches have surpassed their shelf-life and are automatically locked against prescription dispensing.
+                        </p>
+                    </div>
+                    <span class="badge badge-danger" style="font-size:0.9rem;" th:text="${#lists.size(expiredBatches) + ' Batches'}">0 Batches</span>
+                </div>
+
+                <div class="card-body" style="padding:0;">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Batch Number</th>
+                                    <th>Medication</th>
+                                    <th>Expired On</th>
+                                    <th>Days Expired</th>
+                                    <th>Remaining In Stock</th>
+                                    <th>Cost Value</th>
+                                    <th>Status</th>
+                                    <th style="text-align:right;">Disposal Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="b : ${expiredBatches}">
+                                    <td style="font-family:monospace; font-weight:700;" th:text="${b.batchNumber}">BAT-OLD</td>
+                                    <td>
+                                        <a th:href="@{/pharmacy/medicines/{id}(id=${b.medicine.id})}" style="font-weight:700; color:var(--primary-blue);" th:text="${b.medicine.name}">Atorvastatin</a>
+                                        <div style="font-size:0.75rem; color:var(--text-muted);" th:text="${b.medicine.medicineCode}">MED-0004</div>
+                                    </td>
+                                    <td style="color:var(--danger); font-weight:600;" th:text="${#temporals.format(b.expiryDate, 'MMM d, yyyy')}">Oct 13, 2026</td>
+                                    <td style="color:var(--danger); font-weight:700;" th:text="${-b.getDaysUntilExpiry() + ' days ago'}">15 days ago</td>
+                                    <td>
+                                        <strong style="color:var(--danger); font-size:1.05rem;" th:text="${b.currentQuantity}">12</strong>
+                                        <span style="font-size:0.75rem; color:var(--text-muted);" th:text="${b.medicine.unitOfMeasure}">Boxes</span>
+                                    </td>
+                                    <td th:text="${'$' + #numbers.formatDecimal(b.purchasePrice * b.currentQuantity, 1, 2)}">$168.00</td>
+                                    <td>
+                                        <span class="pharmacy-badge-expired">EXPIRED / LOCKED</span>
+                                    </td>
+                                    <td style="text-align:right;">
+                                        <a th:href="@{/pharmacy/stock/adjust(batchId=${b.id})}" class="btn btn-outline btn-sm" style="color:var(--danger); border-color:var(--danger);">
+                                            🗑️ Quarantine / Write-Off
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(expiredBatches)}">
+                                    <td colspan="8" style="text-align:center; padding:25px; color:var(--success); font-weight:600;">
+                                        ✅ No expired medication batches present in inventory!
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Near Expiry Batches (60 Days Window) -->
+            <div class="card" style="border-left: 5px solid var(--warning);">
+                <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h3 class="card-title" style="color:var(--warning); display:flex; align-items:center; gap:8px;">
+                            <span>⏳ Near-Expiry Batches (Expiring within 60 Days)</span>
+                        </h3>
+                        <p style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">
+                            Prioritize these batches for First-Expired-First-Out (FEFO) dispensing or return to vendor.
+                        </p>
+                    </div>
+                    <span class="badge badge-warning" style="font-size:0.9rem;" th:text="${#lists.size(nearExpiryBatches) + ' Batches'}">0 Batches</span>
+                </div>
+
+                <div class="card-body" style="padding:0;">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>FEFO Priority</th>
+                                    <th>Batch Number</th>
+                                    <th>Medication</th>
+                                    <th>Expiry Date</th>
+                                    <th>Days Remaining</th>
+                                    <th>Current Stock</th>
+                                    <th>Supplier</th>
+                                    <th>Status</th>
+                                    <th style="text-align:right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="b, iter : ${nearExpiryBatches}">
+                                    <td>
+                                        <span class="fefo-badge">⭐ FEFO Alert</span>
+                                    </td>
+                                    <td style="font-family:monospace; font-weight:700;" th:text="${b.batchNumber}">BAT-CET-24X</td>
+                                    <td>
+                                        <a th:href="@{/pharmacy/medicines/{id}(id=${b.medicine.id})}" style="font-weight:700; color:var(--primary-blue);" th:text="${b.medicine.name}">Cetirizine</a>
+                                        <div style="font-size:0.75rem; color:var(--text-muted);" th:text="${b.medicine.medicineCode}">MED-0003</div>
+                                    </td>
+                                    <td style="color:var(--warning); font-weight:700;" th:text="${#temporals.format(b.expiryDate, 'MMM d, yyyy')}">Nov 22, 2026</td>
+                                    <td>
+                                        <strong style="color:var(--warning);" th:text="${b.getDaysUntilExpiry() + ' days left'}">25 days</strong>
+                                    </td>
+                                    <td>
+                                        <strong th:text="${b.currentQuantity}">35</strong>
+                                    </td>
+                                    <td th:text="${b.supplier != null ? b.supplier.name : '-'}">MedLife</td>
+                                    <td>
+                                        <span class="pharmacy-badge-nearexpiry">NEAR EXPIRY</span>
+                                    </td>
+                                    <td style="text-align:right;">
+                                        <a th:href="@{/pharmacy/stock/adjust(batchId=${b.id})}" class="btn btn-outline btn-sm">⚖️ Adjust</a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(nearExpiryBatches)}">
+                                    <td colspan="9" style="text-align:center; padding:25px; color:var(--success); font-weight:600;">
+                                        ✅ No batches approaching expiry within the next 60 days.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/pharmacy.js}"></script>
+</body>
+</html>

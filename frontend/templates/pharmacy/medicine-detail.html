@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead(${medicine.name + ' - Medicine Details'})}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('pharmacy-medicines')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar(${medicine.name}, 'Detailed view, batch-level stock distribution, and pricing')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Top Header & Actions -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <a th:href="@{/pharmacy/medicines}" class="btn btn-outline btn-sm">&larr; Back to Catalog</a>
+                    <span class="badge badge-info" style="font-size:0.9rem;" th:text="${medicine.medicineCode}">MED-0001</span>
+                    <span th:if="${medicine.isOutOfStock()}" class="pharmacy-badge-expired">OUT OF STOCK</span>
+                    <span th:if="${medicine.isLowStock()}" class="pharmacy-badge-lowstock">LOW STOCK ALERT</span>
+                    <span th:if="${!medicine.isOutOfStock() and !medicine.isLowStock()}" class="pharmacy-badge-active">IN STOCK</span>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <a th:href="@{/pharmacy/stock/in(medicineId=${medicine.id})}" class="btn btn-teal">
+                        📥 Stock In New Batch
+                    </a>
+                    <a th:href="@{/pharmacy/medicines/edit/{id}(id=${medicine.id})}" class="btn btn-primary">
+                        ✏️ Edit Details
+                    </a>
+                    <form th:action="@{/pharmacy/medicines/{id}/toggle-status(id=${medicine.id})}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-outline"
+                                th:text="${medicine.active ? 'Deactivate' : 'Activate'}">Toggle</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Medicine Profile Specs Grid -->
+            <div class="card" style="margin-bottom:24px;">
+                <div class="card-body">
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:20px;">
+                        <div>
+                            <span style="font-size:0.8rem; color:var(--text-muted); display:block; text-transform:uppercase;">Generic / Molecule</span>
+                            <strong style="font-size:1rem;" th:text="${medicine.genericName != null ? medicine.genericName : 'N/A'}">Amoxicillin Trihydrate</strong>
+                        </div>
+                        <div>
+                            <span style="font-size:0.8rem; color:var(--text-muted); display:block; text-transform:uppercase;">Category</span>
+                            <span class="badge badge-info" th:text="${medicine.category.name}">Antibiotics</span>
+                        </div>
+                        <div>
+                            <span style="font-size:0.8rem; color:var(--text-muted); display:block; text-transform:uppercase;">Form & Strength</span>
+                            <span th:text="${medicine.dosageForm + ' (' + medicine.strength + ')'}">Tablet (500mg)</span>
+                        </div>
+                        <div>
+                            <span style="font-size:0.8rem; color:var(--text-muted); display:block; text-transform:uppercase;">Dispense Unit</span>
+                            <span th:text="${medicine.unitOfMeasure}">Strip</span>
+                        </div>
+                        <div>
+                            <span style="font-size:0.8rem; color:var(--text-muted); display:block; text-transform:uppercase;">Current Available Stock</span>
+                            <span style="font-size:1.3rem; font-weight:700;"
+                                  th:style="${medicine.isOutOfStock() ? 'color:var(--danger);' : (medicine.isLowStock() ? 'color:var(--warning);' : 'color:var(--success);')}"
+                                  th:text="${medicine.totalStock + ' ' + medicine.unitOfMeasure}">120 Strips</span>
+                        </div>
+                        <div>
+                            <span style="font-size:0.8rem; color:var(--text-muted); display:block; text-transform:uppercase;">Reorder Threshold</span>
+                            <strong th:text="${medicine.reorderLevel}">20</strong>
+                        </div>
+                        <div>
+                            <span style="font-size:0.8rem; color:var(--text-muted); display:block; text-transform:uppercase;">Unit Dispense Price</span>
+                            <strong style="color:var(--accent-teal);" th:text="${'$' + #numbers.formatDecimal(medicine.unitPrice, 1, 2)}">$18.50</strong>
+                        </div>
+                        <div>
+                            <span style="font-size:0.8rem; color:var(--text-muted); display:block; text-transform:uppercase;">Standard Purchase Cost</span>
+                            <strong th:text="${'$' + #numbers.formatDecimal(medicine.purchasePrice, 1, 2)}">$11.20</strong>
+                        </div>
+                        <div>
+                            <span style="font-size:0.8rem; color:var(--text-muted); display:block; text-transform:uppercase;">Manufacturer</span>
+                            <span th:text="${medicine.manufacturer != null ? medicine.manufacturer : 'N/A'}">GSK</span>
+                        </div>
+                        <div>
+                            <span style="font-size:0.8rem; color:var(--text-muted); display:block; text-transform:uppercase;">Prescription Required</span>
+                            <span th:text="${medicine.prescriptionRequired ? 'Yes (Rx Only)' : 'No (OTC)'}">Yes</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border);" th:if="${medicine.description}">
+                        <span style="font-size:0.8rem; color:var(--text-muted); display:block; text-transform:uppercase;">Clinical Notes</span>
+                        <p style="margin-top:4px; color:var(--text-secondary);" th:text="${medicine.description}">Notes</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Batches Section -->
+            <div class="card">
+                <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h3 class="card-title">Batch Inventory (FEFO Sorted)</h3>
+                        <p style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">
+                            Earliest expiring batches appear first and are allocated priority during prescription dispensing.
+                        </p>
+                    </div>
+                    <a th:href="@{/pharmacy/stock/in(medicineId=${medicine.id})}" class="btn btn-outline btn-sm">➕ Add Batch</a>
+                </div>
+
+                <div class="card-body" style="padding:0;">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>FEFO Priority</th>
+                                    <th>Batch Number</th>
+                                    <th>Supplier</th>
+                                    <th>Expiry Date</th>
+                                    <th>Remaining Stock</th>
+                                    <th>Initial Qty</th>
+                                    <th>Purchase Cost</th>
+                                    <th>Status</th>
+                                    <th style="text-align:right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="b, iter : ${batches}">
+                                    <td>
+                                        <span th:if="${iter.index == 0 and b.isEligibleForDispensing()}" class="fefo-badge">
+                                            ⭐ 1st FEFO
+                                        </span>
+                                        <span th:if="${iter.index > 0 or !b.isEligibleForDispensing()}"
+                                              style="font-size:0.8rem; color:var(--text-muted);"
+                                              th:text="${'#' + (iter.index + 1)}">#2</span>
+                                    </td>
+                                    <td style="font-family:monospace; font-weight:700;" th:text="${b.batchNumber}">BAT-2026-01</td>
+                                    <td th:text="${b.supplier != null ? b.supplier.name : 'Direct Stock'}">Apex Pharma</td>
+                                    <td>
+                                        <span th:text="${#temporals.format(b.expiryDate, 'MMM d, yyyy')}">Dec 31, 2026</span>
+                                        <div style="font-size:0.75rem;"
+                                             th:style="${b.isExpired() ? 'color:var(--danger);' : (b.isNearExpiry(60) ? 'color:var(--warning);' : 'color:var(--text-muted);')}">
+                                            <span th:if="${b.isExpired()}">Expired</span>
+                                            <span th:if="${!b.isExpired() and b.isNearExpiry(60)}" th:text="${b.getDaysUntilExpiry() + ' days left'}">30 days left</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <strong style="font-size:1.05rem;" th:text="${b.currentQuantity}">45</strong>
+                                    </td>
+                                    <td style="color:var(--text-muted);" th:text="${b.initialQuantity}">100</td>
+                                    <td th:text="${'$' + #numbers.formatDecimal(b.purchasePrice, 1, 2)}">$11.20</td>
+                                    <td>
+                                        <span th:if="${b.isExpired()}" class="pharmacy-badge-expired">EXPIRED</span>
+                                        <span th:if="${!b.isExpired() and b.isNearExpiry(60)}" class="pharmacy-badge-nearexpiry">NEAR EXPIRY</span>
+                                        <span th:if="${!b.isExpired() and !b.isNearExpiry(60) and b.currentQuantity > 0}" class="pharmacy-badge-active">ACTIVE</span>
+                                        <span th:if="${b.currentQuantity <= 0}" class="pharmacy-badge-depleted">DEPLETED</span>
+                                    </td>
+                                    <td style="text-align:right;">
+                                        <div style="display:inline-flex; gap:6px;">
+                                            <a th:href="@{/pharmacy/stock/adjust(batchId=${b.id})}" class="btn btn-outline btn-sm" title="Adjust Stock">⚖️ Adjust</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(batches)}">
+                                    <td colspan="9" style="text-align:center; padding:30px; color:var(--text-muted);">
+                                        No batches registered for this medicine yet.
+                                        <a th:href="@{/pharmacy/stock/in(medicineId=${medicine.id})}" style="color:var(--primary-blue); font-weight:600;">Stock in first batch &rarr;</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/pharmacy.js}"></script>
+</body>
+</html>
