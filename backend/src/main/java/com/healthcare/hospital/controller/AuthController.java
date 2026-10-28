@@ -2,6 +2,7 @@ package com.healthcare.hospital.controller;
 
 import com.healthcare.hospital.dto.PatientRegistrationDto;
 import com.healthcare.hospital.entity.Doctor;
+import com.healthcare.hospital.service.DoctorAvailabilityService;
 import com.healthcare.hospital.service.DoctorService;
 import com.healthcare.hospital.service.PatientService;
 import jakarta.validation.Valid;
@@ -13,6 +14,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Controller
@@ -20,10 +22,14 @@ public class AuthController {
 
     private final PatientService patientService;
     private final DoctorService doctorService;
+    private final DoctorAvailabilityService doctorAvailabilityService;
 
-    public AuthController(PatientService patientService, DoctorService doctorService) {
+    public AuthController(PatientService patientService,
+                          DoctorService doctorService,
+                          DoctorAvailabilityService doctorAvailabilityService) {
         this.patientService = patientService;
         this.doctorService = doctorService;
+        this.doctorAvailabilityService = doctorAvailabilityService;
     }
 
     @GetMapping("/login")
@@ -111,11 +117,20 @@ public class AuthController {
     @GetMapping("/api/doctor-slots")
     @ResponseBody
     public ResponseEntity<List<String>> getDoctorSlots(@RequestParam("doctorId") Long doctorId,
-                                                       @RequestParam("date") String date) {
-        List<String> standardSlots = List.of(
-                "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", "11:00 AM",
-                "11:30 AM", "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM", "04:00 PM"
-        );
-        return ResponseEntity.ok(standardSlots);
+                                                       @RequestParam("date") String dateStr) {
+        Optional<Doctor> docOpt = doctorService.getDoctorById(doctorId);
+        if (docOpt.isEmpty()) {
+            return ResponseEntity.ok(List.of());
+        }
+
+        LocalDate date;
+        try {
+            date = LocalDate.parse(dateStr);
+        } catch (Exception e) {
+            date = LocalDate.now();
+        }
+
+        List<String> slots = doctorAvailabilityService.getAvailableSlotsForDoctorAndDate(docOpt.get(), date);
+        return ResponseEntity.ok(slots);
     }
 }

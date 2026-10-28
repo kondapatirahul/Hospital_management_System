@@ -25,9 +25,26 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     List<Appointment> findByDoctorAndAppointmentDate(Doctor doctor, LocalDate date);
 
+    List<Appointment> findByDoctorOrderByAppointmentDateDescAppointmentTimeAsc(Doctor doctor);
+
+    List<Appointment> findByDoctorAndAppointmentDateOrderByAppointmentTimeAsc(Doctor doctor, LocalDate date);
+
+    List<Appointment> findByDoctorAndAppointmentDateGreaterThanEqualOrderByAppointmentDateAscAppointmentTimeAsc(Doctor doctor, LocalDate date);
+
+    List<Appointment> findByDoctorAndAppointmentDateLessThanOrderByAppointmentDateDescAppointmentTimeDesc(Doctor doctor, LocalDate date);
+
     long countByAppointmentDate(LocalDate date);
 
     long countByAppointmentDateAndStatus(LocalDate date, AppointmentStatus status);
+
+    long countByDoctorAndAppointmentDate(Doctor doctor, LocalDate date);
+
+    long countByDoctorAndAppointmentDateAndStatus(Doctor doctor, LocalDate date, AppointmentStatus status);
+
+    long countByDoctorAndStatus(Doctor doctor, AppointmentStatus status);
+
+    @Query("SELECT DISTINCT a.patient FROM Appointment a WHERE a.doctor = :doctor ORDER BY a.patient.fullName ASC")
+    List<Patient> findDistinctPatientsByDoctor(@Param("doctor") Doctor doctor);
 
     @Query("SELECT a FROM Appointment a WHERE " +
            "(:date IS NULL OR a.appointmentDate = :date) AND " +
@@ -44,6 +61,22 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("status") AppointmentStatus status,
             @Param("doctorId") Long doctorId,
             @Param("departmentId") Long departmentId,
+            @Param("keyword") String keyword
+    );
+
+    @Query("SELECT a FROM Appointment a WHERE " +
+           "a.doctor = :doctor AND " +
+           "(:date IS NULL OR a.appointmentDate = :date) AND " +
+           "(:status IS NULL OR a.status = :status) AND " +
+           "(:keyword IS NULL OR :keyword = '' OR " +
+           " LOWER(a.patient.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           " LOWER(a.patient.patientId) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           " LOWER(a.reasonForVisit) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+           "ORDER BY a.appointmentDate DESC, a.appointmentTime ASC")
+    List<Appointment> filterDoctorAppointments(
+            @Param("doctor") Doctor doctor,
+            @Param("date") LocalDate date,
+            @Param("status") AppointmentStatus status,
             @Param("keyword") String keyword
     );
 }

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Prescriptions - Doctor')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('doctor-prescriptions')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Prescriptions & Regimens', 'Create, manage, and review prescriptions issued to your patients')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Action Bar -->
+            <div class="card" style="background: linear-gradient(135deg, #0f2c59, #1e40af); color: #fff; border:none; margin-bottom: 24px;">
+                <div class="card-body" style="padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                    <div>
+                        <h3 style="font-size: 1.25rem; font-weight: 700; color: #fff;">Prescription Management Center</h3>
+                        <p style="color: #93c5fd; font-size: 0.85rem; margin-top: 2px;">
+                            Issue accurate medication regimens with dosage instructions and duration tracking.
+                        </p>
+                    </div>
+                    <button type="button" class="btn btn-teal btn-lg" data-modal-target="newPrescriptionModal">
+                        ➕ Issue New Prescription
+                    </button>
+                </div>
+            </div>
+
+            <!-- Prescriptions Table Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>💊 Issued Prescriptions (<span th:text="${#lists.size(prescriptions)}">0</span>)</span>
+                    </div>
+                    <input type="text" class="form-control" style="max-width: 280px;" placeholder="Filter medicine or patient..." data-table-search="#prescriptionsTable">
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table id="prescriptionsTable" class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Prescription Date</th>
+                                    <th>Patient</th>
+                                    <th>Medication Name</th>
+                                    <th>Dosage</th>
+                                    <th>Frequency</th>
+                                    <th>Duration</th>
+                                    <th>Instructions</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(prescriptions)}">
+                                    <td colspan="8" style="text-align: center; color: #64748b; padding: 36px;">
+                                        No prescriptions issued yet.
+                                    </td>
+                                </tr>
+                                <tr th:each="rx : ${prescriptions}">
+                                    <td>
+                                        <strong style="color: #0f2c59;" th:text="${#temporals.format(rx.prescriptionDate, 'MMM d, yyyy')}">Oct 14, 2026</strong>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight: 700; color: #0f2c59;" th:text="${rx.patient.fullName}">Sarah Jenkins</div>
+                                        <div style="font-size: 0.75rem; color: #64748b;" th:text="${rx.patient.patientId}">PAT-2026-0001</div>
+                                    </td>
+                                    <td>
+                                        <strong style="color: #0d9488; font-size: 0.95rem;" th:text="${rx.medicationName}">Amoxicillin-Clavulanate</strong>
+                                    </td>
+                                    <td th:text="${rx.dosage}">625 mg</td>
+                                    <td th:text="${rx.frequency}">Twice daily after meals</td>
+                                    <td th:text="${rx.duration}">7 days</td>
+                                    <td style="max-width: 250px; font-size: 0.8rem; color: #475569;" th:text="${rx.instructions != null ? rx.instructions : '-'}">
+                                        Take with water
+                                    </td>
+                                    <td>
+                                        <span class="badge" th:classappend="${rx.status == 'Active' ? 'badge-success' : 'badge-secondary'}"
+                                              th:text="${rx.status}">Active</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Issue New Prescription Modal -->
+            <div id="newPrescriptionModal" class="modal-overlay">
+                <div class="modal-content" style="max-width: 560px;">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Issue Direct Prescription</h3>
+                        <button type="button" class="modal-close-btn">&times;</button>
+                    </div>
+                    <form th:action="@{/doctor/prescriptions/new}" method="post">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label class="form-label required">Select Patient</label>
+                                <select name="patientId" class="form-control" required>
+                                    <option value="">-- Choose Patient --</option>
+                                    <option th:each="pt : ${patients}"
+                                            th:value="${pt.id}"
+                                            th:text="${pt.fullName + ' (' + pt.patientId + ')'}">
+                                        Sarah Jenkins (PAT-2026-0001)
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label required">Medication Name</label>
+                                <input type="text" name="medicationName" class="form-control" placeholder="e.g. Paracetamol, Metformin" required>
+                            </div>
+
+                            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                                <div class="form-group">
+                                    <label class="form-label required">Dosage</label>
+                                    <input type="text" name="dosage" class="form-control" placeholder="e.g. 500 mg, 10 ml" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label required">Frequency</label>
+                                    <input type="text" name="frequency" class="form-control" placeholder="e.g. Twice daily after meals" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Duration</label>
+                                <input type="text" name="duration" class="form-control" placeholder="e.g. 5 days, 30 days">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Instructions & Precautions</label>
+                                <textarea name="instructions" class="form-control" rows="2" placeholder="e.g. Drink plenty of water, avoid alcohol while taking"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+                            <button type="submit" class="btn btn-primary">Issue Prescription</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

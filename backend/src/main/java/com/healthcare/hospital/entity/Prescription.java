@@ -20,6 +20,14 @@ public class Prescription {
     @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "appointment_id")
+    private Appointment appointment;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "medical_record_id")
+    private MedicalRecord medicalRecord;
+
     @Column(name = "prescription_date", nullable = false)
     private LocalDate prescriptionDate;
 
@@ -60,6 +68,21 @@ public class Prescription {
         this.createdAt = LocalDateTime.now();
     }
 
+    public Prescription(Patient patient, Doctor doctor, Appointment appointment, MedicalRecord medicalRecord, LocalDate prescriptionDate, String medicationName, String dosage, String frequency, String duration, String instructions, String status) {
+        this.patient = patient;
+        this.doctor = doctor;
+        this.appointment = appointment;
+        this.medicalRecord = medicalRecord;
+        this.prescriptionDate = prescriptionDate;
+        this.medicationName = medicationName;
+        this.dosage = dosage;
+        this.frequency = frequency;
+        this.duration = duration;
+        this.instructions = instructions;
+        this.status = status != null ? status : "Active";
+        this.createdAt = LocalDateTime.now();
+    }
+
     public Long getId() {
         return id;
     }
@@ -82,6 +105,22 @@ public class Prescription {
 
     public void setDoctor(Doctor doctor) {
         this.doctor = doctor;
+    }
+
+    public Appointment getAppointment() {
+        return appointment;
+    }
+
+    public void setAppointment(Appointment appointment) {
+        this.appointment = appointment;
+    }
+
+    public MedicalRecord getMedicalRecord() {
+        return medicalRecord;
+    }
+
+    public void setMedicalRecord(MedicalRecord medicalRecord) {
+        this.medicalRecord = medicalRecord;
     }
 
     public LocalDate getPrescriptionDate() {

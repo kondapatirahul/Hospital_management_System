@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Doctor Availability & Schedules')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('doctor-availability')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Consultation Schedule & Availability Management', 'Configure clinical consultation slots, on-duty hours, and schedule availability')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Duty Status Top Banner -->
+            <div class="card" style="background: linear-gradient(135deg, #0f2c59, #0f766e); color: #fff; border:none; margin-bottom: 24px;">
+                <div class="card-body" style="padding: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                    <div>
+                        <div style="font-size: 0.85rem; color: #99f6e4; text-transform: uppercase; font-weight: 700;">
+                            Clinic Shift & Duty Status
+                        </div>
+                        <h2 style="font-size: 1.5rem; font-weight: 700; color: #fff; margin-top: 4px;">
+                            Current Status: <span th:text="${doctor.availableToday ? 'On Duty' : 'Off Duty'}">On Duty</span>
+                        </h2>
+                        <p style="color: #cbd5e1; font-size: 0.85rem; margin-top: 4px;">
+                            Working Days: <strong th:text="${doctor.workingDays}">Mon, Tue, Wed, Thu, Fri</strong> |
+                            Standard Hours: <strong th:text="${doctor.workingHours}">09:00 AM - 05:00 PM</strong> |
+                            Room: <strong th:text="${doctor.roomNumber}">Room 101</strong>
+                        </p>
+                    </div>
+
+                    <form th:action="@{/doctor/availability/toggle-today}" method="post">
+                        <button type="submit" class="btn btn-teal btn-lg" style="box-shadow: 0 4px 6px rgba(0,0,0,0.15);">
+                            <span th:text="${doctor.availableToday ? '🔴 Set Off-Duty for Today' : '🟢 Set On-Duty for Today'}">Toggle Duty Status</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Two-Column Layout: Add Slot Form & Current Slots Table -->
+            <div style="display: grid; grid-template-columns: 360px 1fr; gap: 24px; align-items: flex-start;">
+
+                <!-- Add Availability Slot Form Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">➕ Add Consultation Slot</div>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/doctor/availability/add}" th:object="${slotDto}" method="post">
+                            <div class="form-group">
+                                <label for="availableDate" class="form-label required">Schedule Date</label>
+                                <input type="date" id="availableDate" th:field="*{availableDate}" class="form-control" required>
+                            </div>
+
+                            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label for="startTime" class="form-label required">Start Time</label>
+                                    <input type="time" id="startTime" th:field="*{startTime}" class="form-control" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom:0;">
+                                    <label for="endTime" class="form-label required">End Time</label>
+                                    <input type="time" id="endTime" th:field="*{endTime}" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="status" class="form-label required">Availability Type</label>
+                                <select id="status" th:field="*{status}" class="form-control" required>
+                                    <option value="AVAILABLE">Available for Appointments</option>
+                                    <option value="UNAVAILABLE">Unavailable / Break</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="slotNotes" class="form-label">Slot Notes / Description</label>
+                                <input type="text" id="slotNotes" th:field="*{slotNotes}" class="form-control"
+                                       placeholder="e.g. Morning OPD, Walk-in Consultations">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">
+                                Save Availability Slot
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Existing Consultation Slots Table Card -->
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <span>⏱️ Configured Consultation Slots (<span th:text="${#lists.size(slots)}">0</span>)</span>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Time Range</th>
+                                            <th>Status</th>
+                                            <th>Notes</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:if="${#lists.isEmpty(slots)}">
+                                            <td colspan="5" style="text-align: center; color: #64748b; padding: 32px;">
+                                                No custom availability slots configured. Standard clinic hours apply.
+                                            </td>
+                                        </tr>
+                                        <tr th:each="s : ${slots}">
+                                            <td>
+                                                <strong style="color: #0f2c59;" th:text="${#temporals.format(s.availableDate, 'EEE, MMM d, yyyy')}">Mon, Oct 28, 2026</strong>
+                                            </td>
+                                            <td>
+                                                <span style="font-weight: 600; color: #0d9488;" th:text="${s.startTime + ' - ' + s.endTime}">09:00 - 13:00</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge" th:classappend="${s.status == 'AVAILABLE' ? 'badge-success' : 'badge-danger'}"
+                                                      th:text="${s.status}">AVAILABLE</span>
+                                            </td>
+                                            <td style="font-size: 0.825rem; color: #475569;" th:text="${s.slotNotes != null ? s.slotNotes : '-'}">
+                                                Morning Clinic
+                                            </td>
+                                            <td>
+                                                <form th:action="@{/doctor/availability/{id}/delete(id=${s.id})}" method="post" style="display:inline;"
+                                                      onsubmit="return confirm('Are you sure you want to remove this availability slot?');">
+                                                    <button type="submit" class="btn btn-outline btn-sm" style="color: #ef4444; border-color: #fca5a5;">
+                                                        🗑️ Delete
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Booked Appointments on File -->
+                    <div class="card" style="margin-top: 24px;">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <span>📅 Booked Appointments for Today (<span th:text="${#lists.size(todayAppointments)}">0</span>)</span>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Slot</th>
+                                            <th>Patient</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:if="${#lists.isEmpty(todayAppointments)}">
+                                            <td colspan="3" style="text-align: center; color: #64748b; padding: 18px;">
+                                                No appointments booked for today.
+                                            </td>
+                                        </tr>
+                                        <tr th:each="appt : ${todayAppointments}">
+                                            <td>
+                                                <strong th:text="${appt.appointmentSlot != null ? appt.appointmentSlot : appt.appointmentTime}">09:30 AM</strong>
+                                            </td>
+                                            <td>
+                                                <span th:text="${appt.patient.fullName}">Sarah Jenkins</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge" th:classappend="${appt.status.badgeClass}" th:text="${appt.status.displayName}">Checked In</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

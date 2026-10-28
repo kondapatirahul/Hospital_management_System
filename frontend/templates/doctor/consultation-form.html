@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Clinical Consultation Session - Doctor')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('doctor-dashboard')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Clinical Consultation & Diagnosis Session', 'Examine patient, record medical observations, diagnose condition, and issue prescriptions')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Back navigation -->
+            <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                <a th:href="@{/doctor/dashboard}" class="btn btn-outline btn-sm">
+                    ← Return to Dashboard
+                </a>
+                <span class="badge badge-warning" style="font-size: 0.85rem; padding: 6px 12px;">
+                    ● In Active Consultation
+                </span>
+            </div>
+
+            <!-- Patient Quick Info & Medical Alert Card -->
+            <div class="card" style="border-left: 4px solid #0d9488; margin-bottom: 24px;">
+                <div class="card-body" style="padding: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <h3 style="font-size: 1.3rem; font-weight: 700; color: #0f2c59;" th:text="${patient.fullName}">Sarah Jenkins</h3>
+                                <span class="badge badge-secondary" th:text="${patient.patientId}">PAT-2026-0001</span>
+                            </div>
+                            <p style="font-size: 0.85rem; color: #475569; margin-top: 4px;">
+                                Blood Group: <strong style="color: #0d9488;" th:text="${patient.bloodGroup != null ? patient.bloodGroup : 'Unknown'}">A+</strong> |
+                                Gender: <span th:text="${patient.gender}">FEMALE</span> |
+                                Phone: <span th:text="${patient.phone}">+1 (555) 234-5678</span> |
+                                Appointment Slot: <strong th:text="${appointment.appointmentSlot != null ? appointment.appointmentSlot : appointment.appointmentTime}">09:30 AM</strong>
+                            </p>
+                            <p style="font-size: 0.85rem; color: #334155; margin-top: 4px;">
+                                Chief Complaint / Reason: <em th:text="${appointment.reasonForVisit != null ? appointment.reasonForVisit : 'Routine Consultation'}">Seasonal allergies follow-up</em>
+                            </p>
+                        </div>
+
+                        <!-- Allergy & Warning Tag -->
+                        <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-end;">
+                            <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 6px 12px; font-size: 0.8rem; color: #991b1b; font-weight: 700;">
+                                ⚠️ Allergies: <span th:text="${patient.allergies != null && !patient.allergies.isBlank() ? patient.allergies : 'None recorded'}">Penicillin, Peanuts</span>
+                            </div>
+                            <div th:if="${patient.chronicConditions != null and !patient.chronicConditions.isBlank()}"
+                                 style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 6px 12px; font-size: 0.8rem; color: #92400e; font-weight: 600;">
+                                📋 Chronic: <span th:text="${patient.chronicConditions}">Mild Asthma</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Consultation Form Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📝 Consultation Findings & Diagnosis</div>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/doctor/consultations/save}" th:object="${consultationDto}" method="post">
+                        <!-- Hidden identifiers -->
+                        <input type="hidden" th:field="*{appointmentId}">
+                        <input type="hidden" th:field="*{patientId}">
+
+                        <!-- Vitals and Symptoms Row -->
+                        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label for="vitalSigns" class="form-label">Vital Signs Assessment</label>
+                                <input type="text" id="vitalSigns" th:field="*{vitalSigns}" class="form-control"
+                                       placeholder="e.g. BP: 120/80 mmHg | Pulse: 74 bpm | Temp: 98.6 F | SpO2: 98%">
+                                <small style="color: #64748b; font-size: 0.75rem;">Blood Pressure, Heart Rate, Temperature, Respiratory Rate</small>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label for="symptoms" class="form-label">Reported Symptoms & Onset</label>
+                                <input type="text" id="symptoms" th:field="*{symptoms}" class="form-control"
+                                       placeholder="e.g. Dry cough x 4 days, mild sore throat, chest tightness">
+                            </div>
+                        </div>
+
+                        <!-- Diagnosis Field (Required) -->
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label for="diagnosis" class="form-label required">Clinical Diagnosis</label>
+                            <input type="text" id="diagnosis" th:field="*{diagnosis}" class="form-control"
+                                   placeholder="e.g. Acute Bronchitis, Essential Hypertension, Type 2 Diabetes" required>
+                            <div th:if="${#fields.hasErrors('diagnosis')}" class="alert alert-danger" style="margin-top:6px; padding:6px 12px;" th:errors="*{diagnosis}"></div>
+                        </div>
+
+                        <!-- Clinical Notes & Findings (Required) -->
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label for="clinicalNotes" class="form-label required">Clinical Examination Notes & Observations</label>
+                            <textarea id="clinicalNotes" th:field="*{clinicalNotes}" class="form-control" rows="5"
+                                      placeholder="Document physical examination findings, lung sounds, heart auscultation, clinical reasoning..." required></textarea>
+                            <div th:if="${#fields.hasErrors('clinicalNotes')}" class="alert alert-danger" style="margin-top:6px; padding:6px 12px;" th:errors="*{clinicalNotes}"></div>
+                        </div>
+
+                        <!-- Follow-up Instructions -->
+                        <div class="form-group" style="margin-bottom: 28px;">
+                            <label for="followUpInstructions" class="form-label">Patient Follow-up & Lifestyle Guidance</label>
+                            <input type="text" id="followUpInstructions" th:field="*{followUpInstructions}" class="form-control"
+                                   placeholder="e.g. Review in 14 days, increase hydration, return immediately if shortness of breath worsens">
+                        </div>
+
+                        <!-- Prescriptions Section -->
+                        <div style="border-top: 1px solid #e2e8f0; padding-top: 24px; margin-bottom: 28px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                <div>
+                                    <h4 style="color: #0f2c59; font-size: 1.1rem; font-weight: 700;">💊 Prescriptions (Optional)</h4>
+                                    <p style="color: #64748b; font-size: 0.8rem;">Add medications prescribed during this consultation session</p>
+                                </div>
+                                <button type="button" class="btn btn-outline btn-sm" onclick="addPrescriptionRow()">
+                                    ➕ Add Medication
+                                </button>
+                            </div>
+
+                            <div id="prescriptionsList">
+                                <!-- Default 1 blank prescription row -->
+                                <div class="prescription-item-row" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-bottom: 12px; position: relative;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                        <strong style="color: #0f2c59; font-size: 0.85rem;">Medication #1</strong>
+                                        <button type="button" class="btn btn-outline btn-sm" style="color: #ef4444; border-color: #fca5a5; padding: 2px 8px;" onclick="this.closest('.prescription-item-row').remove()">
+                                            ✕ Remove
+                                        </button>
+                                    </div>
+                                    <div class="form-row" style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-bottom: 8px;">
+                                        <div>
+                                            <label class="form-label" style="font-size: 0.75rem;">Medicine Name</label>
+                                            <input type="text" name="prescriptions[0].medicationName" class="form-control" placeholder="e.g. Amoxicillin, Cetirizine">
+                                        </div>
+                                        <div>
+                                            <label class="form-label" style="font-size: 0.75rem;">Dosage</label>
+                                            <input type="text" name="prescriptions[0].dosage" class="form-control" placeholder="e.g. 500 mg, 10 ml">
+                                        </div>
+                                        <div>
+                                            <label class="form-label" style="font-size: 0.75rem;">Frequency</label>
+                                            <input type="text" name="prescriptions[0].frequency" class="form-control" placeholder="e.g. Twice daily after meals">
+                                        </div>
+                                    </div>
+                                    <div class="form-row" style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px;">
+                                        <div>
+                                            <label class="form-label" style="font-size: 0.75rem;">Duration</label>
+                                            <input type="text" name="prescriptions[0].duration" class="form-control" placeholder="e.g. 7 days, 1 month">
+                                        </div>
+                                        <div>
+                                            <label class="form-label" style="font-size: 0.75rem;">Instructions / Notes</label>
+                                            <input type="text" name="prescriptions[0].instructions" class="form-control" placeholder="e.g. Complete full course, take with water">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div style="display: flex; gap: 12px; justify-content: flex-end; border-top: 1px solid #e2e8f0; padding-top: 20px;">
+                            <a th:href="@{/doctor/dashboard}" class="btn btn-outline">Cancel</a>
+                            <button type="submit" class="btn btn-primary btn-lg" style="padding: 10px 28px;">
+                                ✅ Complete & Finalize Consultation
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Patient Prior Medical History Accordion -->
+            <div class="card" style="margin-top: 24px;">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>📚 Patient Past Medical Records & Diagnoses (<span th:text="${#lists.size(pastRecords)}">0</span>)</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(pastRecords)}" style="color: #64748b; font-size: 0.875rem;">
+                        No previous medical records found for this patient.
+                    </div>
+                    <div th:each="rec : ${pastRecords}" style="border-bottom: 1px solid #e2e8f0; padding: 12px 0;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <div>
+                                <strong style="color: #0f2c59;" th:text="${rec.diagnosis}">Acute Bronchitis</strong>
+                                <span style="font-size: 0.75rem; color: #64748b; margin-left: 8px;" th:text="${#temporals.format(rec.visitDate, 'MMM d, yyyy')}">Oct 14, 2026</span>
+                            </div>
+                            <span class="badge badge-info" th:if="${rec.vitalSigns != null}" th:text="${rec.vitalSigns}">BP: 120/80</span>
+                        </div>
+                        <p style="font-size: 0.825rem; color: #475569; margin-top: 4px;" th:text="${rec.clinicalNotes}">Clinical notes</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

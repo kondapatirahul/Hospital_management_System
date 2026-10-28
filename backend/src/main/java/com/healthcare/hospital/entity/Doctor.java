@@ -21,6 +21,10 @@ public class Doctor {
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", unique = true)
+    private User user;
+
     @Column(length = 100)
     private String email;
 
@@ -88,6 +92,14 @@ public class Doctor {
 
     public void setDepartment(Department department) {
         this.department = department;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getEmail() {

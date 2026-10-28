@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Consultation History - Doctor')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('doctor-consultations')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Clinical Consultations & Diagnosis Logs', 'Review and update clinical documentation, diagnoses, and medical observations')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Consultations List Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>📝 Recorded Consultation Sessions (<span th:text="${#lists.size(consultations)}">0</span>)</span>
+                    </div>
+                    <input type="text" class="form-control" style="max-width: 280px;" placeholder="Filter by patient or diagnosis..." data-table-search="#consultationsTable">
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table id="consultationsTable" class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Patient</th>
+                                    <th>Primary Diagnosis</th>
+                                    <th>Vitals</th>
+                                    <th>Symptoms</th>
+                                    <th>Clinical Notes Summary</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(consultations)}">
+                                    <td colspan="7" style="text-align: center; color: #64748b; padding: 36px;">
+                                        No consultations recorded yet. Start a consultation from your dashboard or appointments.
+                                    </td>
+                                </tr>
+                                <tr th:each="c : ${consultations}">
+                                    <td>
+                                        <strong style="color: #0f2c59;" th:text="${#temporals.format(c.visitDate, 'MMM d, yyyy')}">Oct 14, 2026</strong>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight: 700; color: #0f2c59;" th:text="${c.patient.fullName}">Sarah Jenkins</div>
+                                        <div style="font-size: 0.75rem; color: #64748b;" th:text="${c.patient.patientId}">PAT-2026-0001</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-info" style="font-size: 0.85rem;" th:text="${c.diagnosis}">Acute Bronchitis</span>
+                                    </td>
+                                    <td style="font-size: 0.8rem; color: #475569;" th:text="${c.vitalSigns != null ? c.vitalSigns : '-'}">
+                                        BP: 120/80
+                                    </td>
+                                    <td style="max-width: 200px; font-size: 0.825rem; color: #475569;" th:text="${c.symptoms != null ? c.symptoms : '-'}">
+                                        Dry cough
+                                    </td>
+                                    <td style="max-width: 250px; font-size: 0.825rem; color: #334155;">
+                                        <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" th:text="${c.clinicalNotes}">
+                                            Auscultation details
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; gap: 6px;">
+                                            <a th:href="@{/doctor/patients/{id}(id=${c.patient.id})}" class="btn btn-outline btn-sm" title="Patient Chart">
+                                                👤 Chart
+                                            </a>
+                                            <!-- Edit Notes Modal Trigger -->
+                                            <button type="button" class="btn btn-outline btn-sm"
+                                                    data-modal-target="editNotesModal"
+                                                    th:data-action-url="@{/doctor/consultations/{id}/notes(id=${c.id})}"
+                                                    th:data-appt-info="${c.patient.fullName + ' - ' + c.diagnosis}">
+                                                ✏️ Edit Notes
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Notes Modal -->
+            <div id="editNotesModal" class="modal-overlay">
+                <div class="modal-content" style="max-width: 540px;">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Update Clinical Consultation Notes</h3>
+                        <button type="button" class="modal-close-btn">&times;</button>
+                    </div>
+                    <form method="post" action="">
+                        <div class="modal-body">
+                            <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 14px;">
+                                Session: <strong class="modal-appt-info" style="color: #0f2c59;">-</strong>
+                            </p>
+                            <div class="form-group">
+                                <label class="form-label required">Clinical Notes & Observations</label>
+                                <textarea name="clinicalNotes" class="form-control" rows="5" placeholder="Enter updated clinical notes..." required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Follow-up Instructions</label>
+                                <textarea name="followUpInstructions" class="form-control" rows="3" placeholder="Follow-up instructions or referrals..."></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline" data-modal-close>Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Notes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

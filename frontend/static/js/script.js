@@ -188,6 +188,9 @@ function fillDemoCredentials(role) {
     } else if (role === 'patient') {
         userField.value = 'patient@hospital.com';
         passField.value = 'Password@123';
+    } else if (role === 'doctor') {
+        userField.value = 'dr.vance@hospital.com';
+        passField.value = 'Password@123';
     }
 
     // Visual highlight feedback
@@ -197,4 +200,52 @@ function fillDemoCredentials(role) {
         userField.style.borderColor = '';
         passField.style.borderColor = '';
     }, 1200);
+}
+
+/**
+ * Dynamic Prescription Row addition for Doctor Consultation Form
+ */
+function addPrescriptionRow() {
+    const container = document.getElementById('prescriptionsList');
+    if (!container) return;
+
+    const index = container.querySelectorAll('.prescription-item-row').length;
+    const row = document.createElement('div');
+    row.className = 'prescription-item-row';
+    row.style = 'background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-bottom: 12px; position: relative;';
+
+    row.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <strong style="color: #0f2c59; font-size: 0.85rem;">Medication #${index + 1}</strong>
+            <button type="button" class="btn btn-outline btn-sm" style="color: #ef4444; border-color: #fca5a5; padding: 2px 8px;" onclick="this.closest('.prescription-item-row').remove()">
+                ✕ Remove
+            </button>
+        </div>
+        <div class="form-row" style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-bottom: 8px;">
+            <div>
+                <label class="form-label" style="font-size: 0.75rem;">Medicine Name</label>
+                <input type="text" name="prescriptions[${index}].medicationName" class="form-control" placeholder="e.g. Amoxicillin, Paracetamol" required>
+            </div>
+            <div>
+                <label class="form-label" style="font-size: 0.75rem;">Dosage</label>
+                <input type="text" name="prescriptions[${index}].dosage" class="form-control" placeholder="e.g. 500 mg, 10 ml" required>
+            </div>
+            <div>
+                <label class="form-label" style="font-size: 0.75rem;">Frequency</label>
+                <input type="text" name="prescriptions[${index}].frequency" class="form-control" placeholder="e.g. 2x daily after meals" required>
+            </div>
+        </div>
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px;">
+            <div>
+                <label class="form-label" style="font-size: 0.75rem;">Duration</label>
+                <input type="text" name="prescriptions[${index}].duration" class="form-control" placeholder="e.g. 5 days, 1 month">
+            </div>
+            <div>
+                <label class="form-label" style="font-size: 0.75rem;">Instructions / Notes</label>
+                <input type="text" name="prescriptions[${index}].instructions" class="form-control" placeholder="e.g. Take with full glass of water">
+            </div>
+        </div>
+    `;
+
+    container.appendChild(row);
 }

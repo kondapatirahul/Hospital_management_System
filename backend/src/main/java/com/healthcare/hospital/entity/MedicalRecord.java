@@ -20,6 +20,10 @@ public class MedicalRecord {
     @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "appointment_id")
+    private Appointment appointment;
+
     @Column(name = "visit_date", nullable = false)
     private LocalDate visitDate;
 
@@ -56,6 +60,19 @@ public class MedicalRecord {
         this.createdAt = LocalDateTime.now();
     }
 
+    public MedicalRecord(Patient patient, Doctor doctor, Appointment appointment, LocalDate visitDate, String symptoms, String diagnosis, String clinicalNotes, String vitalSigns, String followUpInstructions) {
+        this.patient = patient;
+        this.doctor = doctor;
+        this.appointment = appointment;
+        this.visitDate = visitDate;
+        this.symptoms = symptoms;
+        this.diagnosis = diagnosis;
+        this.clinicalNotes = clinicalNotes;
+        this.vitalSigns = vitalSigns;
+        this.followUpInstructions = followUpInstructions;
+        this.createdAt = LocalDateTime.now();
+    }
+
     public Long getId() {
         return id;
     }
@@ -78,6 +95,14 @@ public class MedicalRecord {
 
     public void setDoctor(Doctor doctor) {
         this.doctor = doctor;
+    }
+
+    public Appointment getAppointment() {
+        return appointment;
+    }
+
+    public void setAppointment(Appointment appointment) {
+        this.appointment = appointment;
     }
 
     public LocalDate getVisitDate() {
