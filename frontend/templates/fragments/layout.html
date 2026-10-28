@@ -29,7 +29,11 @@
         <span sec:authorize="hasRole('PATIENT')">👤 PATIENT PORTAL</span>
         <span sec:authorize="hasRole('RECEPTIONIST')">📋 RECEPTION DESK</span>
         <span sec:authorize="hasRole('DOCTOR')">👨‍⚕️ DOCTOR PORTAL</span>
-        <span sec:authorize="hasAnyRole('PHARMACIST', 'ADMIN')">💊 PHARMACY DISPENSARY</span>
+        <span sec:authorize="hasRole('PHARMACIST')">💊 PHARMACY DISPENSARY</span>
+        <span sec:authorize="hasRole('LAB_TECHNICIAN')">🧪 LABORATORY</span>
+        <span sec:authorize="hasRole('BILLING')">💳 BILLING & FINANCE</span>
+        <span sec:authorize="hasAnyRole('NURSE', 'STAFF')">🩺 STAFF & NURSING</span>
+        <span sec:authorize="hasRole('ADMIN')">⚙️ ADMINISTRATION</span>
     </div>
 
     <nav class="sidebar-nav">
@@ -283,6 +287,23 @@
                 </li>
             </ul>
         </div>
+        <!-- Shared operations dashboards -->
+        <div sec:authorize="hasRole('LAB_TECHNICIAN')">
+            <div class="nav-section-title">Laboratory</div>
+            <ul class="nav-list"><li class="nav-item"><a th:href="@{/laboratory/dashboard}"><span class="nav-icon">🧪</span><span>Lab Dashboard</span></a></li></ul>
+        </div>
+        <div sec:authorize="hasRole('BILLING')">
+            <div class="nav-section-title">Finance</div>
+            <ul class="nav-list"><li class="nav-item"><a th:href="@{/billing/dashboard}"><span class="nav-icon">💳</span><span>Billing Dashboard</span></a></li></ul>
+        </div>
+        <div sec:authorize="hasAnyRole('NURSE', 'STAFF')">
+            <div class="nav-section-title">Care Team</div>
+            <ul class="nav-list"><li class="nav-item"><a th:href="@{/staff/dashboard}"><span class="nav-icon">🩺</span><span>Staff Dashboard</span></a></li></ul>
+        </div>
+        <div sec:authorize="hasRole('ADMIN')">
+            <div class="nav-section-title">Administration</div>
+            <ul class="nav-list"><li class="nav-item"><a th:href="@{/admin/dashboard}"><span class="nav-icon">⚙️</span><span>Admin Dashboard</span></a></li><li class="nav-item"><a th:href="@{/billing/dashboard}"><span class="nav-icon">💳</span><span>Billing Dashboard</span></a></li><li class="nav-item"><a th:href="@{/laboratory/dashboard}"><span class="nav-icon">🧪</span><span>Laboratory Dashboard</span></a></li></ul>
+        </div>
     </nav>
 
     <!-- Sidebar Bottom User Status -->
@@ -294,7 +315,11 @@
                 <div class="role-label" sec:authorize="hasRole('PATIENT')" th:text="${currentPatient != null ? currentPatient.patientId : 'Patient'}">PAT-0000</div>
                 <div class="role-label" sec:authorize="hasRole('RECEPTIONIST')">Hospital Receptionist</div>
                 <div class="role-label" sec:authorize="hasRole('DOCTOR')" th:text="${currentDoctor != null ? currentDoctor.qualification : 'Doctor'}">Doctor</div>
-                <div class="role-label" sec:authorize="hasAnyRole('PHARMACIST', 'ADMIN')">Hospital Pharmacist</div>
+                <div class="role-label" sec:authorize="hasRole('PHARMACIST')">Hospital Pharmacist</div>
+                <div class="role-label" sec:authorize="hasRole('LAB_TECHNICIAN')">Laboratory Technician</div>
+                <div class="role-label" sec:authorize="hasRole('BILLING')">Billing & Finance</div>
+                <div class="role-label" sec:authorize="hasAnyRole('NURSE', 'STAFF')">Staff & Nursing</div>
+                <div class="role-label" sec:authorize="hasRole('ADMIN')">Administrator</div>
             </div>
         </div>
     </div>

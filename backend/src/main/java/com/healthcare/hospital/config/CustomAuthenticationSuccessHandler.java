@@ -30,8 +30,20 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             } else if (role.equals("ROLE_DOCTOR")) {
                 response.sendRedirect(request.getContextPath() + "/doctor/dashboard");
                 return;
-            } else if (role.equals("ROLE_PHARMACIST") || role.equals("ROLE_ADMIN")) {
+            } else if (role.equals("ROLE_PHARMACIST")) {
                 response.sendRedirect(request.getContextPath() + "/pharmacy/dashboard");
+                return;
+            } else if (role.equals("ROLE_LAB_TECHNICIAN")) {
+                response.sendRedirect(request.getContextPath() + "/laboratory/dashboard");
+                return;
+            } else if (role.equals("ROLE_BILLING")) {
+                response.sendRedirect(request.getContextPath() + "/billing/dashboard");
+                return;
+            } else if (role.equals("ROLE_NURSE") || role.equals("ROLE_STAFF")) {
+                response.sendRedirect(request.getContextPath() + "/staff/dashboard");
+                return;
+            } else if (role.equals("ROLE_ADMIN")) {
+                response.sendRedirect(request.getContextPath() + "/admin/dashboard");
                 return;
             }
         }

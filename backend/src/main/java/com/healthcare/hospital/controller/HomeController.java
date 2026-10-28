@@ -18,6 +18,16 @@ public class HomeController {
                     return "redirect:/patient/dashboard";
                 } else if (authority.getAuthority().equals("ROLE_DOCTOR")) {
                     return "redirect:/doctor/dashboard";
+                } else if (authority.getAuthority().equals("ROLE_PHARMACIST")) {
+                    return "redirect:/pharmacy/dashboard";
+                } else if (authority.getAuthority().equals("ROLE_LAB_TECHNICIAN")) {
+                    return "redirect:/laboratory/dashboard";
+                } else if (authority.getAuthority().equals("ROLE_BILLING")) {
+                    return "redirect:/billing/dashboard";
+                } else if (authority.getAuthority().equals("ROLE_NURSE") || authority.getAuthority().equals("ROLE_STAFF")) {
+                    return "redirect:/staff/dashboard";
+                } else if (authority.getAuthority().equals("ROLE_ADMIN")) {
+                    return "redirect:/admin/dashboard";
                 }
             }
         }
