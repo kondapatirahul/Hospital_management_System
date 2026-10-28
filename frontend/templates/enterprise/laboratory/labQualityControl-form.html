@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Create LabQualityControl</title><style>body{font-family:Arial,sans-serif;background:#f5f7fb;color:#243047}main{max-width:760px;margin:32px auto;padding:26px;background:#fff;border-radius:16px}label{display:block;margin:14px 0 6px}input,textarea,select{box-sizing:border-box;width:100%;padding:11px;border:1px solid #ccd5e1;border-radius:8px}button,a{display:inline-block;margin-top:18px;padding:11px 16px;background:#234b85;color:#fff;border:0;border-radius:8px;text-decoration:none}</style></head>
+<body><main><h1>Create LabQualityControl</h1><p>Laboratory quality control checks.</p>
+<form method="post" th:action="@{/laboratory/enterprise/labQualityControl}">
+<label>Title *</label><input name="title" required maxlength="180">
+<label>Description</label><textarea name="description" rows="4" maxlength="4000"></textarea>
+<label>Reference code</label><input name="referenceCode" maxlength="120">
+<label>Assigned to</label><input name="assignedTo" maxlength="120">
+<label>Due date</label><input type="date" name="dueDate">
+<label>Amount</label><input type="number" name="amount" min="0" step="0.01" value="0">
+<button type="submit">Save record</button><a th:href="@{/laboratory/enterprise/labQualityControl}">Cancel</a>
+</form></main></body></html>

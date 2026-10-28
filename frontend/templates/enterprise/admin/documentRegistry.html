@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="'CareFlow | DocumentRegistry'">CareFlow workflow</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <style>
+    .enterprise-wrap {
+      max-width: 1400px;
+      margin: 28px auto;
+      padding: 0 24px;
+      color: #243047
+    }
+
+    .enterprise-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap
+    }
+
+    .enterprise-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin: 24px 0
+    }
+
+    .enterprise-card {
+      padding: 18px;
+      border: 1px solid #e1e7ef;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 4px 18px #13223b0a
+    }
+
+    .enterprise-card strong {
+      display: block;
+      font-size: 28px;
+      margin-top: 8px
+    }
+
+    .enterprise-filters,
+    .enterprise-form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 16px 0
+    }
+
+    .enterprise-wrap input,
+    .enterprise-wrap select,
+    .enterprise-wrap textarea {
+      padding: 10px;
+      border: 1px solid #ccd5e1;
+      border-radius: 8px;
+      min-width: 150px
+    }
+
+    .enterprise-wrap button,
+    .enterprise-btn {
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      background: #234b85;
+      color: white;
+      cursor: pointer;
+      text-decoration: none
+    }
+
+    .enterprise-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white
+    }
+
+    .enterprise-table th,
+    .enterprise-table td {
+      padding: 12px;
+      border-bottom: 1px solid #e7ebf1;
+      text-align: left
+    }
+
+    .enterprise-table th {
+      background: #f4f7fb
+    }
+
+    .enterprise-pill {
+      padding: 4px 8px;
+      border-radius: 99px;
+      background: #eaf1ff;
+      font-size: 12px
+    }
+
+    .enterprise-msg {
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin: 10px 0;
+      background: #edf8f0
+    }
+
+    @media(max-width:760px) {
+      .enterprise-table {
+        display: block;
+        overflow-x: auto
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="enterprise-wrap">
+    <div class="enterprise-head">
+      <div>
+        <p>CareFlow / Admin</p>
+        <h1>DocumentRegistry</h1>
+        <p>Medical document registry metadata.</p>
+      </div>
+      <a class="enterprise-btn" th:href="@{/admin/enterprise/documentRegistry/new}">Create record</a>
+    </div>
+    <p class="enterprise-msg" th:if="${successMessage}" th:text="${successMessage}"></p>
+    <p class="enterprise-msg" th:if="${errorMessage}" th:text="${errorMessage}"></p>
+    <section class="enterprise-cards">
+      <div class="enterprise-card">All records<strong th:text="${totalCount}">0</strong></div>
+      <div class="enterprise-card">Open / pending<strong th:text="${openCount}">0</strong></div>
+      <div class="enterprise-card">Completed<strong th:text="${completedCount}">0</strong></div>
+      <div class="enterprise-card">Overdue<strong th:text="${overdueCount}">0</strong></div>
+    </section>
+    <form class="enterprise-filters" method="get" th:action="@{/admin/enterprise/documentRegistry}">
+      <input name="status" placeholder="Filter by status" th:value="${statusFilter}">
+      <input name="assignee" placeholder="Assigned to" th:value="${assigneeFilter}">
+      <button type="submit">Filter</button><a class="enterprise-btn"
+        th:href="@{/admin/enterprise/documentRegistry}">Reset</a>
+    </form>
+    <div style="overflow-x:auto">
+      <table class="enterprise-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Reference</th>
+            <th>Assignee</th>
+            <th>Due date</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="item : ${records}">
+            <td th:text="${item.id}">1</td>
+            <td th:text="${item.title}">Title</td>
+            <td th:text="${item.referenceCode}">REF</td>
+            <td th:text="${item.assignedTo}">User</td>
+            <td th:text="${item.dueDate}">Date</td>
+            <td th:text="${item.amount}">0</td>
+            <td><span class="enterprise-pill" th:text="${item.displayStatus}">OPEN</span></td>
+            <td>
+              <form style="display:inline" method="post"
+                th:action="@{/admin/enterprise/documentRegistry/{id}/start(id=${item.id})}"><button
+                  type="submit">Start</button></form>
+              <form style="display:inline" method="post"
+                th:action="@{/admin/enterprise/documentRegistry/{id}/complete(id=${item.id})}"><button
+                  type="submit">Complete</button></form>
+              <form style="display:inline" method="post"
+                th:action="@{/admin/enterprise/documentRegistry/{id}/cancel(id=${item.id})}"><input type="hidden"
+                  name="reason" value="Cancelled by operator"><button type="submit">Cancel</button></form>
+            </td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(records)}">
+            <td colspan="8">No records found. Create the first record to begin this workflow.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+
+</html>
