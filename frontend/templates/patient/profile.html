@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: htmlHead('My Profile - Patient Portal')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('profile')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Patient Profile & Medical Info', 'Manage contact info, emergency contacts, and personal medical history')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <div class="dashboard-grid">
+                <!-- Profile Edit Form -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">✏️ Edit Profile Details</div>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/patient/profile}" th:object="${profileDto}" method="post">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label required">Full Legal Name</label>
+                                    <input type="text" th:field="*{fullName}" class="form-control" required>
+                                    <div th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="text-danger"></div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label required">Primary Phone</label>
+                                    <input type="tel" th:field="*{phone}" class="form-control" required>
+                                    <div th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="text-danger"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" th:field="*{email}" class="form-control" readonly style="background: #f8fafc;">
+                                    <div class="form-text">Email acts as login username and cannot be modified directly.</div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Blood Group</label>
+                                    <select th:field="*{bloodGroup}" class="form-control">
+                                        <option value="">-- Select Blood Group --</option>
+                                        <option value="A+">A+</option>
+                                        <option value="A-">A-</option>
+                                        <option value="B+">B+</option>
+                                        <option value="B-">B-</option>
+                                        <option value="AB+">AB+</option>
+                                        <option value="AB-">AB-</option>
+                                        <option value="O+">O+</option>
+                                        <option value="O-">O-</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Residential Address</label>
+                                <input type="text" th:field="*{address}" class="form-control">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Emergency Contact Name</label>
+                                    <input type="text" th:field="*{emergencyContactName}" class="form-control">
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Emergency Contact Phone</label>
+                                    <input type="tel" th:field="*{emergencyContactPhone}" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Known Allergies</label>
+                                    <input type="text" th:field="*{allergies}" class="form-control" placeholder="e.g. Penicillin, Peanuts">
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Chronic Conditions</label>
+                                    <input type="text" th:field="*{chronicConditions}" class="form-control" placeholder="e.g. Asthma, Hypertension">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg" style="margin-top: 10px;">
+                                Save Updated Profile
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Patient Identity & Record Summary Card -->
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">🪪 Hospital Identification</div>
+                        </div>
+                        <div class="card-body">
+                            <div style="text-align: center; margin-bottom: 20px;">
+                                <div class="user-avatar-sm" style="width: 72px; height: 72px; font-size: 26px; margin: 0 auto 12px auto; background: linear-gradient(135deg, #0d9488, #0284c7);">
+                                    <span th:text="${#strings.substring(patient.fullName,0,1)}">S</span>
+                                </div>
+                                <h3 style="font-size: 1.15rem; color: #0f2c59;" th:text="${patient.fullName}">Sarah Jenkins</h3>
+                                <div style="margin-top: 4px;">
+                                    <span class="badge badge-primary" style="font-size: 0.85rem;" th:text="${patient.patientId}">PAT-2026-0001</span>
+                                </div>
+                            </div>
+
+                            <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 0.85rem;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                    <span style="color: #64748b;">Registered Since:</span>
+                                    <strong style="color: #0f172a;" th:text="${#temporals.format(patient.registeredAt, 'MMM d, yyyy')}">Oct 27, 2026</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                    <span style="color: #64748b;">Date of Birth:</span>
+                                    <strong style="color: #0f172a;" th:text="${patient.dateOfBirth != null ? #temporals.format(patient.dateOfBirth, 'MMM d, yyyy') : 'N/A'}">May 14, 1992</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                    <span style="color: #64748b;">Gender:</span>
+                                    <strong style="color: #0f172a;" th:text="${patient.gender != null ? patient.gender : 'N/A'}">FEMALE</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                    <span style="color: #64748b;">Blood Group:</span>
+                                    <span class="badge badge-danger" th:text="${patient.bloodGroup != null ? patient.bloodGroup : 'N/A'}">A+</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>
