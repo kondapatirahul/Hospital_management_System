@@ -289,20 +289,42 @@
         </div>
         <!-- Shared operations dashboards -->
         <div sec:authorize="hasRole('LAB_TECHNICIAN')">
-            <div class="nav-section-title">Laboratory</div>
-            <ul class="nav-list"><li class="nav-item"><a th:href="@{/laboratory/dashboard}"><span class="nav-icon">🧪</span><span>Lab Dashboard</span></a></li></ul>
+            <div class="nav-section-title">Laboratory Operations</div>
+            <ul class="nav-list">
+                <li class="nav-item"><a th:href="@{/laboratory/dashboard}"><span class="nav-icon">📊</span><span>Lab Dashboard</span></a></li>
+                <li class="nav-item"><a th:href="@{/laboratory/samples}"><span class="nav-icon">🧪</span><span>Samples & Results</span></a></li>
+                <li class="nav-item"><a th:href="@{/reports}"><span class="nav-icon">📈</span><span>Reports & Analytics</span></a></li>
+            </ul>
         </div>
         <div sec:authorize="hasRole('BILLING')">
-            <div class="nav-section-title">Finance</div>
-            <ul class="nav-list"><li class="nav-item"><a th:href="@{/billing/dashboard}"><span class="nav-icon">💳</span><span>Billing Dashboard</span></a></li></ul>
+            <div class="nav-section-title">Finance Operations</div>
+            <ul class="nav-list">
+                <li class="nav-item"><a th:href="@{/billing/dashboard}"><span class="nav-icon">📊</span><span>Billing Dashboard</span></a></li>
+                <li class="nav-item"><a th:href="@{/billing/payments}"><span class="nav-icon">💳</span><span>Payment Records</span></a></li>
+                <li class="nav-item"><a th:href="@{/reports}"><span class="nav-icon">📈</span><span>Financial Reports</span></a></li>
+            </ul>
         </div>
         <div sec:authorize="hasAnyRole('NURSE', 'STAFF')">
-            <div class="nav-section-title">Care Team</div>
-            <ul class="nav-list"><li class="nav-item"><a th:href="@{/staff/dashboard}"><span class="nav-icon">🩺</span><span>Staff Dashboard</span></a></li></ul>
+            <div class="nav-section-title">Staff & Nursing</div>
+            <ul class="nav-list">
+                <li class="nav-item"><a th:href="@{/staff/dashboard}"><span class="nav-icon">📊</span><span>Staff Dashboard</span></a></li>
+                <li class="nav-item"><a th:href="@{/staff/tasks}"><span class="nav-icon">🩺</span><span>Care Tasks</span></a></li>
+                <li class="nav-item"><a th:href="@{/staff/shifts}"><span class="nav-icon">🗓️</span><span>Duty Roster & Shifts</span></a></li>
+                <li class="nav-item"><a th:href="@{/staff/attendance}"><span class="nav-icon">⏱️</span><span>Attendance</span></a></li>
+                <li class="nav-item"><a th:href="@{/staff/wards}"><span class="nav-icon">🛏️</span><span>Ward & Bed Status</span></a></li>
+            </ul>
         </div>
         <div sec:authorize="hasRole('ADMIN')">
             <div class="nav-section-title">Administration</div>
-            <ul class="nav-list"><li class="nav-item"><a th:href="@{/admin/dashboard}"><span class="nav-icon">⚙️</span><span>Admin Dashboard</span></a></li><li class="nav-item"><a th:href="@{/billing/dashboard}"><span class="nav-icon">💳</span><span>Billing Dashboard</span></a></li><li class="nav-item"><a th:href="@{/laboratory/dashboard}"><span class="nav-icon">🧪</span><span>Laboratory Dashboard</span></a></li></ul>
+            <ul class="nav-list">
+                <li class="nav-item"><a th:href="@{/admin/dashboard}"><span class="nav-icon">⚙️</span><span>Admin Dashboard</span></a></li>
+                <li class="nav-item"><a th:href="@{/admin/settings}"><span class="nav-icon">🛠️</span><span>System Settings</span></a></li>
+                <li class="nav-item"><a th:href="@{/admin/audit}"><span class="nav-icon">🛡️</span><span>Audit Trail</span></a></li>
+                <li class="nav-item"><a th:href="@{/reports}"><span class="nav-icon">📈</span><span>Hospital Reports</span></a></li>
+                <li class="nav-item"><a th:href="@{/billing/dashboard}"><span class="nav-icon">💳</span><span>Billing Dashboard</span></a></li>
+                <li class="nav-item"><a th:href="@{/laboratory/dashboard}"><span class="nav-icon">🧪</span><span>Laboratory Dashboard</span></a></li>
+                <li class="nav-item"><a th:href="@{/staff/wards}"><span class="nav-icon">🛏️</span><span>Ward & Bed Management</span></a></li>
+            </ul>
         </div>
     </nav>
 

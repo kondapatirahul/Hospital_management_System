@@ -94,6 +94,7 @@ public class DataInitializer implements CommandLineRunner {
         if (userRepository.count() > 0) {
             seedDoctorUsersAndAvailabilityIfMissing();
             seedPharmacyDataIfMissing(defaultHashedPassword);
+            ensureRoleDemoAccounts(defaultHashedPassword);
             return;
         }
 
@@ -622,6 +623,42 @@ public class DataInitializer implements CommandLineRunner {
                 "pharmacist@hospital.com", "M3 Pharmacy subsystem initialized with demo catalogs and inventory.",
                 "127.0.0.1"
         ));
+
+        // Ensure every role in the workflow diagram has a usable local demo account.
+        ensureRoleDemoAccounts(defaultHashedPassword);
+    }
+
+    /**
+     * Creates only missing demo accounts. Existing accounts, passwords and enabled
+     * flags are deliberately left untouched so repeated application restarts are safe.
+     * Demo password for newly created accounts: Password@123.
+     */
+    private void ensureRoleDemoAccounts(String encodedPassword) {
+        createDemoAccountIfMissing("admin@hospital.com", "CareFlow Administrator",
+                RoleType.ROLE_ADMIN, encodedPassword);
+        createDemoAccountIfMissing("lab@hospital.com", "Laboratory Technician",
+                RoleType.ROLE_LAB_TECHNICIAN, encodedPassword);
+        createDemoAccountIfMissing("billing@hospital.com", "Billing Officer",
+                RoleType.ROLE_BILLING, encodedPassword);
+        createDemoAccountIfMissing("nurse@hospital.com", "Nursing Staff",
+                RoleType.ROLE_NURSE, encodedPassword);
+        createDemoAccountIfMissing("staff@hospital.com", "Hospital Staff",
+                RoleType.ROLE_STAFF, encodedPassword);
+        createDemoAccountIfMissing("pharmacist@hospital.com", "Pharmacy Officer",
+                RoleType.ROLE_PHARMACIST, encodedPassword);
+        createDemoAccountIfMissing("receptionist@hospital.com", "Receptionist Demo",
+                RoleType.ROLE_RECEPTIONIST, encodedPassword);
+        createDemoAccountIfMissing("patient@hospital.com", "Patient Demo",
+                RoleType.ROLE_PATIENT, encodedPassword);
+        createDemoAccountIfMissing("billing.manager@hospital.com", "Finance Manager",
+                RoleType.ROLE_BILLING, encodedPassword);
+    }
+
+    private void createDemoAccountIfMissing(String username, String fullName,
+                                             RoleType role, String encodedPassword) {
+        if (!userRepository.existsByUsername(username)) {
+            userRepository.save(new User(username, encodedPassword, fullName, role));
+        }
     }
 
     private void updateMedicineStock(Medicine medicine) {

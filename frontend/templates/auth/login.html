@@ -24,24 +24,27 @@
         <!-- Flash messages -->
         <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
 
-        <!-- Quick 1-Click Demo Login Box -->
-        <div class="demo-account-box">
-            <h4>Quick Demo 1-Click Fill</h4>
-            <div class="demo-btn-group">
-                <button type="button" class="btn-demo" onclick="fillDemoCredentials('receptionist')">
-                    📋 Receptionist Demo
-                </button>
-                <button type="button" class="btn-demo" onclick="fillDemoCredentials('patient')">
-                    👤 Patient Demo
-                </button>
-                <button type="button" class="btn-demo" onclick="fillDemoCredentials('doctor')">
-                    👨‍⚕️ Doctor Demo
-                </button>
+        <!-- Role-based demo access: every role from the workflow has a seeded account. -->
+        <section class="demo-account-box" aria-labelledby="demo-accounts-heading">
+            <h4 id="demo-accounts-heading">Role-based demo access</h4>
+            <p style="font-size:12px;color:#64748b;margin:0 0 12px;">
+                Select a role to fill its demo credentials, then click Sign In. Password for new demo accounts:
+                <strong>Password@123</strong>
+            </p>
+            <div class="demo-btn-group" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;">
+                <button type="button" class="btn-demo" onclick="fillDemoCredentials('admin')">⚙️ Admin</button>
+                <button type="button" class="btn-demo" onclick="fillDemoCredentials('patient')">👤 Patient</button>
+                <button type="button" class="btn-demo" onclick="fillDemoCredentials('doctor')">🩺 Doctor</button>
+                <button type="button" class="btn-demo" onclick="fillDemoCredentials('receptionist')">📋 Receptionist</button>
+                <button type="button" class="btn-demo" onclick="fillDemoCredentials('pharmacy')">💊 Pharmacy</button>
+                <button type="button" class="btn-demo" onclick="fillDemoCredentials('laboratory')">🧪 Laboratory</button>
+                <button type="button" class="btn-demo" onclick="fillDemoCredentials('billing')">💳 Billing & Finance</button>
+                <button type="button" class="btn-demo" onclick="fillDemoCredentials('nurse')">🩹 Staff & Nursing</button>
             </div>
-            <div style="font-size: 11px; color: #64748b; margin-top: 8px; text-align: center;">
-                Default Password: <strong>Password@123</strong>
-            </div>
-        </div>
+            <p style="font-size:11px;color:#64748b;margin:10px 0 0;">
+                Demo accounts are for local development only. Change demo passwords before deployment.
+            </p>
+        </section>
 
         <form th:action="@{/login}" method="post">
             <div class="form-group">

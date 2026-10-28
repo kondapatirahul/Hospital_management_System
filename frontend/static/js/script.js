@@ -179,23 +179,28 @@ function initMobileNav() {
 function fillDemoCredentials(role) {
     const userField = document.getElementById('username');
     const passField = document.getElementById('password');
-
     if (!userField || !passField) return;
 
-    if (role === 'receptionist') {
-        userField.value = 'receptionist@hospital.com';
-        passField.value = 'Password@123';
-    } else if (role === 'patient') {
-        userField.value = 'patient@hospital.com';
-        passField.value = 'Password@123';
-    } else if (role === 'doctor') {
-        userField.value = 'dr.vance@hospital.com';
-        passField.value = 'Password@123';
-    }
+    const demoAccounts = {
+        admin: 'admin@hospital.com',
+        patient: 'patient@hospital.com',
+        doctor: 'dr.vance@hospital.com',
+        receptionist: 'receptionist@hospital.com',
+        pharmacy: 'pharmacist@hospital.com',
+        laboratory: 'lab@hospital.com',
+        billing: 'billing@hospital.com',
+        nurse: 'nurse@hospital.com'
+    };
+    const username = demoAccounts[role];
+    if (!username) return;
 
-    // Visual highlight feedback
+    userField.value = username;
+    passField.value = 'Password@123';
+    userField.dispatchEvent(new Event('input', { bubbles: true }));
+    passField.dispatchEvent(new Event('input', { bubbles: true }));
     userField.style.borderColor = '#0d9488';
     passField.style.borderColor = '#0d9488';
+    userField.focus();
     setTimeout(() => {
         userField.style.borderColor = '';
         passField.style.borderColor = '';
