@@ -3,8 +3,10 @@ package com.healthcare.hospital.controller;
 import com.healthcare.hospital.entity.Department;
 import com.healthcare.hospital.entity.User;
 import com.healthcare.hospital.repository.*;
+import com.healthcare.hospital.service.AuditEventService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import java.security.Principal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -21,10 +23,11 @@ public class AdminDashboardController {
     private final DepartmentRepository departmentRepository;
     private final LabReportRepository labReportRepository;
     private final InvoiceRepository invoiceRepository;
+    private final AuditEventService audit;
 
     public AdminDashboardController(UserRepository users, PatientRepository patients, DoctorRepository doctors,
             AppointmentRepository appointments, DepartmentRepository departments, LabReportRepository labs,
-            InvoiceRepository invoices) {
+            InvoiceRepository invoices, AuditEventService audit) {
         this.userRepository = users;
         this.patientRepository = patients;
         this.doctorRepository = doctors;
@@ -32,6 +35,7 @@ public class AdminDashboardController {
         this.departmentRepository = departments;
         this.labReportRepository = labs;
         this.invoiceRepository = invoices;
+        this.audit = audit;
     }
 
     @GetMapping({"", "/dashboard"})
@@ -60,6 +64,7 @@ public class AdminDashboardController {
         } else {
             user.setEnabled(!user.isEnabled());
             userRepository.save(user);
+            audit.record(authentication == null ? "system" : authentication.getName(), user.isEnabled() ? "ENABLE" : "DISABLE", "User", id, "Account access changed for " + user.getUsername());
             flash.addFlashAttribute("successMessage",
                     user.isEnabled() ? "User account enabled." : "User account disabled.");
         }
@@ -69,7 +74,7 @@ public class AdminDashboardController {
     @PostMapping("/departments")
     public String createDepartment(@RequestParam String name,
                                   @RequestParam(required = false) String description,
-                                  RedirectAttributes flash) {
+                                  Principal principal, RedirectAttributes flash) {
         String cleanName = name == null ? "" : name.trim();
         if (cleanName.isBlank()) {
             flash.addFlashAttribute("errorMessage", "Department name is required.");
