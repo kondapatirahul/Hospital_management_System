@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Dispensation Receipt ' + dispensation.dispensationNumber)}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('pharmacy-dispensations')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Dispensation Receipt', 'Official pharmacy fulfillment document and patient issuance slip')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Receipt Actions Header -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <a th:href="@{/pharmacy/dispensations}" class="btn btn-outline btn-sm no-print">&larr; Back to History</a>
+                <div style="display:flex; gap:10px;" class="no-print">
+                    <button type="button" class="btn btn-teal btn-print">🖨️ Print Receipt</button>
+                    <a th:href="@{/pharmacy/prescriptions/{id}(id=${dispensation.prescription.id})}" class="btn btn-outline">View Prescription</a>
+                </div>
+            </div>
+
+            <!-- Printable Receipt Card -->
+            <div class="card" style="max-width:850px; margin:0 auto; padding:24px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid var(--border); padding-bottom:20px; margin-bottom:20px;">
+                    <div>
+                        <h2 style="color:var(--primary-navy); font-size:1.6rem; font-weight:800; margin:0;">CareFlow Healthcare</h2>
+                        <span style="color:var(--text-secondary); font-size:0.9rem;">Department of Pharmacy & Dispensary Services</span>
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">100 Healthcare Boulevard, Suite 100 • (555) 019-2834</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:0.8rem; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.05em;">Dispensation Token</div>
+                        <h3 style="font-family:monospace; font-size:1.4rem; color:var(--accent-teal); font-weight:800; margin:2px 0;" th:text="${dispensation.dispensationNumber}">DISP-2026-0001</h3>
+                        <div style="font-size:0.85rem; color:var(--text-secondary);" th:text="${#temporals.format(dispensation.dispensationDate, 'MMMM d, yyyy • HH:mm')}">Date</div>
+                    </div>
+                </div>
+
+                <!-- Patient & Doctor Info Grid -->
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px; margin-bottom:24px; background:#f8fafc; padding:16px; border-radius:var(--radius-md);">
+                    <div>
+                        <span style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Patient Information</span>
+                        <div style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin-top:2px;" th:text="${dispensation.patient.fullName}">Sarah Jenkins</div>
+                        <div style="font-size:0.85rem; color:var(--text-secondary);">
+                            MRN / ID: <strong th:text="${dispensation.patient.patientId}">PAT-0001</strong> |
+                            Gender: <span th:text="${dispensation.patient.gender}">Female</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Prescribing Clinician</span>
+                        <div style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin-top:2px;" th:text="${'Dr. ' + dispensation.doctor.fullName}">Dr. Alexander Wright</div>
+                        <div style="font-size:0.85rem; color:var(--text-secondary);">
+                            Department: <span th:text="${dispensation.doctor.department.name}">General Medicine</span> |
+                            Dispensed By: <span th:text="${dispensation.dispensedBy}">Pharmacist</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dispensed Items Table -->
+                <div style="margin-bottom:24px;">
+                    <table class="data-table" style="width:100%;">
+                        <thead>
+                            <tr style="background:#f1f5f9;">
+                                <th>#</th>
+                                <th>Medication Description</th>
+                                <th>Batch No.</th>
+                                <th>Expiry Date</th>
+                                <th style="text-align:right;">Quantity</th>
+                                <th style="text-align:right;">Unit Price</th>
+                                <th style="text-align:right;">Total Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="item, iter : ${items}">
+                                <td th:text="${iter.index + 1}">1</td>
+                                <td>
+                                    <strong th:text="${item.medicine.name}">Augmentin</strong>
+                                    <div style="font-size:0.8rem; color:var(--text-muted);" th:text="${item.medicine.dosageForm + ' - ' + item.medicine.strength}">Tablet 625mg</div>
+                                </td>
+                                <td style="font-family:monospace;" th:text="${item.batch.batchNumber}">BAT-AUG-26A</td>
+                                <td th:text="${#temporals.format(item.batch.expiryDate, 'MMM yyyy')}">Dec 2026</td>
+                                <td style="text-align:right; font-weight:700;" th:text="${item.quantityDispensed}">14</td>
+                                <td style="text-align:right;" th:text="${'$' + #numbers.formatDecimal(item.unitPrice, 1, 2)}">$18.50</td>
+                                <td style="text-align:right; font-weight:700;" th:text="${'$' + #numbers.formatDecimal(item.totalPrice, 1, 2)}">$259.00</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" style="text-align:right; font-weight:700; padding:12px;">Total Dispensed:</td>
+                                <td style="text-align:right; font-weight:800; font-size:1.1rem;" th:text="${dispensation.totalQuantity}">14</td>
+                                <td style="text-align:right; font-weight:700;">Grand Total:</td>
+                                <td style="text-align:right; font-weight:800; font-size:1.2rem; color:var(--accent-teal);"
+                                    th:text="${'$' + #numbers.formatDecimal(dispensation.totalAmount, 1, 2)}">$259.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Patient Instructions Notice -->
+                <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:var(--radius-sm); padding:14px; margin-bottom:24px;">
+                    <div style="font-weight:700; font-size:0.85rem; color:#1e40af;">Patient Directions & Dosage Advisory:</div>
+                    <div style="font-size:0.9rem; color:#1e3a8a; margin-top:4px;" th:text="${dispensation.prescription.dosage + ' - ' + dispensation.prescription.frequency + (dispensation.prescription.instructions != null ? ' (' + dispensation.prescription.instructions + ')' : '')}">
+                        Directions
+                    </div>
+                </div>
+
+                <!-- Signature Section -->
+                <div style="display:flex; justify-content:space-between; margin-top:40px; padding-top:20px; border-top:1px dashed var(--border);">
+                    <div style="text-align:center; width:220px;">
+                        <div style="border-bottom:1px solid var(--text-muted); height:30px; margin-bottom:4px;"></div>
+                        <span style="font-size:0.8rem; color:var(--text-secondary);">Dispensing Pharmacist Signature</span>
+                    </div>
+
+                    <div style="text-align:center; width:220px;">
+                        <div style="border-bottom:1px solid var(--text-muted); height:30px; margin-bottom:4px;"></div>
+                        <span style="font-size:0.8rem; color:var(--text-secondary);">Patient / Receiver Acknowledgement</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/pharmacy.js}"></script>
+</body>
+</html>

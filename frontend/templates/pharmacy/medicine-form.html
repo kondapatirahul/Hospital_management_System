@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead(${isEdit ? 'Edit Medicine' : 'Add New Medicine'})}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('pharmacy-medicines')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar(${isEdit ? 'Edit Medicine Record' : 'Register New Medicine'}, 'Configure formulary details, reorder threshold, pricing, and storage requirements')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <div class="card" style="max-width: 900px; margin: 0 auto;">
+                <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 class="card-title" th:text="${isEdit ? 'Update Medicine: ' + medicineDto.name : 'New Medicine Formulary Entry'}">Medicine Details</h3>
+                    <a th:href="@{/pharmacy/medicines}" class="btn btn-outline btn-sm">&larr; Back to Inventory</a>
+                </div>
+
+                <div class="card-body">
+                    <form th:action="@{/pharmacy/medicines/save}" th:object="${medicineDto}" method="post">
+                        <input type="hidden" th:field="*{id}" />
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            <div class="form-group">
+                                <label class="form-label" for="medicineCode">Medicine Code (Auto-generated or custom)</label>
+                                <input type="text" id="medicineCode" th:field="*{medicineCode}" class="form-control"
+                                       th:readonly="${isEdit}" placeholder="e.g. MED-0010" />
+                                <small style="color:var(--text-muted);">Unique stock identifier</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="name">Medicine Brand / Trade Name *</label>
+                                <input type="text" id="name" th:field="*{name}" class="form-control"
+                                       placeholder="e.g. Augmentin, Lipitor, Ventolin" required />
+                                <div class="text-danger" style="font-size:0.8rem; color:var(--danger);" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            <div class="form-group">
+                                <label class="form-label" for="genericName">Generic / Active Molecule</label>
+                                <input type="text" id="genericName" th:field="*{genericName}" class="form-control"
+                                       placeholder="e.g. Amoxicillin / Clavulanate, Atorvastatin" />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="categoryId">Therapeutic Category *</label>
+                                <select id="categoryId" th:field="*{categoryId}" class="form-control" required>
+                                    <option value="">-- Select Category --</option>
+                                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}">Category</option>
+                                </select>
+                                <div class="text-danger" style="font-size:0.8rem; color:var(--danger);" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></div>
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            <div class="form-group">
+                                <label class="form-label" for="dosageForm">Dosage Form *</label>
+                                <select id="dosageForm" th:field="*{dosageForm}" class="form-control" required>
+                                    <option value="Tablet">Tablet</option>
+                                    <option value="Capsule">Capsule</option>
+                                    <option value="Syrup">Syrup / Suspension</option>
+                                    <option value="Injection">Injection / Vial</option>
+                                    <option value="Inhaler">Inhaler / Aerosol</option>
+                                    <option value="Drops">Eye/Ear Drops</option>
+                                    <option value="Cream">Cream / Ointment</option>
+                                    <option value="Infusion">IV Infusion</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="strength">Strength *</label>
+                                <input type="text" id="strength" th:field="*{strength}" class="form-control"
+                                       placeholder="e.g. 500 mg, 10 mg/5ml, 90 mcg" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="unitOfMeasure">Dispense Unit *</label>
+                                <select id="unitOfMeasure" th:field="*{unitOfMeasure}" class="form-control" required>
+                                    <option value="Strip">Strip (10 Tablets)</option>
+                                    <option value="Box">Box</option>
+                                    <option value="Bottle">Bottle</option>
+                                    <option value="Inhaler">Inhaler canister</option>
+                                    <option value="Vial">Vial</option>
+                                    <option value="Ampoule">Ampoule</option>
+                                    <option value="Tube">Tube</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            <div class="form-group">
+                                <label class="form-label" for="purchasePrice">Standard Cost / Purchase Price ($) *</label>
+                                <input type="number" step="0.01" id="purchasePrice" th:field="*{purchasePrice}" class="form-control"
+                                       min="0" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="unitPrice">Selling / Dispense Price ($) *</label>
+                                <input type="number" step="0.01" id="unitPrice" th:field="*{unitPrice}" class="form-control"
+                                       min="0" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="reorderLevel">Reorder Minimum Threshold *</label>
+                                <input type="number" id="reorderLevel" th:field="*{reorderLevel}" class="form-control"
+                                       min="0" placeholder="e.g. 20" required />
+                                <small style="color:var(--text-muted);">Triggers low-stock alert when available stock &le; threshold</small>
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            <div class="form-group">
+                                <label class="form-label" for="manufacturer">Manufacturer / Brand</label>
+                                <input type="text" id="manufacturer" th:field="*{manufacturer}" class="form-control"
+                                       placeholder="e.g. Pfizer, Novartis, GlaxoSmithKline" />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="storageConditions">Storage Instructions</label>
+                                <input type="text" id="storageConditions" th:field="*{storageConditions}" class="form-control"
+                                       placeholder="Store below 25°C, Protect from moisture" />
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label class="form-label" for="description">Clinical Notes & Usage Instructions</label>
+                            <textarea id="description" th:field="*{description}" class="form-control" rows="3"
+                                      placeholder="Indication, contraindications, or specific dispensing advisories..."></textarea>
+                        </div>
+
+                        <div style="display:flex; gap: 24px; align-items:center; margin-bottom: 24px; background:#f8fafc; padding:16px; border-radius:var(--radius-md);">
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:600;">
+                                <input type="checkbox" th:field="*{prescriptionRequired}" />
+                                <span>Doctor Prescription Required for Dispensing</span>
+                            </label>
+
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:600;">
+                                <input type="checkbox" th:field="*{active}" />
+                                <span>Active on Hospital Formulary</span>
+                            </label>
+                        </div>
+
+                        <div style="display:flex; justify-content:flex-end; gap: 12px;">
+                            <a th:href="@{/pharmacy/medicines}" class="btn btn-outline">Cancel</a>
+                            <button type="submit" class="btn btn-teal">
+                                <span th:text="${isEdit ? 'Save Changes' : 'Create Medicine Record'}">Submit</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/pharmacy.js}"></script>
+</body>
+</html>

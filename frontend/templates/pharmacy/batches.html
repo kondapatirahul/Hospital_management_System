@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Batch Management')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('pharmacy-batches')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Batch Stock Management', 'Monitor individual batch lifecycles, expiration dates, stock depletion, and adjustments')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Filter Bar -->
+            <div class="quick-filter-bar">
+                <form th:action="@{/pharmacy/batches}" method="get" style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; flex:1;">
+                    <div class="search-input-group">
+                        <input type="text" name="query" class="form-control" placeholder="Search batch number, medicine name, code..."
+                               th:value="${query}" />
+                    </div>
+
+                    <select name="status" class="form-control" style="width:160px;">
+                        <option value="">All Statuses</option>
+                        <option th:each="st : ${statuses}" th:value="${st}" th:text="${st}" th:selected="${selectedStatus == st}">ACTIVE</option>
+                    </select>
+
+                    <select name="medicineId" class="form-control" style="width:200px;">
+                        <option value="">All Medicines</option>
+                        <option th:each="med : ${medicines}" th:value="${med.id}" th:text="${med.name}" th:selected="${selectedMedicineId == med.id}">Medicine</option>
+                    </select>
+
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <a th:href="@{/pharmacy/batches}" class="btn btn-outline">Reset</a>
+                </form>
+
+                <div style="display:flex; gap:10px;">
+                    <a th:href="@{/pharmacy/stock/in}" class="btn btn-teal">📥 Stock In</a>
+                    <a th:href="@{/pharmacy/stock/adjust}" class="btn btn-outline">⚖️ Adjust Stock</a>
+                </div>
+            </div>
+
+            <!-- Batch Table -->
+            <div class="card">
+                <div class="card-body" style="padding:0;">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Batch Number</th>
+                                    <th>Medicine</th>
+                                    <th>Supplier</th>
+                                    <th>Received Date</th>
+                                    <th>Expiry Date</th>
+                                    <th>Available Stock</th>
+                                    <th>Unit Price</th>
+                                    <th>Status</th>
+                                    <th style="text-align:right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="b : ${batchesPage.content}">
+                                    <td style="font-family:monospace; font-weight:700;" th:text="${b.batchNumber}">BAT-001</td>
+                                    <td>
+                                        <a th:href="@{/pharmacy/medicines/{id}(id=${b.medicine.id})}" style="font-weight:600; color:var(--primary-blue);" th:text="${b.medicine.name}">Amoxicillin</a>
+                                        <div style="font-size:0.75rem; color:var(--text-muted);" th:text="${b.medicine.medicineCode}">MED-0001</div>
+                                    </td>
+                                    <td th:text="${b.supplier != null ? b.supplier.name : '-'}">Supplier</td>
+                                    <td th:text="${#temporals.format(b.receivedDate, 'MMM d, yyyy')}">Oct 1, 2026</td>
+                                    <td>
+                                        <span th:text="${#temporals.format(b.expiryDate, 'MMM d, yyyy')}">Dec 31, 2026</span>
+                                        <div style="font-size:0.75rem;"
+                                             th:style="${b.isExpired() ? 'color:var(--danger);' : (b.isNearExpiry(60) ? 'color:var(--warning);' : 'color:var(--text-muted);')}">
+                                            <span th:if="${b.isExpired()}">Expired</span>
+                                            <span th:if="${!b.isExpired() and b.isNearExpiry(60)}" th:text="${b.getDaysUntilExpiry() + ' days left'}">40 days left</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <strong style="font-size:1.05rem;" th:text="${b.currentQuantity}">50</strong>
+                                        <span style="font-size:0.75rem; color:var(--text-muted);" th:text="${b.medicine.unitOfMeasure}">Strips</span>
+                                    </td>
+                                    <td th:text="${'$' + #numbers.formatDecimal(b.unitPrice, 1, 2)}">$18.50</td>
+                                    <td>
+                                        <span th:if="${b.isExpired()}" class="pharmacy-badge-expired">EXPIRED</span>
+                                        <span th:if="${!b.isExpired() and b.isNearExpiry(60)}" class="pharmacy-badge-nearexpiry">NEAR EXPIRY</span>
+                                        <span th:if="${!b.isExpired() and !b.isNearExpiry(60) and b.currentQuantity > 0}" class="pharmacy-badge-active">ACTIVE</span>
+                                        <span th:if="${b.currentQuantity <= 0}" class="pharmacy-badge-depleted">DEPLETED</span>
+                                    </td>
+                                    <td style="text-align:right;">
+                                        <a th:href="@{/pharmacy/stock/adjust(batchId=${b.id})}" class="btn btn-outline btn-sm">⚖️ Adjust</a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${batchesPage.totalElements == 0}">
+                                    <td colspan="9" style="text-align:center; padding:30px; color:var(--text-muted);">
+                                        No batches found.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="card-footer" th:if="${batchesPage.totalPages > 1}"
+                     style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px;">
+                    <div style="color:var(--text-muted); font-size:0.875rem;">
+                        Page <span th:text="${batchesPage.number + 1}">1</span> of <span th:text="${batchesPage.totalPages}">5</span>
+                    </div>
+                    <div style="display:flex; gap:6px;">
+                        <a th:if="${batchesPage.hasPrevious()}"
+                           th:href="@{/pharmacy/batches(page=${batchesPage.number - 1}, query=${query}, status=${selectedStatus}, medicineId=${selectedMedicineId})}"
+                           class="btn btn-outline btn-sm">&larr; Previous</a>
+                        <a th:if="${batchesPage.hasNext()}"
+                           th:href="@{/pharmacy/batches(page=${batchesPage.number + 1}, query=${query}, status=${selectedStatus}, medicineId=${selectedMedicineId})}"
+                           class="btn btn-outline btn-sm">Next &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/pharmacy.js}"></script>
+</body>
+</html>

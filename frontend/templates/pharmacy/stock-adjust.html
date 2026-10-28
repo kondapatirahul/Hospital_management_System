@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Stock Adjustment')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('pharmacy-stock-adjust')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Stock Adjustment & Reconciliation', 'Perform authorized inventory corrections, write-offs, and batch count adjustments')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <div class="card" style="max-width: 800px; margin: 0 auto;">
+                <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 class="card-title">Authorized Stock Adjustment</h3>
+                    <a th:href="@{/pharmacy/batches}" class="btn btn-outline btn-sm">&larr; Back to Batches</a>
+                </div>
+
+                <div class="card-body">
+                    <div th:if="${selectedBatch != null}" class="report-summary-bar" style="margin-bottom:20px;">
+                        <div>
+                            Medicine: <strong th:text="${selectedBatch.medicine.name}">Medicine</strong> |
+                            Batch: <strong th:text="${selectedBatch.batchNumber}">BAT-001</strong>
+                        </div>
+                        <div>
+                            Current Batch Available: <strong style="color:var(--primary-blue);" th:text="${selectedBatch.currentQuantity}">50</strong>
+                        </div>
+                    </div>
+
+                    <form th:action="@{/pharmacy/stock/adjust}" th:object="${adjustmentDto}" method="post">
+                        <div class="form-group" style="margin-bottom:20px;" th:if="${selectedBatch == null}">
+                            <label class="form-label" for="batchId">Select Batch to Adjust *</label>
+                            <input type="number" id="batchId" th:field="*{batchId}" class="form-control"
+                                   placeholder="Enter Batch ID" required />
+                            <small style="color:var(--text-muted);">Tip: You can initiate adjustment directly from the Batch Management screen</small>
+                            <div class="text-danger" style="font-size:0.8rem; color:var(--danger);" th:if="${#fields.hasErrors('batchId')}" th:errors="*{batchId}"></div>
+                        </div>
+                        <input type="hidden" th:if="${selectedBatch != null}" th:field="*{batchId}" />
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
+                            <div class="form-group">
+                                <label class="form-label" for="adjustmentType">Adjustment Direction *</label>
+                                <select id="adjustmentType" th:field="*{adjustmentType}" class="form-control" required>
+                                    <option value="DECREASE">DECREASE (Deduct from Stock)</option>
+                                    <option value="INCREASE">INCREASE (Add to Stock)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="quantity">Quantity to Adjust *</label>
+                                <input type="number" id="quantity" th:field="*{quantity}" class="form-control"
+                                       min="1" placeholder="e.g. 5" required />
+                                <small style="color:var(--text-muted);">Must not cause batch stock to become negative</small>
+                                <div class="text-danger" style="font-size:0.8rem; color:var(--danger);" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:20px;">
+                            <label class="form-label" for="reason">Regulatory Reason Code *</label>
+                            <select id="reason" th:field="*{reason}" class="form-control" required>
+                                <option th:each="r : ${reasons}" th:value="${r}" th:text="${r}">INVENTORY_COUNT_CORRECTION</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:24px;">
+                            <label class="form-label" for="remarks">Adjustment Justification & Authorization Notes *</label>
+                            <textarea id="remarks" th:field="*{remarks}" class="form-control" rows="3"
+                                      placeholder="Provide clinical or audit rationale for this stock adjustment (logged in permanent audit trail)..." required></textarea>
+                        </div>
+
+                        <div style="display:flex; justify-content:flex-end; gap:12px;">
+                            <a th:href="@{/pharmacy/batches}" class="btn btn-outline">Cancel</a>
+                            <button type="submit" class="btn btn-primary" style="background:var(--primary-blue);">Post Stock Adjustment</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/pharmacy.js}"></script>
+</body>
+</html>

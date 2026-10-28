@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Pharmacy Audit Trail')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('pharmacy-audit')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Pharmacy Audit & Compliance Log', 'Immutable security audit trail for all stock events, adjustments, and prescription dispensations')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Filter Bar -->
+            <div class="quick-filter-bar">
+                <form th:action="@{/pharmacy/audit-logs}" method="get" style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; flex:1;">
+                    <div class="search-input-group">
+                        <input type="text" name="query" class="form-control" placeholder="Search event type, username, entity, action details..."
+                               th:value="${query}" />
+                    </div>
+
+                    <input type="date" name="startDate" class="form-control" style="width:160px;" th:value="${startDate}" />
+                    <span>to</span>
+                    <input type="date" name="endDate" class="form-control" style="width:160px;" th:value="${endDate}" />
+
+                    <button type="submit" class="btn btn-primary">Filter Logs</button>
+                    <a th:href="@{/pharmacy/audit-logs}" class="btn btn-outline">Reset</a>
+                </form>
+            </div>
+
+            <!-- Audit Logs Table -->
+            <div class="card">
+                <div class="card-body" style="padding:0;">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Event Type</th>
+                                    <th>Entity</th>
+                                    <th>Entity ID</th>
+                                    <th>Operator / User</th>
+                                    <th>Action Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="log : ${auditLogsPage.content}">
+                                    <td style="font-family:monospace; font-size:0.85rem;" th:text="${#temporals.format(log.timestamp, 'yyyy-MM-dd HH:mm:ss')}">2026-10-28 14:30:00</td>
+                                    <td>
+                                        <span class="badge badge-info" th:text="${log.eventType}">PRESCRIPTION_DISPENSED</span>
+                                    </td>
+                                    <td th:text="${log.entityName}">PrescriptionDispensation</td>
+                                    <td style="font-family:monospace;" th:text="${log.entityId != null ? log.entityId : '-'}">#1</td>
+                                    <td>
+                                        <strong th:text="${log.username}">pharmacist</strong>
+                                    </td>
+                                    <td style="font-size:0.85rem; color:var(--text-secondary);" th:text="${log.actionDetails}">Action detail description</td>
+                                </tr>
+                                <tr th:if="${auditLogsPage.totalElements == 0}">
+                                    <td colspan="6" style="text-align:center; padding:35px; color:var(--text-muted);">
+                                        No audit log entries found.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="card-footer" th:if="${auditLogsPage.totalPages > 1}"
+                     style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px;">
+                    <div style="color:var(--text-muted); font-size:0.875rem;">
+                        Page <span th:text="${auditLogsPage.number + 1}">1</span> of <span th:text="${auditLogsPage.totalPages}">5</span>
+                    </div>
+                    <div style="display:flex; gap:6px;">
+                        <a th:if="${auditLogsPage.hasPrevious()}"
+                           th:href="@{/pharmacy/audit-logs(page=${auditLogsPage.number - 1}, query=${query})}"
+                           class="btn btn-outline btn-sm">&larr; Previous</a>
+                        <a th:if="${auditLogsPage.hasNext()}"
+                           th:href="@{/pharmacy/audit-logs(page=${auditLogsPage.number + 1}, query=${query})}"
+                           class="btn btn-outline btn-sm">Next &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/pharmacy.js}"></script>
+</body>
+</html>

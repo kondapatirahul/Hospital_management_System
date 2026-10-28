@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Stock-In Receipt')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('pharmacy-stock-in')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Direct Stock-In Receipt', 'Intake new or replenishment batches into active inventory')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <div class="card" style="max-width: 800px; margin: 0 auto;">
+                <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 class="card-title">Batch Stock-In Intake</h3>
+                    <a th:href="@{/pharmacy/batches}" class="btn btn-outline btn-sm">&larr; Back to Batches</a>
+                </div>
+
+                <div class="card-body">
+                    <form th:action="@{/pharmacy/stock/in}" th:object="${batchDto}" method="post">
+                        <div class="form-group" style="margin-bottom:20px;">
+                            <label class="form-label" for="medicineId">Target Formulary Medicine *</label>
+                            <select id="medicineId" th:field="*{medicineId}" class="form-control" required>
+                                <option value="">-- Select Medicine --</option>
+                                <option th:each="m : ${medicines}" th:value="${m.id}"
+                                        th:text="${m.name + ' (' + m.medicineCode + ') - Current Stock: ' + m.totalStock}">Augmentin</option>
+                            </select>
+                            <div class="text-danger" style="font-size:0.8rem; color:var(--danger);" th:if="${#fields.hasErrors('medicineId')}" th:errors="*{medicineId}"></div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
+                            <div class="form-group">
+                                <label class="form-label" for="batchNumber">Batch Number / Lot ID *</label>
+                                <input type="text" id="batchNumber" th:field="*{batchNumber}" class="form-control"
+                                       placeholder="e.g. BAT-2026-AUG-01" required />
+                                <div class="text-danger" style="font-size:0.8rem; color:var(--danger);" th:if="${#fields.hasErrors('batchNumber')}" th:errors="*{batchNumber}"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="supplierId">Originating Supplier</label>
+                                <select id="supplierId" th:field="*{supplierId}" class="form-control">
+                                    <option value="">Direct / Not Specified</option>
+                                    <option th:each="s : ${suppliers}" th:value="${s.id}" th:text="${s.name}">Apex Pharma</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px; margin-bottom:20px;">
+                            <div class="form-group">
+                                <label class="form-label" for="quantity">Quantity Received *</label>
+                                <input type="number" id="quantity" th:field="*{quantity}" class="form-control"
+                                       min="1" placeholder="e.g. 50" required />
+                                <div class="text-danger" style="font-size:0.8rem; color:var(--danger);" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="purchasePrice">Batch Unit Cost ($) *</label>
+                                <input type="number" step="0.01" id="purchasePrice" th:field="*{purchasePrice}" class="form-control"
+                                       min="0" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="unitPrice">Dispense Unit Price ($) *</label>
+                                <input type="number" step="0.01" id="unitPrice" th:field="*{unitPrice}" class="form-control"
+                                       min="0" required />
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px;">
+                            <div class="form-group">
+                                <label class="form-label" for="receivedDate">Receipt Date *</label>
+                                <input type="date" id="receivedDate" th:field="*{receivedDate}" class="form-control" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="expiryDate">Batch Expiry Date *</label>
+                                <input type="date" id="expiryDate" th:field="*{expiryDate}" class="form-control" required />
+                                <small style="color:var(--text-muted);">Must be in the future</small>
+                                <div class="text-danger" style="font-size:0.8rem; color:var(--danger);" th:if="${#fields.hasErrors('expiryDate')}" th:errors="*{expiryDate}"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:24px;">
+                            <label class="form-label" for="notes">Receipt Notes / Reference</label>
+                            <textarea id="notes" th:field="*{notes}" class="form-control" rows="2"
+                                      placeholder="Invoice number, delivery note, or internal memo..."></textarea>
+                        </div>
+
+                        <div style="display:flex; justify-content:flex-end; gap:12px;">
+                            <a th:href="@{/pharmacy/batches}" class="btn btn-outline">Cancel</a>
+                            <button type="submit" class="btn btn-teal">Complete Stock-In</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/pharmacy.js}"></script>
+</body>
+</html>

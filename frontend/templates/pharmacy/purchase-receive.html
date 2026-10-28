@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Receive Goods for ' + po.poNumber)}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('pharmacy-purchases')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Record Goods Receipt (GRN)', 'Inspect shipment, record batch lots, expiry dates, and update inventory')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <div class="card" style="max-width: 950px; margin: 0 auto;">
+                <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h3 class="card-title" th:text="${'Receive Shipment for ' + po.poNumber}">Goods Received Note</h3>
+                        <div style="font-size:0.85rem; color:var(--text-muted);" th:text="${'Supplier: ' + po.supplier.name}">Apex Pharma</div>
+                    </div>
+                    <a th:href="@{/pharmacy/purchases/{id}(id=${po.id})}" class="btn btn-outline btn-sm">&larr; Back to Order</a>
+                </div>
+
+                <div class="card-body">
+                    <form th:action="@{/pharmacy/purchases/{id}/receive/save(id=${po.id})}" th:object="${grnDto}" method="post">
+                        <input type="hidden" th:field="*{purchaseOrderId}" />
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px; margin-bottom:20px;">
+                            <div class="form-group">
+                                <label class="form-label" for="receivedDate">Physical Receipt Date *</label>
+                                <input type="date" id="receivedDate" th:field="*{receivedDate}" class="form-control" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="supplierInvoiceNumber">Supplier Delivery / Invoice #</label>
+                                <input type="text" id="supplierInvoiceNumber" th:field="*{supplierInvoiceNumber}" class="form-control"
+                                       placeholder="e.g. INV-APEX-8821" />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="supplierInvoiceDate">Supplier Invoice Date</label>
+                                <input type="date" id="supplierInvoiceDate" th:field="*{supplierInvoiceDate}" class="form-control" />
+                            </div>
+                        </div>
+
+                        <!-- Received Items Table -->
+                        <div style="margin-top:20px; margin-bottom:24px;">
+                            <h4 style="font-size:1.05rem; color:var(--primary-navy); margin-bottom:12px;">Shipment Inspection & Batch Assignment</h4>
+                            <div class="table-responsive">
+                                <table class="data-table" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th>Medication</th>
+                                            <th style="width:180px;">Batch / Lot # *</th>
+                                            <th style="width:160px;">Expiry Date *</th>
+                                            <th style="width:140px;">Qty Received *</th>
+                                            <th style="width:120px;">Unit Cost ($)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="item, iter : *{items}">
+                                            <td>
+                                                <input type="hidden" th:field="*{items[__${iter.index}__].purchaseOrderItemId}" />
+                                                <input type="hidden" th:field="*{items[__${iter.index}__].medicineId}" />
+                                                <span th:each="m : ${po.items}" th:if="${m.id == item.purchaseOrderItemId}">
+                                                    <strong th:text="${m.medicine.name}">Augmentin</strong>
+                                                    <div style="font-size:0.75rem; color:var(--text-muted);"
+                                                         th:text="${'Ordered: ' + m.orderedQuantity + ' | Already Recv: ' + m.receivedQuantity}">Ordered 50</div>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <input type="text" th:field="*{items[__${iter.index}__].batchNumber}"
+                                                       class="form-control" placeholder="e.g. BAT-2026-X1" required />
+                                            </td>
+                                            <td>
+                                                <input type="date" th:field="*{items[__${iter.index}__].expiryDate}"
+                                                       class="form-control" required />
+                                            </td>
+                                            <td>
+                                                <input type="number" th:field="*{items[__${iter.index}__].quantityReceived}"
+                                                       class="form-control" min="0" required />
+                                            </td>
+                                            <td>
+                                                <input type="number" step="0.01" th:field="*{items[__${iter.index}__].unitCost}"
+                                                       class="form-control" min="0" required />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:24px;">
+                            <label class="form-label" for="remarks">Inspection Notes & Quality Verification</label>
+                            <textarea id="remarks" th:field="*{remarks}" class="form-control" rows="2"
+                                      placeholder="Package seal intact, cold-chain temperature logged at 4°C, no damages..."></textarea>
+                        </div>
+
+                        <div style="display:flex; justify-content:flex-end; gap:12px;">
+                            <a th:href="@{/pharmacy/purchases/{id}(id=${po.id})}" class="btn btn-outline">Cancel</a>
+                            <button type="submit" class="btn btn-teal">
+                                Accept Delivery & Update Inventory
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/pharmacy.js}"></script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Medicine Inventory')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('pharmacy-medicines')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Medicine Inventory Management', 'View, search, filter, and maintain formulary drugs, dosage forms, and stock levels')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Top Header & Filter Controls -->
+            <div class="quick-filter-bar">
+                <form th:action="@{/pharmacy/medicines}" method="get" style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; flex:1;">
+                    <div class="search-input-group">
+                        <input type="text" name="query" class="form-control" placeholder="Search by name, code, generic, manufacturer..."
+                               th:value="${query}" />
+                    </div>
+
+                    <select name="categoryId" class="form-control" style="width:180px;">
+                        <option value="">All Categories</option>
+                        <option th:each="cat : ${categories}"
+                                th:value="${cat.id}"
+                                th:text="${cat.name}"
+                                th:selected="${selectedCategoryId == cat.id}">Antibiotics</option>
+                    </select>
+
+                    <select name="status" class="form-control" style="width:160px;">
+                        <option value="ALL" th:selected="${selectedStatus == 'ALL'}">All Statuses</option>
+                        <option value="IN_STOCK" th:selected="${selectedStatus == 'IN_STOCK'}">In Stock</option>
+                        <option value="LOW_STOCK" th:selected="${selectedStatus == 'LOW_STOCK'}">Low Stock</option>
+                        <option value="OUT_OF_STOCK" th:selected="${selectedStatus == 'OUT_OF_STOCK'}">Out of Stock</option>
+                        <option value="ACTIVE" th:selected="${selectedStatus == 'ACTIVE'}">Active Only</option>
+                        <option value="INACTIVE" th:selected="${selectedStatus == 'INACTIVE'}">Inactive Only</option>
+                    </select>
+
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <a th:href="@{/pharmacy/medicines}" class="btn btn-outline">Reset</a>
+                </form>
+
+                <div>
+                    <a th:href="@{/pharmacy/medicines/new}" class="btn btn-teal">
+                        ➕ Add New Medicine
+                    </a>
+                </div>
+            </div>
+
+            <!-- Medicine Inventory Table -->
+            <div class="card">
+                <div class="card-body" style="padding:0;">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Medicine Name</th>
+                                    <th>Generic Name</th>
+                                    <th>Category</th>
+                                    <th>Form & Strength</th>
+                                    <th>Current Stock</th>
+                                    <th>Reorder Lvl</th>
+                                    <th>Unit Price</th>
+                                    <th>Stock Status</th>
+                                    <th style="text-align:right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="m : ${medicinesPage.content}">
+                                    <td>
+                                        <a th:href="@{/pharmacy/medicines/{id}(id=${m.id})}"
+                                           style="font-family:monospace; font-weight:700; color:var(--primary-blue);"
+                                           th:text="${m.medicineCode}">MED-0001</a>
+                                    </td>
+                                    <td>
+                                        <strong th:text="${m.name}">Amoxicillin</strong>
+                                        <div style="font-size:0.75rem; color:var(--text-muted);" th:text="${m.manufacturer}">GlaxoSmithKline</div>
+                                    </td>
+                                    <td style="color:var(--text-secondary); font-size:0.85rem;" th:text="${m.genericName != null ? m.genericName : '-'}">Amoxicillin Trihydrate</td>
+                                    <td>
+                                        <span class="badge badge-info" th:text="${m.category.name}">Antibiotics</span>
+                                    </td>
+                                    <td>
+                                        <span th:text="${m.dosageForm}">Tablet</span> -
+                                        <span style="font-weight:600;" th:text="${m.strength}">500mg</span>
+                                    </td>
+                                    <td>
+                                        <span style="font-size:1.1rem; font-weight:700;"
+                                              th:style="${m.isOutOfStock() ? 'color:var(--danger);' : (m.isLowStock() ? 'color:var(--warning);' : 'color:var(--success);')}"
+                                              th:text="${m.totalStock}">120</span>
+                                        <span style="font-size:0.75rem; color:var(--text-muted);" th:text="${m.unitOfMeasure}">Strips</span>
+                                    </td>
+                                    <td th:text="${m.reorderLevel}">20</td>
+                                    <td style="font-weight:600;" th:text="${'$' + #numbers.formatDecimal(m.unitPrice, 1, 2)}">$18.50</td>
+                                    <td>
+                                        <span th:if="${m.isOutOfStock()}" class="pharmacy-badge-expired">OUT OF STOCK</span>
+                                        <span th:if="${m.isLowStock()}" class="pharmacy-badge-lowstock">LOW STOCK</span>
+                                        <span th:if="${!m.isOutOfStock() and !m.isLowStock()}" class="pharmacy-badge-active">IN STOCK</span>
+                                    </td>
+                                    <td style="text-align:right;">
+                                        <div style="display:inline-flex; gap:6px;">
+                                            <a th:href="@{/pharmacy/medicines/{id}(id=${m.id})}" class="btn btn-outline btn-sm" title="View Details">👁️</a>
+                                            <a th:href="@{/pharmacy/medicines/edit/{id}(id=${m.id})}" class="btn btn-outline btn-sm" title="Edit Medicine">✏️</a>
+                                            <a th:href="@{/pharmacy/stock/in(medicineId=${m.id})}" class="btn btn-teal btn-sm" title="Stock In">+Stock</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${medicinesPage.totalElements == 0}">
+                                    <td colspan="10" style="text-align:center; padding:30px; color:var(--text-muted);">
+                                        No medicines found matching your criteria.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="card-footer" th:if="${medicinesPage.totalPages > 1}"
+                     style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px;">
+                    <div style="color:var(--text-muted); font-size:0.875rem;">
+                        Showing page <span th:text="${medicinesPage.number + 1}">1</span> of <span th:text="${medicinesPage.totalPages}">5</span>
+                        (<span th:text="${medicinesPage.totalElements}">25</span> total items)
+                    </div>
+                    <div style="display:flex; gap:6px;">
+                        <a th:if="${medicinesPage.hasPrevious()}"
+                           th:href="@{/pharmacy/medicines(page=${medicinesPage.number - 1}, query=${query}, categoryId=${selectedCategoryId}, status=${selectedStatus})}"
+                           class="btn btn-outline btn-sm">&larr; Previous</a>
+                        <a th:if="${medicinesPage.hasNext()}"
+                           th:href="@{/pharmacy/medicines(page=${medicinesPage.number + 1}, query=${query}, categoryId=${selectedCategoryId}, status=${selectedStatus})}"
+                           class="btn btn-outline btn-sm">Next &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/pharmacy.js}"></script>
+</body>
+</html>

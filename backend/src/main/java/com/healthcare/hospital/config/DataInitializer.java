@@ -30,6 +30,17 @@ public class DataInitializer implements CommandLineRunner {
     private final DoctorAvailabilityRepository doctorAvailabilityRepository;
     private final PasswordEncoder passwordEncoder;
 
+    // Pharmacy Repositories
+    private final MedicineCategoryRepository categoryRepository;
+    private final SupplierRepository supplierRepository;
+    private final MedicineRepository medicineRepository;
+    private final MedicineBatchRepository batchRepository;
+    private final StockTransactionRepository transactionRepository;
+    private final PurchaseOrderRepository purchaseOrderRepository;
+    private final GoodsReceivedNoteRepository grnRepository;
+    private final PrescriptionDispensationRepository dispensationRepository;
+    private final PharmacyAuditLogRepository auditLogRepository;
+
     public DataInitializer(UserRepository userRepository,
                            DepartmentRepository departmentRepository,
                            DoctorRepository doctorRepository,
@@ -42,7 +53,16 @@ public class DataInitializer implements CommandLineRunner {
                            InvoiceRepository invoiceRepository,
                            NotificationRepository notificationRepository,
                            DoctorAvailabilityRepository doctorAvailabilityRepository,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder,
+                           MedicineCategoryRepository categoryRepository,
+                           SupplierRepository supplierRepository,
+                           MedicineRepository medicineRepository,
+                           MedicineBatchRepository batchRepository,
+                           StockTransactionRepository transactionRepository,
+                           PurchaseOrderRepository purchaseOrderRepository,
+                           GoodsReceivedNoteRepository grnRepository,
+                           PrescriptionDispensationRepository dispensationRepository,
+                           PharmacyAuditLogRepository auditLogRepository) {
         this.userRepository = userRepository;
         this.departmentRepository = departmentRepository;
         this.doctorRepository = doctorRepository;
@@ -56,13 +76,25 @@ public class DataInitializer implements CommandLineRunner {
         this.notificationRepository = notificationRepository;
         this.doctorAvailabilityRepository = doctorAvailabilityRepository;
         this.passwordEncoder = passwordEncoder;
+        this.categoryRepository = categoryRepository;
+        this.supplierRepository = supplierRepository;
+        this.medicineRepository = medicineRepository;
+        this.batchRepository = batchRepository;
+        this.transactionRepository = transactionRepository;
+        this.purchaseOrderRepository = purchaseOrderRepository;
+        this.grnRepository = grnRepository;
+        this.dispensationRepository = dispensationRepository;
+        this.auditLogRepository = auditLogRepository;
     }
 
     @Override
     public void run(String... args) {
+        String defaultHashedPassword = passwordEncoder.encode("Password@123");
+
         if (userRepository.count() > 0) {
             seedDoctorUsersAndAvailabilityIfMissing();
-            return; // Seed data already present
+            seedPharmacyDataIfMissing(defaultHashedPassword);
+            return;
         }
 
         // 1. Departments
@@ -99,9 +131,7 @@ public class DataInitializer implements CommandLineRunner {
                 "dr.vance@hospital.com", "+1 (555) 101-0005", "Room 101",
                 BigDecimal.valueOf(50.00), "Mon, Tue, Wed, Thu, Fri, Sat", "09:00 AM - 06:00 PM"));
 
-        // 3. User Accounts (BCrypt encoded)
-        String defaultHashedPassword = passwordEncoder.encode("Password@123");
-
+        // 3. User Accounts
         User receptionistUser = userRepository.save(new User(
                 "receptionist@hospital.com",
                 defaultHashedPassword,
@@ -162,7 +192,6 @@ public class DataInitializer implements CommandLineRunner {
         LocalDate today = LocalDate.now();
 
         // 5. Appointments
-        // Today - Patient 1 (Checked In / In Queue)
         Appointment appt1 = appointmentRepository.save(new Appointment(
                 patient1, drVance, generalMedicine, today,
                 LocalTime.of(9, 30), "09:30 AM",
@@ -170,7 +199,6 @@ public class DataInitializer implements CommandLineRunner {
                 AppointmentStatus.CHECKED_IN
         ));
 
-        // Today - Patient 2 (In Consultation / Queue Q-102)
         Appointment appt2 = appointmentRepository.save(new Appointment(
                 patient2, drWright, cardiology, today,
                 LocalTime.of(10, 0), "10:00 AM",
@@ -178,7 +206,6 @@ public class DataInitializer implements CommandLineRunner {
                 AppointmentStatus.IN_CONSULTATION
         ));
 
-        // Today - Patient 3 (Scheduled)
         Appointment appt3 = appointmentRepository.save(new Appointment(
                 patient3, drGomez, neurology, today,
                 LocalTime.of(11, 30), "11:30 AM",
@@ -186,7 +213,6 @@ public class DataInitializer implements CommandLineRunner {
                 AppointmentStatus.SCHEDULED
         ));
 
-        // Today - Patient 4 (Scheduled)
         Appointment appt4 = appointmentRepository.save(new Appointment(
                 patient4, drChen, pediatrics, today,
                 LocalTime.of(14, 0), "02:00 PM",
@@ -194,7 +220,6 @@ public class DataInitializer implements CommandLineRunner {
                 AppointmentStatus.SCHEDULED
         ));
 
-        // Past Appointment for Sarah Jenkins (Completed)
         Appointment pastAppt = appointmentRepository.save(new Appointment(
                 patient1, drVance, generalMedicine, today.minusDays(14),
                 LocalTime.of(10, 30), "10:30 AM",
@@ -202,7 +227,6 @@ public class DataInitializer implements CommandLineRunner {
                 AppointmentStatus.COMPLETED
         ));
 
-        // Upcoming Appointment for Sarah Jenkins
         Appointment futureAppt = appointmentRepository.save(new Appointment(
                 patient1, drWright, cardiology, today.plusDays(7),
                 LocalTime.of(10, 0), "10:00 AM",
@@ -210,7 +234,7 @@ public class DataInitializer implements CommandLineRunner {
                 AppointmentStatus.SCHEDULED
         ));
 
-        // 6. Queue Entries for Today
+        // 6. Queue Entries
         QueueEntry q1 = queueEntryRepository.save(new QueueEntry(
                 "Q-101", appt1, patient1, drVance, today, QueueStatus.WAITING
         ));
@@ -224,7 +248,7 @@ public class DataInitializer implements CommandLineRunner {
         q2.setCalledTime(LocalDateTime.now().minusMinutes(10));
         queueEntryRepository.save(q2);
 
-        // 7. Medical Records for Sarah Jenkins
+        // 7. Medical Records
         MedicalRecord mr1 = medicalRecordRepository.save(new MedicalRecord(
                 patient1, drVance, pastAppt, today.minusDays(14),
                 "Persistent dry cough, mild fever (99.8 F), throat irritation, nocturnal wheezing.",
@@ -243,32 +267,56 @@ public class DataInitializer implements CommandLineRunner {
                 "Continue balanced Mediterranean diet, maintain 150 minutes of weekly aerobic exercise."
         ));
 
-        // 8. Prescriptions for Sarah Jenkins
-        prescriptionRepository.save(new Prescription(
+        // 8. Prescriptions
+        Prescription rx1 = prescriptionRepository.save(new Prescription(
                 patient1, drVance, pastAppt, mr1, today.minusDays(14),
                 "Amoxicillin-Clavulanate (Augmentin)", "625 mg",
                 "Twice daily after meals", "7 days",
                 "Complete full 7-day course even if symptoms improve early. Take with water.",
                 "Completed"
         ));
+        rx1.setPrescribedQuantity(14);
+        rx1.setDispensedQuantity(14);
+        rx1.setDispenseStatus("DISPENSED");
+        prescriptionRepository.save(rx1);
 
-        prescriptionRepository.save(new Prescription(
+        Prescription rx2 = prescriptionRepository.save(new Prescription(
                 patient1, drVance, pastAppt, mr1, today.minusDays(14),
                 "Albuterol Sulfate Inhalation Aerosol", "90 mcg/actuation",
                 "1 to 2 puffs every 4-6 hours as needed", "30 days",
                 "Rinse mouth after use. Keep rescue inhaler handy at all times.",
                 "Active"
         ));
+        rx2.setPrescribedQuantity(2);
+        rx2.setDispensedQuantity(0);
+        rx2.setDispenseStatus("PENDING");
+        prescriptionRepository.save(rx2);
 
-        prescriptionRepository.save(new Prescription(
+        Prescription rx3 = prescriptionRepository.save(new Prescription(
                 patient1, drVance, pastAppt, mr1, today.minusDays(14),
                 "Cetirizine Hydrochloride (Zyrtec)", "10 mg",
                 "Once daily in the evening", "30 days",
                 "May cause mild drowsiness. Avoid alcohol while taking.",
                 "Active"
         ));
+        rx3.setPrescribedQuantity(30);
+        rx3.setDispensedQuantity(10);
+        rx3.setDispenseStatus("PARTIALLY_DISPENSED");
+        prescriptionRepository.save(rx3);
 
-        // 9. Lab Reports for Sarah Jenkins
+        Prescription rx4 = prescriptionRepository.save(new Prescription(
+                patient2, drWright, appt2, null, today,
+                "Atorvastatin Calcium", "20 mg",
+                "Once daily at bedtime", "30 days",
+                "Take with or without food. Avoid grapefruit juice.",
+                "Active"
+        ));
+        rx4.setPrescribedQuantity(30);
+        rx4.setDispensedQuantity(0);
+        rx4.setDispenseStatus("PENDING");
+        prescriptionRepository.save(rx4);
+
+        // 9. Lab Reports
         labReportRepository.save(new LabReport(
                 patient1, drVance,
                 "Complete Blood Count with Differential (CBC)",
@@ -281,31 +329,7 @@ public class DataInitializer implements CommandLineRunner {
                 "All parameters within optimal physiological baseline. No sign of acute bacterial infection."
         ));
 
-        labReportRepository.save(new LabReport(
-                patient1, drWright,
-                "Comprehensive Lipid Profile",
-                "Biochemistry",
-                today.minusMonths(2),
-                today.minusMonths(2).plusDays(1),
-                LabReportStatus.REVIEWED,
-                "Total Cholesterol: 182 mg/dL | HDL ('Good'): 58 mg/dL | LDL ('Bad'): 104 mg/dL | Triglycerides: 100 mg/dL",
-                "Cholesterol: <200 mg/dL | HDL: >50 mg/dL | LDL: <100 mg/dL",
-                "Good cardiovascular lipid metrics. Maintain current diet and exercise habits."
-        ));
-
-        labReportRepository.save(new LabReport(
-                patient1, drVance,
-                "Thyroid Stimulating Hormone (TSH, 3rd Gen)",
-                "Endocrinology",
-                today.minusDays(2),
-                null,
-                LabReportStatus.PENDING,
-                "Sample collected and processing in laboratory. Results expected within 24 hours.",
-                "0.4 - 4.0 mIU/L",
-                "Pending final clinical sign-off."
-        ));
-
-        // 10. Invoices for Sarah Jenkins
+        // 10. Invoices
         invoiceRepository.save(new Invoice(
                 "INV-2026-0001", patient1, today.minusDays(14), today.minusDays(14),
                 "Outpatient Consultation & Vitals Assessment - Dr. Marcus Vance",
@@ -314,14 +338,7 @@ public class DataInitializer implements CommandLineRunner {
                 today.minusDays(14)
         ));
 
-        invoiceRepository.save(new Invoice(
-                "INV-2026-0002", patient1, today.minusDays(2), today.plusDays(12),
-                "Laboratory Diagnostics: TSH Panel + Serum Chemistry",
-                BigDecimal.valueOf(75.00), BigDecimal.valueOf(3.75), BigDecimal.valueOf(5.00),
-                BigDecimal.valueOf(73.75), PaymentStatus.PENDING, null, null
-        ));
-
-        // 11. Notifications for Sarah Jenkins
+        // 11. Notifications
         notificationRepository.save(new Notification(
                 patientUser1,
                 "Checked In - Queue Number Issued",
@@ -329,29 +346,11 @@ public class DataInitializer implements CommandLineRunner {
                 "QUEUE_UPDATE"
         ));
 
-        notificationRepository.save(new Notification(
-                patientUser1,
-                "Upcoming Appointment Reminder",
-                "You have an upcoming appointment with Dr. Alexander Wright on " + today.plusDays(7) + " at 10:00 AM.",
-                "APPOINTMENT_REMINDER"
-        ));
-
-        notificationRepository.save(new Notification(
-                patientUser1,
-                "Lab Report Available",
-                "Your Complete Blood Count (CBC) report has been processed and is ready to view.",
-                "LAB_READY"
-        ));
-
-        notificationRepository.save(new Notification(
-                patientUser1,
-                "Invoice Issued",
-                "Invoice INV-2026-0002 for $73.75 has been generated and is due on " + today.plusDays(12) + ".",
-                "INVOICE_GENERATED"
-        ));
-
         // 12. Doctor Availability Slots
         seedSampleAvailability(drVance, drWright, today);
+
+        // 13. Seed Pharmacy Data
+        seedPharmacyDataIfMissing(defaultHashedPassword);
     }
 
     private void attachDoctorUser(Doctor doctor, String email, String fullName, String encodedPassword) {
@@ -404,5 +403,230 @@ public class DataInitializer implements CommandLineRunner {
             Doctor secondDoc = doctors.size() > 1 ? doctors.get(1) : firstDoc;
             seedSampleAvailability(firstDoc, secondDoc, LocalDate.now());
         }
+    }
+
+    public void seedPharmacyDataIfMissing(String defaultHashedPassword) {
+        // Seed Pharmacist User
+        userRepository.findByUsername("pharmacist@hospital.com").orElseGet(() ->
+                userRepository.save(new User(
+                        "pharmacist@hospital.com",
+                        defaultHashedPassword,
+                        "Marcus Thorne (Chief Pharmacist)",
+                        RoleType.ROLE_PHARMACIST
+                ))
+        );
+
+        if (categoryRepository.count() > 0) {
+            return; // Pharmacy data already seeded
+        }
+
+        LocalDate today = LocalDate.now();
+
+        // 1. Medicine Categories
+        MedicineCategory catAntibiotics = categoryRepository.save(new MedicineCategory("CAT-ANTI", "Antibiotics", "Antimicrobial medications for bacterial infections"));
+        MedicineCategory catAnalgesics = categoryRepository.save(new MedicineCategory("CAT-ANAL", "Analgesics & Antipyretics", "Pain relief and fever reducers"));
+        MedicineCategory catCardio = categoryRepository.save(new MedicineCategory("CAT-CARD", "Cardiovascular", "Heart, blood pressure and lipid lowering medications"));
+        MedicineCategory catRespiratory = categoryRepository.save(new MedicineCategory("CAT-RESP", "Respiratory", "Bronchodilators, inhalers, and antihistamines"));
+        MedicineCategory catDiabetic = categoryRepository.save(new MedicineCategory("CAT-DIAB", "Antidiabetic", "Blood sugar management and insulin sensitizers"));
+        MedicineCategory catGastro = categoryRepository.save(new MedicineCategory("CAT-GAST", "Gastrointestinal", "Antacids, proton pump inhibitors, and antiemetics"));
+
+        // 2. Suppliers
+        Supplier supApex = supplierRepository.save(new Supplier(
+                "SUP-001", "Apex Pharma Global", "David Vance", "orders@apexpharma.com",
+                "+1 (555) 300-1100", "100 Industrial Parkway, Chicago, IL", "FDA-IL-98421", "Net 30"
+        ));
+
+        Supplier supMedLife = supplierRepository.save(new Supplier(
+                "SUP-002", "MedLife Healthcare Distributors", "Karen Miller", "supply@medlife.org",
+                "+1 (555) 300-2200", "450 Logistics Way, Indianapolis, IN", "FDA-IN-77112", "Net 15"
+        ));
+
+        Supplier supBioHealth = supplierRepository.save(new Supplier(
+                "SUP-003", "BioHealth Solutions", "Robert Ross", "contact@biohealth.com",
+                "+1 (555) 300-3300", "78 Science Park, Boston, MA", "FDA-MA-45678", "Cash on Delivery"
+        ));
+
+        // 3. Medicines
+        Medicine medAmox = medicineRepository.save(new Medicine(
+                "MED-0001", "Amoxicillin-Clavulanate (Augmentin)", "Amoxicillin / Clavulanate Potassium",
+                catAntibiotics, "Tablet", "625 mg", "Strip", 25, BigDecimal.valueOf(18.50), BigDecimal.valueOf(11.20), "GlaxoSmithKline"
+        ));
+
+        Medicine medAlbuterol = medicineRepository.save(new Medicine(
+                "MED-0002", "Albuterol Sulfate Inhalation Aerosol", "Albuterol Sulfate",
+                catRespiratory, "Inhaler", "90 mcg/actuation", "Inhaler", 15, BigDecimal.valueOf(35.00), BigDecimal.valueOf(22.00), "Teva Pharmaceuticals"
+        ));
+
+        Medicine medCetirizine = medicineRepository.save(new Medicine(
+                "MED-0003", "Cetirizine Hydrochloride (Zyrtec)", "Cetirizine HCl",
+                catRespiratory, "Tablet", "10 mg", "Strip", 30, BigDecimal.valueOf(12.00), BigDecimal.valueOf(6.50), "Johnson & Johnson"
+        ));
+
+        Medicine medAtorvastatin = medicineRepository.save(new Medicine(
+                "MED-0004", "Atorvastatin Calcium", "Atorvastatin",
+                catCardio, "Tablet", "20 mg", "Box", 20, BigDecimal.valueOf(24.00), BigDecimal.valueOf(14.00), "Pfizer"
+        ));
+
+        Medicine medMetformin = medicineRepository.save(new Medicine(
+                "MED-0005", "Metformin Hydrochloride", "Metformin HCl",
+                catDiabetic, "Tablet", "500 mg", "Strip", 40, BigDecimal.valueOf(9.00), BigDecimal.valueOf(4.20), "Merck"
+        ));
+
+        Medicine medOmeprazole = medicineRepository.save(new Medicine(
+                "MED-0006", "Omeprazole Delayed-Release (Prilosec)", "Omeprazole",
+                catGastro, "Capsule", "20 mg", "Box", 25, BigDecimal.valueOf(15.00), BigDecimal.valueOf(8.50), "AstraZeneca"
+        ));
+
+        Medicine medParacetamol = medicineRepository.save(new Medicine(
+                "MED-0007", "Paracetamol Extra Strength", "Acetaminophen",
+                catAnalgesics, "Tablet", "500 mg", "Strip", 50, BigDecimal.valueOf(5.50), BigDecimal.valueOf(2.10), "Novartis"
+        ));
+
+        Medicine medCiprofloxacin = medicineRepository.save(new Medicine(
+                "MED-0008", "Ciprofloxacin Ophthalmic Solution", "Ciprofloxacin",
+                catAntibiotics, "Drops", "0.3%", "Bottle", 10, BigDecimal.valueOf(22.00), BigDecimal.valueOf(12.50), "Bayer"
+        ));
+
+        // 4. Batches (including active, low-stock, near-expiry, and expired)
+        // Augmentin batches:
+        MedicineBatch bAug1 = batchRepository.save(new MedicineBatch(
+                "BAT-AUG-26A", medAmox, supApex, 100, BigDecimal.valueOf(11.20), BigDecimal.valueOf(18.50),
+                today.minusMonths(2), today.plusMonths(14)
+        ));
+        bAug1.setCurrentQuantity(75);
+        batchRepository.save(bAug1);
+
+        MedicineBatch bAug2 = batchRepository.save(new MedicineBatch(
+                "BAT-AUG-26B", medAmox, supApex, 50, BigDecimal.valueOf(11.20), BigDecimal.valueOf(18.50),
+                today.minusMonths(1), today.plusMonths(18)
+        ));
+        bAug2.setCurrentQuantity(50);
+        batchRepository.save(bAug2);
+
+        // Albuterol (Low stock!)
+        MedicineBatch bAlb1 = batchRepository.save(new MedicineBatch(
+                "BAT-ALB-25A", medAlbuterol, supBioHealth, 30, BigDecimal.valueOf(22.00), BigDecimal.valueOf(35.00),
+                today.minusMonths(6), today.plusMonths(8)
+        ));
+        bAlb1.setCurrentQuantity(8); // Below reorder level 15
+        batchRepository.save(bAlb1);
+
+        // Cetirizine (Near-expiry batch: expires in 25 days!)
+        MedicineBatch bCet1 = batchRepository.save(new MedicineBatch(
+                "BAT-CET-24X", medCetirizine, supMedLife, 80, BigDecimal.valueOf(6.50), BigDecimal.valueOf(12.00),
+                today.minusMonths(11), today.plusDays(25) // Near expiry
+        ));
+        bCet1.setCurrentQuantity(35);
+        batchRepository.save(bCet1);
+
+        MedicineBatch bCet2 = batchRepository.save(new MedicineBatch(
+                "BAT-CET-26A", medCetirizine, supMedLife, 150, BigDecimal.valueOf(6.50), BigDecimal.valueOf(12.00),
+                today.minusMonths(1), today.plusMonths(24)
+        ));
+        bCet2.setCurrentQuantity(150);
+        batchRepository.save(bCet2);
+
+        // Atorvastatin (Expired batch: expired 15 days ago for realistic alert testing!)
+        MedicineBatch bAtorExp = batchRepository.save(new MedicineBatch(
+                "BAT-ATOR-23OLD", medAtorvastatin, supApex, 40, BigDecimal.valueOf(14.00), BigDecimal.valueOf(24.00),
+                today.minusMonths(24), today.minusDays(15) // EXPIRED!
+        ));
+        bAtorExp.setCurrentQuantity(12);
+        bAtorExp.setStatus(BatchStatus.EXPIRED);
+        batchRepository.save(bAtorExp);
+
+        MedicineBatch bAtorGood = batchRepository.save(new MedicineBatch(
+                "BAT-ATOR-26A", medAtorvastatin, supApex, 100, BigDecimal.valueOf(14.00), BigDecimal.valueOf(24.00),
+                today.minusDays(20), today.plusMonths(20)
+        ));
+        bAtorGood.setCurrentQuantity(85);
+        batchRepository.save(bAtorGood);
+
+        // Metformin (Good stock)
+        MedicineBatch bMet1 = batchRepository.save(new MedicineBatch(
+                "BAT-MET-26A", medMetformin, supMedLife, 200, BigDecimal.valueOf(4.20), BigDecimal.valueOf(9.00),
+                today.minusDays(40), today.plusMonths(30)
+        ));
+        bMet1.setCurrentQuantity(180);
+        batchRepository.save(bMet1);
+
+        // Omeprazole (Good stock)
+        MedicineBatch bOme1 = batchRepository.save(new MedicineBatch(
+                "BAT-OME-26A", medOmeprazole, supBioHealth, 120, BigDecimal.valueOf(8.50), BigDecimal.valueOf(15.00),
+                today.minusDays(15), today.plusMonths(16)
+        ));
+        bOme1.setCurrentQuantity(110);
+        batchRepository.save(bOme1);
+
+        // Paracetamol (Ample stock)
+        MedicineBatch bPara1 = batchRepository.save(new MedicineBatch(
+                "BAT-PARA-26A", medParacetamol, supMedLife, 300, BigDecimal.valueOf(2.10), BigDecimal.valueOf(5.50),
+                today.minusDays(10), today.plusMonths(36)
+        ));
+        bPara1.setCurrentQuantity(280);
+        batchRepository.save(bPara1);
+
+        // Ciprofloxacin (Out of stock: 0 quantity!)
+        MedicineBatch bCipro = batchRepository.save(new MedicineBatch(
+                "BAT-CIP-25X", medCiprofloxacin, supApex, 20, BigDecimal.valueOf(12.50), BigDecimal.valueOf(22.00),
+                today.minusMonths(8), today.plusMonths(4)
+        ));
+        bCipro.setCurrentQuantity(0);
+        bCipro.setStatus(BatchStatus.DEPLETED);
+        batchRepository.save(bCipro);
+
+        // Refresh aggregate stock on all medicines
+        updateMedicineStock(medAmox);
+        updateMedicineStock(medAlbuterol);
+        updateMedicineStock(medCetirizine);
+        updateMedicineStock(medAtorvastatin);
+        updateMedicineStock(medMetformin);
+        updateMedicineStock(medOmeprazole);
+        updateMedicineStock(medParacetamol);
+        updateMedicineStock(medCiprofloxacin);
+
+        // 5. Initial Stock Transactions
+        transactionRepository.save(new StockTransaction(
+                "STX-2026-0001", StockTransactionType.STOCK_IN, medAmox, bAug1, 100,
+                bAug1.getPurchasePrice(), 0, 100, "INITIAL_STOCK", bAug1.getBatchNumber(),
+                "pharmacist@hospital.com", "Opening stock intake"
+        ));
+        transactionRepository.save(new StockTransaction(
+                "STX-2026-0002", StockTransactionType.DISPENSED, medAmox, bAug1, 25,
+                bAug1.getUnitPrice(), 100, 75, "PRESCRIPTION", "DISP-2026-00001",
+                "pharmacist@hospital.com", "Dispensed to outpatient"
+        ));
+        transactionRepository.save(new StockTransaction(
+                "STX-2026-0003", StockTransactionType.STOCK_IN, medCetirizine, bCet1, 80,
+                bCet1.getPurchasePrice(), 0, 80, "INITIAL_STOCK", bCet1.getBatchNumber(),
+                "pharmacist@hospital.com", "Opening stock intake"
+        ));
+        transactionRepository.save(new StockTransaction(
+                "STX-2026-0004", StockTransactionType.STOCK_IN, medAtorvastatin, bAtorGood, 100,
+                bAtorGood.getPurchasePrice(), 0, 100, "INITIAL_STOCK", bAtorGood.getBatchNumber(),
+                "pharmacist@hospital.com", "Bulk shipment receipt"
+        ));
+
+        // 6. Seed Sample Purchase Order
+        PurchaseOrder po = new PurchaseOrder(
+                "PO-2026-0001", supApex, today.minusDays(10), today.plusDays(5),
+                "Restock critical cardiovascular and antibiotic lines", "pharmacist@hospital.com"
+        );
+        po.addItem(new PurchaseOrderItem(po, medAmox, 50, BigDecimal.valueOf(11.20)));
+        po.addItem(new PurchaseOrderItem(po, medAtorvastatin, 50, BigDecimal.valueOf(14.00)));
+        purchaseOrderRepository.save(po);
+
+        // 7. Audit Log
+        auditLogRepository.save(new PharmacyAuditLog(
+                "SYSTEM_INITIALIZATION", "CareFlow HMS", "PHARMACY_M3",
+                "pharmacist@hospital.com", "M3 Pharmacy subsystem initialized with demo catalogs and inventory.",
+                "127.0.0.1"
+        ));
+    }
+
+    private void updateMedicineStock(Medicine medicine) {
+        int validStock = batchRepository.calculateValidStockForMedicine(medicine, LocalDate.now());
+        medicine.setTotalStock(validStock);
+        medicineRepository.save(medicine);
     }
 }

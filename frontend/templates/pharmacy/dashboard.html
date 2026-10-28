@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Pharmacy Dashboard')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('pharmacy-dashboard')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Pharmacy Operations Dashboard', 'Central dispensing, batch-level inventory, FEFO tracking, and procurement overview')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Pharmacy Welcome Greeting Banner -->
+            <div class="card" style="background: linear-gradient(135deg, #0f2c59, #0d9488); color: #fff; border:none; margin-bottom: 24px;">
+                <div class="card-body" style="padding: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+                    <div>
+                        <div style="font-size: 0.85rem; color: #99f6e4; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">
+                            CareFlow Pharmacy Dispensary System (M3)
+                        </div>
+                        <h2 style="font-size: 1.6rem; font-weight: 700; margin-top: 4px; color:#fff;">
+                            Hospital Pharmacy Center
+                        </h2>
+                        <p style="color: #cbd5e1; font-size: 0.885rem; margin-top: 6px;">
+                            Active Dispenser: <strong style="color: #fff;" th:text="${currentUser != null ? currentUser.fullName : 'Pharmacist'}">Pharmacist</strong> |
+                            Protocol: <strong style="color: #5eead4;">FEFO (First Expired, First Out)</strong> |
+                            Safety Checks: <span style="color: #a7f3d0;">Negative Stock & Expiry Lock Enabled</span>
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <a th:href="@{/pharmacy/prescriptions}" class="btn btn-teal">
+                            📋 Prescription Queue
+                        </a>
+                        <a th:href="@{/pharmacy/stock/in}" class="btn btn-primary" style="background:#2563eb; border-color:#2563eb;">
+                            📥 Stock In Receipt
+                        </a>
+                        <a th:href="@{/pharmacy/alerts/expiry}" class="btn btn-outline" style="background:rgba(255,255,255,0.1); color:#fff; border-color:rgba(255,255,255,0.3);">
+                            ⚠️ Expiry Watch
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Pharmacy Metrics Cards -->
+            <div class="stats-grid-pharmacy">
+                <div class="stat-card-pharma">
+                    <div class="stat-icon-pharma stat-icon-blue">📦</div>
+                    <div class="stat-content-pharma">
+                        <h3>Total Catalog</h3>
+                        <div class="stat-value" th:text="${stats.totalMedicines}">0</div>
+                        <small style="color:var(--text-muted);">Active formulary medicines</small>
+                    </div>
+                </div>
+
+                <div class="stat-card-pharma">
+                    <div class="stat-icon-pharma stat-icon-green">✅</div>
+                    <div class="stat-content-pharma">
+                        <h3>In Stock</h3>
+                        <div class="stat-value" th:text="${stats.availableMedicines}">0</div>
+                        <small style="color:var(--text-muted);">Adequate supply</small>
+                    </div>
+                </div>
+
+                <div class="stat-card-pharma">
+                    <div class="stat-icon-pharma stat-icon-amber">⚠️</div>
+                    <div class="stat-content-pharma">
+                        <h3>Low Stock</h3>
+                        <div class="stat-value" style="color:var(--warning);" th:text="${stats.lowStockMedicines}">0</div>
+                        <small><a th:href="@{/pharmacy/medicines(status='LOW_STOCK')}" style="color:var(--warning); font-weight:600;">Needs reorder &rarr;</a></small>
+                    </div>
+                </div>
+
+                <div class="stat-card-pharma">
+                    <div class="stat-icon-pharma stat-icon-red">⛔</div>
+                    <div class="stat-content-pharma">
+                        <h3>Out of Stock</h3>
+                        <div class="stat-value" style="color:var(--danger);" th:text="${stats.outOfStockMedicines}">0</div>
+                        <small><a th:href="@{/pharmacy/medicines(status='OUT_OF_STOCK')}" style="color:var(--danger); font-weight:600;">Depleted stock &rarr;</a></small>
+                    </div>
+                </div>
+
+                <div class="stat-card-pharma">
+                    <div class="stat-icon-pharma stat-icon-purple">📋</div>
+                    <div class="stat-content-pharma">
+                        <h3>Pending Prescriptions</h3>
+                        <div class="stat-value" style="color:#7c3aed;" th:text="${stats.pendingPrescriptions}">0</div>
+                        <small><a th:href="@{/pharmacy/prescriptions}" style="color:#7c3aed; font-weight:600;">Open queue &rarr;</a></small>
+                    </div>
+                </div>
+
+                <div class="stat-card-pharma">
+                    <div class="stat-icon-pharma stat-icon-teal">💊</div>
+                    <div class="stat-content-pharma">
+                        <h3>Dispensations</h3>
+                        <div class="stat-value" style="color:var(--accent-teal);" th:text="${stats.completedDispensations}">0</div>
+                        <small style="color:var(--text-muted);">Completed dispenses</small>
+                    </div>
+                </div>
+
+                <div class="stat-card-pharma">
+                    <div class="stat-icon-pharma stat-icon-red">⏳</div>
+                    <div class="stat-content-pharma">
+                        <h3>Expired Batches</h3>
+                        <div class="stat-value" style="color:var(--danger);" th:text="${stats.expiredBatches}">0</div>
+                        <small><a th:href="@{/pharmacy/alerts/expiry}" style="color:var(--danger); font-weight:600;">Action required &rarr;</a></small>
+                    </div>
+                </div>
+
+                <div class="stat-card-pharma">
+                    <div class="stat-icon-pharma stat-icon-amber">📅</div>
+                    <div class="stat-content-pharma">
+                        <h3>Near Expiry (&le;60d)</h3>
+                        <div class="stat-value" style="color:var(--warning);" th:text="${stats.nearExpiryBatches}">0</div>
+                        <small><a th:href="@{/pharmacy/alerts/expiry}" style="color:var(--warning); font-weight:600;">FEFO priority &rarr;</a></small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two Column Section: Recent Activity & Quick Operations -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+                <!-- Recent Stock Transactions -->
+                <div class="card">
+                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3 class="card-title">Recent Stock Movement</h3>
+                        <a th:href="@{/pharmacy/reports(tab='movement')}" class="btn btn-outline btn-sm">Full Movement &rarr;</a>
+                    </div>
+                    <div class="card-body" style="padding:0;">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tx Number</th>
+                                        <th>Type</th>
+                                        <th>Medicine</th>
+                                        <th>Qty</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="tx : ${stats.recentStockTransactions}">
+                                        <td style="font-family:monospace; font-weight:600;" th:text="${tx.transactionNumber}">STX-001</td>
+                                        <td>
+                                            <span class="badge"
+                                                  th:classappend="${tx.transactionType.name() == 'STOCK_IN' ? 'badge-success' : (tx.transactionType.name() == 'DISPENSED' ? 'badge-info' : 'badge-warning')}"
+                                                  th:text="${tx.transactionType}">STOCK_IN</span>
+                                        </td>
+                                        <td th:text="${tx.medicine.name}">Amoxicillin</td>
+                                        <td style="font-weight:700;" th:text="${tx.quantity}">10</td>
+                                        <td style="color:var(--text-muted); font-size:0.8rem;" th:text="${#temporals.format(tx.transactionDate, 'MMM d, HH:mm')}">Oct 28</td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(stats.recentStockTransactions)}">
+                                        <td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">No stock transactions recorded yet.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Doctor Prescription Activity -->
+                <div class="card">
+                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3 class="card-title">Doctor Prescriptions Activity</h3>
+                        <a th:href="@{/pharmacy/prescriptions}" class="btn btn-outline btn-sm">View Queue &rarr;</a>
+                    </div>
+                    <div class="card-body" style="padding:0;">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Doctor</th>
+                                        <th>Medication</th>
+                                        <th>Dispense Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="rx : ${stats.recentPrescriptionActivity}">
+                                        <td>
+                                            <strong th:text="${rx.patient.fullName}">Patient Name</strong>
+                                            <div style="font-size:0.75rem; color:var(--text-muted);" th:text="${rx.patient.patientId}">PAT-0001</div>
+                                        </td>
+                                        <td th:text="${'Dr. ' + rx.doctor.fullName}">Dr. Vance</td>
+                                        <td th:text="${rx.medicationName}">Augmentin</td>
+                                        <td>
+                                            <span class="badge"
+                                                  th:classappend="${rx.dispenseStatus == 'DISPENSED' ? 'badge-success' : (rx.dispenseStatus == 'PARTIALLY_DISPENSED' ? 'badge-warning' : 'badge-danger')}"
+                                                  th:text="${rx.dispenseStatus}">PENDING</span>
+                                        </td>
+                                        <td>
+                                            <a th:href="@{/pharmacy/prescriptions/{id}(id=${rx.id})}" class="btn btn-teal btn-sm">
+                                                <span th:text="${rx.dispenseStatus == 'DISPENSED' ? 'View' : 'Dispense'}">Dispense</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(stats.recentPrescriptionActivity)}">
+                                        <td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">No prescriptions found.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Management Shortcuts -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Quick Operations</h3>
+                </div>
+                <div class="card-body" style="display:flex; flex-wrap:wrap; gap:12px;">
+                    <a th:href="@{/pharmacy/medicines/new}" class="btn btn-outline">➕ Add New Medicine</a>
+                    <a th:href="@{/pharmacy/stock/in}" class="btn btn-outline">📥 Stock-In Received Batches</a>
+                    <a th:href="@{/pharmacy/stock/adjust}" class="btn btn-outline">⚖️ Record Stock Adjustment</a>
+                    <a th:href="@{/pharmacy/purchases/new}" class="btn btn-outline">🛒 New Purchase Order</a>
+                    <a th:href="@{/pharmacy/suppliers/new}" class="btn btn-outline">🏢 Register New Supplier</a>
+                    <a th:href="@{/pharmacy/reports(tab='inventory')}" class="btn btn-outline">📊 Formulary & Inventory Report</a>
+                    <a th:href="@{/pharmacy/reports/inventory/export}" class="btn btn-outline">💾 Download Full Inventory CSV</a>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/pharmacy.js}"></script>
+</body>
+</html>

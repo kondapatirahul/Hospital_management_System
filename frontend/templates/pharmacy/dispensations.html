@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Dispensing History')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('pharmacy-dispensations')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Dispensing History & Audit', 'Historical register of all prescription fulfillments, patient issuances, and values')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Filter Bar -->
+            <div class="quick-filter-bar">
+                <form th:action="@{/pharmacy/dispensations}" method="get" style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; flex:1;">
+                    <div class="search-input-group">
+                        <input type="text" name="query" class="form-control" placeholder="Search token, patient name, doctor..."
+                               th:value="${query}" />
+                    </div>
+
+                    <input type="date" name="startDate" class="form-control" style="width:160px;" th:value="${startDate}" title="From date" />
+                    <input type="date" name="endDate" class="form-control" style="width:160px;" th:value="${endDate}" title="To date" />
+
+                    <select name="status" class="form-control" style="width:150px;">
+                        <option value="">All Statuses</option>
+                        <option th:each="st : ${statuses}" th:value="${st}" th:text="${st}" th:selected="${selectedStatus == st}">COMPLETED</option>
+                    </select>
+
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <a th:href="@{/pharmacy/dispensations}" class="btn btn-outline">Reset</a>
+                </form>
+
+                <div>
+                    <a th:href="@{/pharmacy/reports/dispensations/export(startDate=${startDate}, endDate=${endDate})}" class="btn btn-outline">
+                        💾 Export CSV
+                    </a>
+                </div>
+            </div>
+
+            <!-- Dispensations Table -->
+            <div class="card">
+                <div class="card-body" style="padding:0;">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Dispensation Token</th>
+                                    <th>Date & Time</th>
+                                    <th>Patient</th>
+                                    <th>Doctor</th>
+                                    <th>Medication Prescribed</th>
+                                    <th>Total Units</th>
+                                    <th>Total Cost</th>
+                                    <th>Dispensed By</th>
+                                    <th>Status</th>
+                                    <th style="text-align:right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="d : ${dispensationsPage.content}">
+                                    <td>
+                                        <a th:href="@{/pharmacy/dispensations/{id}(id=${d.id})}"
+                                           style="font-family:monospace; font-weight:700; color:var(--primary-blue);"
+                                           th:text="${d.dispensationNumber}">DISP-2026-0001</a>
+                                    </td>
+                                    <td th:text="${#temporals.format(d.dispensationDate, 'MMM d, yyyy HH:mm')}">Oct 28, 2026</td>
+                                    <td>
+                                        <strong th:text="${d.patient.fullName}">Patient Name</strong>
+                                        <div style="font-size:0.75rem; color:var(--text-muted);" th:text="${d.patient.patientId}">PAT-0001</div>
+                                    </td>
+                                    <td th:text="${'Dr. ' + d.doctor.fullName}">Dr. Wright</td>
+                                    <td>
+                                        <span th:text="${d.prescription.medicationName}">Augmentin</span>
+                                        <div style="font-size:0.75rem; color:var(--text-muted);" th:text="${'Rx #' + d.prescription.id}">Rx #101</div>
+                                    </td>
+                                    <td>
+                                        <strong style="font-size:1.05rem;" th:text="${d.totalQuantity}">14</strong>
+                                    </td>
+                                    <td style="font-weight:600; color:var(--accent-teal);" th:text="${'$' + #numbers.formatDecimal(d.totalAmount, 1, 2)}">$156.80</td>
+                                    <td th:text="${d.dispensedBy}">Pharmacist</td>
+                                    <td>
+                                        <span class="badge badge-success" th:text="${d.status}">COMPLETED</span>
+                                    </td>
+                                    <td style="text-align:right;">
+                                        <a th:href="@{/pharmacy/dispensations/{id}(id=${d.id})}" class="btn btn-outline btn-sm">Receipt &rarr;</a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${dispensationsPage.totalElements == 0}">
+                                    <td colspan="10" style="text-align:center; padding:35px; color:var(--text-muted);">
+                                        No dispensation records found matching your query.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="card-footer" th:if="${dispensationsPage.totalPages > 1}"
+                     style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px;">
+                    <div style="color:var(--text-muted); font-size:0.875rem;">
+                        Page <span th:text="${dispensationsPage.number + 1}">1</span> of <span th:text="${dispensationsPage.totalPages}">5</span>
+                    </div>
+                    <div style="display:flex; gap:6px;">
+                        <a th:if="${dispensationsPage.hasPrevious()}"
+                           th:href="@{/pharmacy/dispensations(page=${dispensationsPage.number - 1}, query=${query}, status=${selectedStatus})}"
+                           class="btn btn-outline btn-sm">&larr; Previous</a>
+                        <a th:if="${dispensationsPage.hasNext()}"
+                           th:href="@{/pharmacy/dispensations(page=${dispensationsPage.number + 1}, query=${query}, status=${selectedStatus})}"
+                           class="btn btn-outline btn-sm">Next &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/pharmacy.js}"></script>
+</body>
+</html>

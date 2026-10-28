@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('PO ' + po.poNumber)}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('pharmacy-purchases')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Purchase Order Details', 'View line items, delivery progress, and goods received note history')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Top Actions -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <a th:href="@{/pharmacy/purchases}" class="btn btn-outline btn-sm">&larr; Back to Purchase Orders</a>
+                    <span class="badge"
+                          th:classappend="${po.status.name() == 'RECEIVED' ? 'badge-success' : (po.status.name() == 'PARTIALLY_RECEIVED' ? 'badge-warning' : 'badge-info')}"
+                          style="font-size:0.9rem; padding:4px 10px;"
+                          th:text="${po.status}">ORDERED</span>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <a th:if="${po.status.name() != 'RECEIVED' and po.status.name() != 'CANCELLED'}"
+                       th:href="@{/pharmacy/purchases/{id}/receive(id=${po.id})}" class="btn btn-teal">
+                        📥 Record Goods Received (GRN)
+                    </a>
+                </div>
+            </div>
+
+            <!-- PO Header Overview Card -->
+            <div class="card" style="margin-bottom:24px;">
+                <div class="card-body">
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:20px;">
+                        <div>
+                            <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; display:block;">PO Reference</span>
+                            <strong style="font-family:monospace; font-size:1.15rem; color:var(--primary-blue);" th:text="${po.poNumber}">PO-2026-0001</strong>
+                        </div>
+                        <div>
+                            <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; display:block;">Supplier</span>
+                            <strong th:text="${po.supplier.name}">Apex Pharma Global</strong>
+                            <div style="font-size:0.75rem; color:var(--text-muted);" th:text="${po.supplier.phone}">Phone</div>
+                        </div>
+                        <div>
+                            <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; display:block;">Order Date</span>
+                            <span th:text="${#temporals.format(po.orderDate, 'MMM d, yyyy')}">Oct 20, 2026</span>
+                        </div>
+                        <div>
+                            <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; display:block;">Expected Delivery</span>
+                            <span th:text="${po.expectedDeliveryDate != null ? #temporals.format(po.expectedDeliveryDate, 'MMM d, yyyy') : 'Standard SLA'}">Nov 5, 2026</span>
+                        </div>
+                        <div>
+                            <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; display:block;">Total Order Value</span>
+                            <strong style="font-size:1.2rem; color:var(--accent-teal);" th:text="${'$' + #numbers.formatDecimal(po.totalAmount, 1, 2)}">$1,260.00</strong>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border);" th:if="${po.remarks}">
+                        <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; display:block;">Order Remarks</span>
+                        <p style="margin-top:2px; font-size:0.9rem;" th:text="${po.remarks}">Remarks</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Line Items Table -->
+            <div class="card" style="margin-bottom:24px;">
+                <div class="card-header">
+                    <h3 class="card-title">Order Line Items</h3>
+                </div>
+                <div class="card-body" style="padding:0;">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Medication</th>
+                                    <th>Form & Strength</th>
+                                    <th style="text-align:right;">Ordered Qty</th>
+                                    <th style="text-align:right;">Received Qty</th>
+                                    <th style="text-align:right;">Pending Qty</th>
+                                    <th style="text-align:right;">Unit Cost</th>
+                                    <th style="text-align:right;">Total Cost</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item, iter : ${po.items}">
+                                    <td th:text="${iter.index + 1}">1</td>
+                                    <td>
+                                        <a th:href="@{/pharmacy/medicines/{id}(id=${item.medicine.id})}" style="font-weight:700; color:var(--primary-blue);" th:text="${item.medicine.name}">Augmentin</a>
+                                        <div style="font-size:0.75rem; color:var(--text-muted);" th:text="${item.medicine.medicineCode}">MED-0001</div>
+                                    </td>
+                                    <td th:text="${item.medicine.dosageForm + ' ' + item.medicine.strength}">Tablet 625mg</td>
+                                    <td style="text-align:right; font-weight:700;" th:text="${item.orderedQuantity}">50</td>
+                                    <td style="text-align:right; font-weight:700; color:var(--success);" th:text="${item.receivedQuantity}">0</td>
+                                    <td style="text-align:right; font-weight:700; color:var(--warning);" th:text="${item.getPendingQuantity()}">50</td>
+                                    <td style="text-align:right;" th:text="${'$' + #numbers.formatDecimal(item.unitCost, 1, 2)}">$11.20</td>
+                                    <td style="text-align:right; font-weight:700;" th:text="${'$' + #numbers.formatDecimal(item.totalCost, 1, 2)}">$560.00</td>
+                                    <td>
+                                        <span class="badge" th:classappend="${item.isFullyReceived() ? 'badge-success' : 'badge-warning'}"
+                                              th:text="${item.isFullyReceived() ? 'RECEIVED' : 'PENDING'}">PENDING</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Goods Received History (GRNs) -->
+            <div class="card" th:if="${!#lists.isEmpty(grns)}">
+                <div class="card-header">
+                    <h3 class="card-title">Recorded Goods Received Notes (GRN)</h3>
+                </div>
+                <div class="card-body" style="padding:0;">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>GRN Number</th>
+                                    <th>Receipt Date</th>
+                                    <th>Invoice Ref</th>
+                                    <th>Total Items Received</th>
+                                    <th>Receipt Value</th>
+                                    <th>Received By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="grn : ${grns}">
+                                    <td style="font-family:monospace; font-weight:700;" th:text="${grn.grnNumber}">GRN-2026-0001</td>
+                                    <td th:text="${#temporals.format(grn.receivedDate, 'MMM d, yyyy')}">Date</td>
+                                    <td th:text="${grn.supplierInvoiceNumber != null ? grn.supplierInvoiceNumber : '-'}">INV-99</td>
+                                    <td style="font-weight:700;" th:text="${grn.items.size() + ' lines'}">2 lines</td>
+                                    <td style="font-weight:700; color:var(--accent-teal);" th:text="${'$' + #numbers.formatDecimal(grn.totalAmount, 1, 2)}">$560.00</td>
+                                    <td th:text="${grn.receivedBy}">pharmacist</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/pharmacy.js}"></script>
+</body>
+</html>

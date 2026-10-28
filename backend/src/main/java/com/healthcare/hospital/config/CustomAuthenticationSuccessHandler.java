@@ -30,6 +30,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             } else if (role.equals("ROLE_DOCTOR")) {
                 response.sendRedirect(request.getContextPath() + "/doctor/dashboard");
                 return;
+            } else if (role.equals("ROLE_PHARMACIST") || role.equals("ROLE_ADMIN")) {
+                response.sendRedirect(request.getContextPath() + "/pharmacy/dashboard");
+                return;
             }
         }
 
