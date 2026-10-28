@@ -1,10 +1,131 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Reports & Analytics - CareFlow</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
-<body><main class="container" style="max-width:1250px;margin:28px auto;padding:24px">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><div><p>CAREFLOW / REPORTING</p><h1>Reports & Analytics</h1><p>Cross-module operational snapshot as of <span th:text="${reportDate}">today</span>.</p></div><nav><a th:href="@{/admin/dashboard}">Admin</a> · <a th:href="@{/billing/dashboard}">Billing</a> · <a th:href="@{/laboratory/dashboard}">Laboratory</a> · <a th:href="@{/pharmacy/dashboard}">Pharmacy</a></nav></header>
-<section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin:22px 0"><article class="card"><h3>Patients</h3><strong th:text="${patientCount}">0</strong></article><article class="card"><h3>Doctors</h3><strong th:text="${doctorCount}">0</strong></article><article class="card"><h3>Appointments</h3><strong th:text="${appointmentCount}">0</strong></article><article class="card"><h3>Lab reports</h3><strong th:text="${labReportCount}">0</strong></article><article class="card"><h3>Invoices</h3><strong th:text="${invoiceCount}">0</strong></article><article class="card"><h3>Medicine catalogue</h3><strong th:text="${medicineCount}">0</strong></article><article class="card"><h3>Audit events</h3><strong th:text="${auditEventCount}">0</strong></article></section>
-<section class="card" style="margin-bottom:20px"><h2>Export data</h2><p>Download current module records as CSV for authorized reporting.</p><div style="display:flex;gap:10px;flex-wrap:wrap"><a th:href="@{/reports/export/patients}">Export patients CSV</a><a th:href="@{/reports/export/appointments}">Export appointments CSV</a><a th:href="@{/reports/export/invoices}">Export invoices CSV</a><a th:href="@{/reports/export/payments}">Export payments CSV</a></div></section><section class="card" style="margin-bottom:20px"><h2>Finance snapshot</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px"><article><p>Payment records</p><strong th:text="${paymentCount}">0</strong></article><article><p>Total recorded payments</p><strong th:text="${#numbers.formatDecimal(recordedPaymentTotal,1,2)}">0.00</strong></article></div><p><small>Totals reflect recorded payment ledger rows; they are not necessarily equal to revenue earned in a specific reporting period.</small></p></section>
-<section class="card" style="margin-bottom:20px"><h2>Recent payments</h2><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Receipt</th><th>Invoice</th><th>Amount</th><th>Method</th><th>Received by</th><th>Received at</th></tr></thead><tbody><tr th:each="payment : ${recentPayments}"><td th:text="${payment.receiptNumber}"></td><td th:text="${payment.invoice.invoiceNumber}"></td><td th:text="${payment.amount}"></td><td th:text="${payment.paymentMethod}"></td><td th:text="${payment.receivedBy}"></td><td th:text="${payment.receivedAt}"></td></tr><tr th:if="${#lists.isEmpty(recentPayments)}"><td colspan="6">No payments have been recorded yet.</td></tr></tbody></table></div></section>
-<section class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2>Recent audit activity</h2><a th:href="@{/admin/audit}">Open full audit trail →</a></div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Entity</th><th>Details</th></tr></thead><tbody><tr th:each="event : ${recentAuditEvents}"><td th:text="${event.createdAt}"></td><td th:text="${event.actor}"></td><td th:text="${event.action}"></td><td th:text="${event.entityType}"></td><td th:text="${event.details}"></td></tr><tr th:if="${#lists.isEmpty(recentAuditEvents)}"><td colspan="5">No audit events recorded yet.</td></tr></tbody></table></div></section>
-</main></body></html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reports & Analytics - CareFlow</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <main class="container" style="max-width:1250px;margin:28px auto;padding:24px">
+        <header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+            <div>
+                <p>CAREFLOW / REPORTING</p>
+                <h1>Reports & Analytics</h1>
+                <p>Cross-module operational snapshot as of <span th:text="${reportDate}">today</span>.</p>
+            </div>
+            <nav><a th:href="@{/admin/dashboard}">Admin</a> · <a th:href="@{/billing/dashboard}">Billing</a> · <a
+                    th:href="@{/laboratory/dashboard}">Laboratory</a> · <a th:href="@{/pharmacy/dashboard}">Pharmacy</a>
+            </nav>
+        </header>
+        <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin:22px 0">
+            <article class="card">
+                <h3>Patients</h3><strong th:text="${patientCount}">0</strong>
+            </article>
+            <article class="card">
+                <h3>Doctors</h3><strong th:text="${doctorCount}">0</strong>
+            </article>
+            <article class="card">
+                <h3>Appointments</h3><strong th:text="${appointmentCount}">0</strong>
+            </article>
+            <article class="card">
+                <h3>Lab reports</h3><strong th:text="${labReportCount}">0</strong>
+            </article>
+            <article class="card">
+                <h3>Invoices</h3><strong th:text="${invoiceCount}">0</strong>
+            </article>
+            <article class="card">
+                <h3>Medicine catalogue</h3><strong th:text="${medicineCount}">0</strong>
+            </article>
+            <article class="card">
+                <h3>Audit events</h3><strong th:text="${auditEventCount}">0</strong>
+            </article>
+        </section>
+        <section class="card" style="margin-bottom:20px">
+            <h2>Export data</h2>
+            <p>Download current module records as CSV for authorized reporting.</p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap"><a th:href="@{/reports/export/patients}">Export patients
+                    CSV</a><a th:href="@{/reports/export/appointments}">Export appointments CSV</a><a
+                    th:href="@{/reports/export/invoices}">Export invoices CSV</a><a
+                    th:href="@{/reports/export/payments}">Export payments CSV</a></div>
+        </section>
+        <section class="card" style="margin-bottom:20px">
+            <h2>Finance snapshot</h2>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px">
+                <article>
+                    <p>Payment records</p><strong th:text="${paymentCount}">0</strong>
+                </article>
+                <article>
+                    <p>Total recorded payments</p><strong
+                        th:text="${#numbers.formatDecimal(recordedPaymentTotal,1,2)}">0.00</strong>
+                </article>
+            </div>
+            <p><small>Totals reflect recorded payment ledger rows; they are not necessarily equal to revenue earned in a
+                    specific reporting period.</small></p>
+        </section>
+        <section class="card" style="margin-bottom:20px">
+            <h2>Recent payments</h2>
+            <div style="overflow-x:auto">
+                <table style="width:100%;border-collapse:collapse">
+                    <thead>
+                        <tr>
+                            <th>Receipt</th>
+                            <th>Invoice</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Received by</th>
+                            <th>Received at</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="payment : ${recentPayments}">
+                            <td th:text="${payment.receiptNumber}"></td>
+                            <td th:text="${payment.invoice.invoiceNumber}"></td>
+                            <td th:text="${payment.amount}"></td>
+                            <td th:text="${payment.paymentMethod}"></td>
+                            <td th:text="${payment.receivedBy}"></td>
+                            <td th:text="${payment.receivedAt}"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(recentPayments)}">
+                            <td colspan="6">No payments have been recorded yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        <section class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+                <h2>Recent audit activity</h2><a th:href="@{/admin/audit}">Open full audit trail →</a>
+            </div>
+            <div style="overflow-x:auto">
+                <table style="width:100%;border-collapse:collapse">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Actor</th>
+                            <th>Action</th>
+                            <th>Entity</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="event : ${recentAuditEvents}">
+                            <td th:text="${event.createdAt}"></td>
+                            <td th:text="${event.actor}"></td>
+                            <td th:text="${event.action}"></td>
+                            <td th:text="${event.entityType}"></td>
+                            <td th:text="${event.details}"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(recentAuditEvents)}">
+                            <td colspan="5">No audit events recorded yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</body>
+
+</html>
