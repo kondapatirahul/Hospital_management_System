@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Sample Tracking - CareFlow</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body><main class="container" style="max-width:1250px;margin:32px auto;padding:24px">
+<header><a th:href="@{/laboratory/dashboard}">← Laboratory dashboard</a><h1>Sample Tracking</h1><p>Register specimens and enforce the sample lifecycle.</p></header>
+<p th:if="${successMessage}" th:text="${successMessage}" role="status"></p><p th:if="${errorMessage}" th:text="${errorMessage}" role="alert"></p>
+<section class="card"><h2>Register a sample</h2><form method="post" th:action="@{/laboratory/samples}" style="display:flex;flex-wrap:wrap;gap:12px">
+<select name="reportId" required><option value="">Select lab order</option><option th:each="r : ${reports}" th:value="${r.id}" th:text="${r.testName + ' — ' + r.patient.fullName}"></option></select>
+<input name="sampleCode" placeholder="Unique sample code" maxlength="32" required><select name="sampleType" required><option value="BLOOD">Blood</option><option value="URINE">Urine</option><option value="STOOL">Stool</option><option value="SWAB">Swab</option><option value="TISSUE">Tissue</option><option value="SPUTUM">Sputum</option><option value="OTHER">Other</option></select><button type="submit">Register sample</button></form></section>
+<section class="card"><h2>Specimen register</h2><div style="overflow-x:auto"><table style="width:100%"><thead><tr><th>Code</th><th>Patient / Test</th><th>Type</th><th>Status</th><th>Collected</th><th>Actions</th></tr></thead><tbody>
+<tr th:each="s : ${samples}"><td th:text="${s.sampleCode}"></td><td><span th:text="${s.labReport.patient.fullName}"></span><br><small th:text="${s.labReport.testName}"></small></td><td th:text="${s.sampleType}"></td><td th:text="${s.status}"></td><td th:text="${s.collectedAt}"></td><td>
+<form th:if="${s.status == 'ORDERED'}" method="post" th:action="@{/laboratory/samples/{id}/collect(id=${s.id})}"><input name="collectedBy" placeholder="Collected by" required><input name="notes" placeholder="Handling notes"><button>Collect</button></form>
+<form th:if="${s.status == 'COLLECTED'}" method="post" th:action="@{/laboratory/samples/{id}/receive(id=${s.id})}"><button>Mark received</button></form>
+<form th:if="${s.status == 'RECEIVED'}" method="post" th:action="@{/laboratory/samples/{id}/process(id=${s.id})}"><button>Start processing</button></form>
+<form th:if="${s.status != 'REJECTED' and s.status != 'COMPLETED'}" method="post" th:action="@{/laboratory/samples/{id}/reject(id=${s.id})}"><input name="reason" placeholder="Rejection reason" required><button type="submit">Reject</button></form>
+</td></tr><tr th:if="${#lists.isEmpty(samples)}"><td colspan="6">No samples registered yet.</td></tr></tbody></table></div></section></main></body></html>
