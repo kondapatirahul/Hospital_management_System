@@ -1,85 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>System Settings - CareFlow</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
-
-<body>
-    <main class="container" style="max-width:1200px;margin:28px auto;padding:24px">
-        <header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
-            <div>
-                <p>CAREFLOW / SYSTEM ADMINISTRATION</p>
-                <h1>System Settings</h1>
-                <p>Manage non-secret operational configuration values.</p>
-            </div>
-            <nav><a th:href="@{/admin/dashboard}">Admin dashboard</a> · <a th:href="@{/admin/audit}">Audit trail</a> ·
-                <a th:href="@{/reports}">Reports</a> · <a th:href="@{/logout}">Sign out</a></nav>
-        </header>
-        <p th:if="${successMessage}" th:text="${successMessage}" role="status" class="alert alert-success"></p>
-        <p th:if="${errorMessage}" th:text="${errorMessage}" role="alert" class="alert alert-danger"></p>
-        <article class="card" style="margin:22px 0">
-            <h2>Create setting</h2>
-            <form th:action="@{/admin/settings}" method="post"
-                style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;align-items:end">
-                <label>Key<input name="settingKey" required maxlength="100" pattern="[A-Za-z][A-Za-z0-9_.-]{1,99}"
-                        placeholder="appointment.reminder.enabled"
-                        style="display:block;width:100%;padding:10px"></label><label>Value<input name="settingValue"
-                        required maxlength="1000"
-                        style="display:block;width:100%;padding:10px"></label><label>Category<input name="category"
-                        value="GENERAL" maxlength="80" required
-                        style="display:block;width:100%;padding:10px"></label><label>Description<input
-                        name="description" maxlength="500" style="display:block;width:100%;padding:10px"></label><button
-                    class="btn btn-primary" type="submit">Create setting</button></form>
-            <p><small>Do not store passwords, API keys, connection strings or other secrets in this table. Use
-                    environment variables for secrets.</small></p>
-        </article>
-        <section class="card">
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-                <h2>Saved settings (<span th:text="${settingCount}">0</span>)</h2>
-                <form method="get" th:action="@{/admin/settings}" style="display:flex;gap:8px"><input name="category"
-                        th:value="${categoryFilter}" placeholder="Filter category"><button
-                        type="submit">Filter</button><a th:href="@{/admin/settings}">Reset</a></form>
-            </div>
-            <div style="overflow-x:auto">
-                <table style="width:100%;border-collapse:collapse">
-                    <thead>
-                        <tr>
-                            <th>Category</th>
-                            <th>Key</th>
-                            <th>Current value</th>
-                            <th>Description</th>
-                            <th>Last updated</th>
-                            <th>Save changes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="setting : ${settings}">
-                            <td th:text="${setting.category}"></td>
-                            <td><code th:text="${setting.settingKey}"></code></td>
-                            <td th:text="${setting.settingValue}"></td>
-                            <td th:text="${setting.description}"></td>
-                            <td><span th:text="${setting.updatedAt}"></span><br><small
-                                    th:text="${setting.updatedBy}"></small></td>
-                            <td>
-                                <form th:action="@{/admin/settings/{id}(id=${setting.id})}" method="post"
-                                    style="display:grid;gap:6px;min-width:220px"><input name="settingValue"
-                                        th:value="${setting.settingValue}" required maxlength="1000"><input
-                                        name="description" th:value="${setting.description}" maxlength="500"
-                                        placeholder="Description"><button type="submit">Update</button></form>
-                            </td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(settings)}">
-                            <td colspan="6">No settings found. Add a non-secret setting above.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </main>
-</body>
-
-</html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>System Settings - CareFlow</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body><main class="container" style="max-width:1200px;margin:28px auto;padding:24px">
+<header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><div><p>CAREFLOW / SYSTEM ADMINISTRATION</p><h1>System Settings</h1><p>Manage non-secret operational configuration values.</p></div><nav><a th:href="@{/admin/dashboard}">Admin dashboard</a> · <a th:href="@{/admin/audit}">Audit trail</a> · <a th:href="@{/reports}">Reports</a> · <a th:href="@{/logout}">Sign out</a></nav></header>
+<p th:if="${successMessage}" th:text="${successMessage}" role="status" class="alert alert-success"></p><p th:if="${errorMessage}" th:text="${errorMessage}" role="alert" class="alert alert-danger"></p>
+<article class="card" style="margin:22px 0"><h2>Create setting</h2><form th:action="@{/admin/settings}" method="post" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;align-items:end"><label>Key<input name="settingKey" required maxlength="100" pattern="[A-Za-z][A-Za-z0-9_.-]{1,99}" placeholder="appointment.reminder.enabled" style="display:block;width:100%;padding:10px"></label><label>Value<input name="settingValue" required maxlength="1000" style="display:block;width:100%;padding:10px"></label><label>Category<input name="category" value="GENERAL" maxlength="80" required style="display:block;width:100%;padding:10px"></label><label>Description<input name="description" maxlength="500" style="display:block;width:100%;padding:10px"></label><button class="btn btn-primary" type="submit">Create setting</button></form><p><small>Do not store passwords, API keys, connection strings or other secrets in this table. Use environment variables for secrets.</small></p></article>
+<section class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2>Saved settings (<span th:text="${settingCount}">0</span>)</h2><form method="get" th:action="@{/admin/settings}" style="display:flex;gap:8px"><input name="category" th:value="${categoryFilter}" placeholder="Filter category"><button type="submit">Filter</button><a th:href="@{/admin/settings}">Reset</a></form></div>
+<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Category</th><th>Key</th><th>Current value</th><th>Description</th><th>Last updated</th><th>Save changes</th></tr></thead><tbody><tr th:each="setting : ${settings}"><td th:text="${setting.category}"></td><td><code th:text="${setting.settingKey}"></code></td><td th:text="${setting.settingValue}"></td><td th:text="${setting.description}"></td><td><span th:text="${setting.updatedAt}"></span><br><small th:text="${setting.updatedBy}"></small></td><td><form th:action="@{/admin/settings/{id}(id=${setting.id})}" method="post" style="display:grid;gap:6px;min-width:220px"><input name="settingValue" th:value="${setting.settingValue}" required maxlength="1000"><input name="description" th:value="${setting.description}" maxlength="500" placeholder="Description"><button type="submit">Update</button></form></td></tr><tr th:if="${#lists.isEmpty(settings)}"><td colspan="6">No settings found. Add a non-secret setting above.</td></tr></tbody></table></div></section>
+</main></body></html>

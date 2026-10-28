@@ -1,74 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Audit Trail - CareFlow</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
-
-<body>
-    <main class="container" style="max-width:1250px;margin:28px auto;padding:24px">
-        <header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
-            <div>
-                <p>CAREFLOW / SECURITY & COMPLIANCE</p>
-                <h1>Audit Trail</h1>
-                <p>Review recorded administrative and workflow events.</p>
-            </div>
-            <nav><a th:href="@{/admin/dashboard}">Admin dashboard</a> · <a th:href="@{/reports}">Reports</a> · <a
-                    th:href="@{/logout}">Sign out</a></nav>
-        </header>
-        <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:22px 0">
-            <article class="card">
-                <h3>Events in filter</h3><strong th:text="${totalEvents}">0</strong>
-            </article>
-            <article class="card">
-                <h3>Last 24 hours</h3><strong th:text="${recentEvents}">0</strong>
-            </article>
-        </section>
-        <section class="card">
-            <form method="get" th:action="@{/admin/audit}"
-                style="display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-bottom:18px"><label>From<input
-                        type="date" name="from" th:value="${from}"
-                        style="display:block;padding:9px"></label><label>To<input type="date" name="to" th:value="${to}"
-                        style="display:block;padding:9px"></label><label>Actor username<input name="actor"
-                        th:value="${actorFilter}" maxlength="100" placeholder="Optional"
-                        style="display:block;padding:9px"></label><button type="submit" class="btn btn-primary">Apply
-                    filter</button><a th:href="@{/admin/audit}">Last 7 days</a></form>
-            <div style="overflow-x:auto">
-                <table style="width:100%;border-collapse:collapse">
-                    <thead>
-                        <tr>
-                            <th>Time</th>
-                            <th>Actor</th>
-                            <th>Action</th>
-                            <th>Entity</th>
-                            <th>Entity ID</th>
-                            <th>Details</th>
-                            <th>Source</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="event : ${events}">
-                            <td th:text="${event.createdAt}"></td>
-                            <td th:text="${event.actor}"></td>
-                            <td th:text="${event.action}"></td>
-                            <td th:text="${event.entityType}"></td>
-                            <td th:text="${event.entityId}"></td>
-                            <td th:text="${event.details}"></td>
-                            <td th:text="${event.source}"></td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(events)}">
-                            <td colspan="7">No audit events found for this filter.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-        <p style="margin-top:14px"><small>Audit events are created by the new CareFlow workflow actions. Existing
-                historical actions are not backfilled automatically.</small></p>
-    </main>
-</body>
-
-</html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Audit Trail - CareFlow</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body><main class="container" style="max-width:1250px;margin:28px auto;padding:24px">
+<header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><div><p>CAREFLOW / SECURITY & COMPLIANCE</p><h1>Audit Trail</h1><p>Review recorded administrative and workflow events.</p></div><nav><a th:href="@{/admin/dashboard}">Admin dashboard</a> · <a th:href="@{/reports}">Reports</a> · <a th:href="@{/logout}">Sign out</a></nav></header>
+<section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:22px 0"><article class="card"><h3>Events in filter</h3><strong th:text="${totalEvents}">0</strong></article><article class="card"><h3>Last 24 hours</h3><strong th:text="${recentEvents}">0</strong></article></section>
+<section class="card"><form method="get" th:action="@{/admin/audit}" style="display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-bottom:18px"><label>From<input type="date" name="from" th:value="${from}" style="display:block;padding:9px"></label><label>To<input type="date" name="to" th:value="${to}" style="display:block;padding:9px"></label><label>Actor username<input name="actor" th:value="${actorFilter}" maxlength="100" placeholder="Optional" style="display:block;padding:9px"></label><button type="submit" class="btn btn-primary">Apply filter</button><a th:href="@{/admin/audit}">Last 7 days</a></form>
+<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Entity</th><th>Entity ID</th><th>Details</th><th>Source</th></tr></thead><tbody><tr th:each="event : ${events}"><td th:text="${event.createdAt}"></td><td th:text="${event.actor}"></td><td th:text="${event.action}"></td><td th:text="${event.entityType}"></td><td th:text="${event.entityId}"></td><td th:text="${event.details}"></td><td th:text="${event.source}"></td></tr><tr th:if="${#lists.isEmpty(events)}"><td colspan="7">No audit events found for this filter.</td></tr></tbody></table></div></section>
+<p style="margin-top:14px"><small>Audit events are created by the new CareFlow workflow actions. Existing historical actions are not backfilled automatically.</small></p>
+</main></body></html>

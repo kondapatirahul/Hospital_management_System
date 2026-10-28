@@ -1,87 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Care Tasks - CareFlow</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
-
-<body>
-    <main class="container" style="max-width:1250px;margin:32px auto;padding:24px">
-        <header><a th:href="@{/staff/dashboard}">← Staff dashboard</a>
-            <h1>Care Task Tracking</h1>
-            <p>Create, assign and complete nursing and ward tasks.</p>
-        </header>
-        <p th:if="${successMessage}" th:text="${successMessage}" role="status"></p>
-        <p th:if="${errorMessage}" th:text="${errorMessage}" role="alert"></p>
-        <section class="card">
-            <h2>Create care task</h2>
-            <form method="post" th:action="@{/staff/tasks}" style="display:flex;flex-wrap:wrap;gap:12px">
-                <input name="title" maxlength="120" placeholder="Task title" required><select name="taskType">
-                    <option>VITALS</option>
-                    <option>MEDICATION</option>
-                    <option>OBSERVATION</option>
-                    <option>HYGIENE</option>
-                    <option>TRANSFER</option>
-                    <option>OTHER</option>
-                </select>
-                <select name="priority">
-                    <option>LOW</option>
-                    <option selected>NORMAL</option>
-                    <option>HIGH</option>
-                    <option>URGENT</option>
-                </select>
-                <select name="patientId">
-                    <option value="">No patient linked</option>
-                    <option th:each="p : ${patients}" th:value="${p.id}" th:text="${p.fullName}"></option>
-                </select>
-                <input name="assignedTo" placeholder="Assigned staff username"><input name="ward"
-                    placeholder="Ward / bed"><input type="datetime-local" name="dueAt"><input name="instructions"
-                    maxlength="1500" placeholder="Instructions"><button>Create task</button>
-            </form>
-        </section>
-        <section class="card">
-            <h2>Task register</h2>
-            <div style="overflow-x:auto">
-                <table style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>Task</th>
-                            <th>Patient</th>
-                            <th>Owner</th>
-                            <th>Ward</th>
-                            <th>Priority</th>
-                            <th>Due</th>
-                            <th>Status / action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="t : ${tasks}">
-                            <td><strong th:text="${t.title}"></strong><br><small th:text="${t.taskType}"></small></td>
-                            <td th:text="${t.patient != null ? t.patient.fullName : '—'}"></td>
-                            <td th:text="${t.assignedTo}"></td>
-                            <td th:text="${t.ward}"></td>
-                            <td th:text="${t.priority}"></td>
-                            <td th:text="${t.dueAt}"></td>
-                            <td><span th:text="${t.status}"></span>
-                                <form th:if="${t.status != 'COMPLETED' and t.status != 'CANCELLED'}" method="post"
-                                    th:action="@{/staff/tasks/{id}/status(id=${t.id})}"><select name="status">
-                                        <option>IN_PROGRESS</option>
-                                        <option>COMPLETED</option>
-                                        <option>CANCELLED</option>
-                                    </select><button>Update</button></form>
-                            </td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(tasks)}">
-                            <td colspan="7">No care tasks yet.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </main>
-</body>
-
-</html>
+<html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Care Tasks - CareFlow</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body><main class="container" style="max-width:1250px;margin:32px auto;padding:24px">
+<header><a th:href="@{/staff/dashboard}">← Staff dashboard</a><h1>Care Task Tracking</h1><p>Create, assign and complete nursing and ward tasks.</p></header>
+<p th:if="${successMessage}" th:text="${successMessage}" role="status"></p><p th:if="${errorMessage}" th:text="${errorMessage}" role="alert"></p>
+<section class="card"><h2>Create care task</h2><form method="post" th:action="@{/staff/tasks}" style="display:flex;flex-wrap:wrap;gap:12px">
+<input name="title" maxlength="120" placeholder="Task title" required><select name="taskType"><option>VITALS</option><option>MEDICATION</option><option>OBSERVATION</option><option>HYGIENE</option><option>TRANSFER</option><option>OTHER</option></select>
+<select name="priority"><option>LOW</option><option selected>NORMAL</option><option>HIGH</option><option>URGENT</option></select>
+<select name="patientId"><option value="">No patient linked</option><option th:each="p : ${patients}" th:value="${p.id}" th:text="${p.fullName}"></option></select>
+<input name="assignedTo" placeholder="Assigned staff username"><input name="ward" placeholder="Ward / bed"><input type="datetime-local" name="dueAt"><input name="instructions" maxlength="1500" placeholder="Instructions"><button>Create task</button></form></section>
+<section class="card"><h2>Task register</h2><div style="overflow-x:auto"><table style="width:100%"><thead><tr><th>Task</th><th>Patient</th><th>Owner</th><th>Ward</th><th>Priority</th><th>Due</th><th>Status / action</th></tr></thead><tbody>
+<tr th:each="t : ${tasks}"><td><strong th:text="${t.title}"></strong><br><small th:text="${t.taskType}"></small></td><td th:text="${t.patient != null ? t.patient.fullName : '—'}"></td><td th:text="${t.assignedTo}"></td><td th:text="${t.ward}"></td><td th:text="${t.priority}"></td><td th:text="${t.dueAt}"></td><td><span th:text="${t.status}"></span><form th:if="${t.status != 'COMPLETED' and t.status != 'CANCELLED'}" method="post" th:action="@{/staff/tasks/{id}/status(id=${t.id})}"><select name="status"><option>IN_PROGRESS</option><option>COMPLETED</option><option>CANCELLED</option></select><button>Update</button></form></td></tr><tr th:if="${#lists.isEmpty(tasks)}"><td colspan="7">No care tasks yet.</td></tr></tbody></table></div></section></main></body></html>

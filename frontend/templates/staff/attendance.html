@@ -1,95 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Staff Attendance - CareFlow</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
-
-<body>
-    <main class="container" style="max-width:1200px;margin:28px auto;padding:24px">
-        <header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
-            <div>
-                <p>CAREFLOW / STAFF & NURSING</p>
-                <h1>Attendance Management</h1>
-                <p>Record daily check-in/check-out and review team attendance.</p>
-            </div>
-            <nav><a th:href="@{/staff/dashboard}">Dashboard</a> · <a th:href="@{/staff/wards}">Ward & beds</a> · <a
-                    th:href="@{/staff/shifts}">Duty roster</a> · <a th:href="@{/logout}">Sign out</a></nav>
-        </header>
-        <p th:if="${successMessage}" th:text="${successMessage}" role="status" class="alert alert-success"></p>
-        <p th:if="${errorMessage}" th:text="${errorMessage}" role="alert" class="alert alert-danger"></p>
-        <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin:22px 0">
-            <article class="card">
-                <h3>Present</h3><strong th:text="${presentCount}">0</strong>
-            </article>
-            <article class="card">
-                <h3>Checked out</h3><strong th:text="${checkedOutCount}">0</strong>
-            </article>
-            <article class="card">
-                <h3>Selected date</h3><strong th:text="${selectedDate}">Date</strong>
-            </article>
-        </section>
-        <section class="card" style="margin-bottom:20px">
-            <h2>My attendance today</h2>
-            <p th:if="${ownRecord == null}">No attendance record exists for your account today.</p>
-            <div th:if="${ownRecord != null}">
-                <p><strong>Status:</strong> <span th:text="${ownRecord.status}"></span></p>
-                <p><strong>Check-in:</strong> <span th:text="${ownRecord.checkInAt}"></span></p>
-                <p><strong>Check-out:</strong> <span
-                        th:text="${ownRecord.checkOutAt != null ? ownRecord.checkOutAt : 'Not checked out'}"></span></p>
-                <p><strong>Worked minutes:</strong> <span th:text="${ownRecord.workedMinutes}"></span></p>
-            </div>
-            <div th:if="${isToday}" style="display:flex;gap:12px;flex-wrap:wrap">
-                <form th:if="${ownRecord == null}" th:action="@{/staff/attendance/check-in}" method="post"
-                    style="display:flex;gap:8px;flex-wrap:wrap"><input name="department" required maxlength="100"
-                        placeholder="Department" value="General"><input name="notes" maxlength="500"
-                        placeholder="Optional note"><button class="btn btn-primary" type="submit">Check in</button>
-                </form>
-                <form th:if="${ownRecord != null and ownRecord.checkOutAt == null}"
-                    th:action="@{/staff/attendance/check-out}" method="post"><button class="btn btn-primary"
-                        type="submit">Check out</button></form>
-            </div>
-        </section>
-        <section class="card">
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-                <h2>Team attendance</h2>
-                <form method="get" th:action="@{/staff/attendance}"><input type="date" name="date"
-                        th:value="${selectedDate}"><button type="submit">View date</button></form>
-            </div>
-            <div style="overflow-x:auto">
-                <table style="width:100%;border-collapse:collapse">
-                    <thead>
-                        <tr>
-                            <th>Staff</th>
-                            <th>Username</th>
-                            <th>Department</th>
-                            <th>Check in</th>
-                            <th>Check out</th>
-                            <th>Status</th>
-                            <th>Worked minutes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="r : ${records}">
-                            <td th:text="${r.staffDisplayName}"></td>
-                            <td th:text="${r.staffUsername}"></td>
-                            <td th:text="${r.department}"></td>
-                            <td th:text="${r.checkInAt}"></td>
-                            <td th:text="${r.checkOutAt != null ? r.checkOutAt : '—'}"></td>
-                            <td th:text="${r.status}"></td>
-                            <td th:text="${r.workedMinutes}"></td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(records)}">
-                            <td colspan="7">No attendance records for the selected date.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </main>
-</body>
-
-</html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Staff Attendance - CareFlow</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body><main class="container" style="max-width:1200px;margin:28px auto;padding:24px">
+<header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><div><p>CAREFLOW / STAFF & NURSING</p><h1>Attendance Management</h1><p>Record daily check-in/check-out and review team attendance.</p></div><nav><a th:href="@{/staff/dashboard}">Dashboard</a> · <a th:href="@{/staff/wards}">Ward & beds</a> · <a th:href="@{/staff/shifts}">Duty roster</a> · <a th:href="@{/logout}">Sign out</a></nav></header>
+<p th:if="${successMessage}" th:text="${successMessage}" role="status" class="alert alert-success"></p><p th:if="${errorMessage}" th:text="${errorMessage}" role="alert" class="alert alert-danger"></p>
+<section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin:22px 0"><article class="card"><h3>Present</h3><strong th:text="${presentCount}">0</strong></article><article class="card"><h3>Checked out</h3><strong th:text="${checkedOutCount}">0</strong></article><article class="card"><h3>Selected date</h3><strong th:text="${selectedDate}">Date</strong></article></section>
+<section class="card" style="margin-bottom:20px"><h2>My attendance today</h2><p th:if="${ownRecord == null}">No attendance record exists for your account today.</p><div th:if="${ownRecord != null}"><p><strong>Status:</strong> <span th:text="${ownRecord.status}"></span></p><p><strong>Check-in:</strong> <span th:text="${ownRecord.checkInAt}"></span></p><p><strong>Check-out:</strong> <span th:text="${ownRecord.checkOutAt != null ? ownRecord.checkOutAt : 'Not checked out'}"></span></p><p><strong>Worked minutes:</strong> <span th:text="${ownRecord.workedMinutes}"></span></p></div>
+<div th:if="${isToday}" style="display:flex;gap:12px;flex-wrap:wrap"><form th:if="${ownRecord == null}" th:action="@{/staff/attendance/check-in}" method="post" style="display:flex;gap:8px;flex-wrap:wrap"><input name="department" required maxlength="100" placeholder="Department" value="General"><input name="notes" maxlength="500" placeholder="Optional note"><button class="btn btn-primary" type="submit">Check in</button></form><form th:if="${ownRecord != null and ownRecord.checkOutAt == null}" th:action="@{/staff/attendance/check-out}" method="post"><button class="btn btn-primary" type="submit">Check out</button></form></div></section>
+<section class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2>Team attendance</h2><form method="get" th:action="@{/staff/attendance}"><input type="date" name="date" th:value="${selectedDate}"><button type="submit">View date</button></form></div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Staff</th><th>Username</th><th>Department</th><th>Check in</th><th>Check out</th><th>Status</th><th>Worked minutes</th></tr></thead><tbody><tr th:each="r : ${records}"><td th:text="${r.staffDisplayName}"></td><td th:text="${r.staffUsername}"></td><td th:text="${r.department}"></td><td th:text="${r.checkInAt}"></td><td th:text="${r.checkOutAt != null ? r.checkOutAt : '—'}"></td><td th:text="${r.status}"></td><td th:text="${r.workedMinutes}"></td></tr><tr th:if="${#lists.isEmpty(records)}"><td colspan="7">No attendance records for the selected date.</td></tr></tbody></table></div></section>
+</main></body></html>
