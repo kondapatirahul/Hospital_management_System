@@ -1,10 +1,118 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Staff & Nursing - CareFlow</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
-<body><main class="container" style="max-width:1250px;margin:32px auto;padding:24px">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><div><p>CAREFLOW / CARE TEAMS</p><h1>Staff & Nursing Dashboard</h1><p>Today's appointment list, queue operations and care-team overview.</p></div><a th:href="@{/logout}">Sign out</a></header>
-<p th:if="${successMessage}" th:text="${successMessage}" role="status" class="alert alert-success"></p><p th:if="${errorMessage}" th:text="${errorMessage}" role="alert" class="alert alert-danger"></p>
-<section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin:24px 0"><article class="card"><h3>Registered patients</h3><strong th:text="${patientCount}">0</strong></article><article class="card"><h3>Doctors</h3><strong th:text="${doctorCount}">0</strong></article><article class="card"><h3>Today's appointments</h3><strong th:text="${#lists.size(todayAppointments)}">0</strong></article><article class="card"><h3>Waiting</h3><strong th:text="${waitingCount}">0</strong></article><article class="card"><h3>In consultation</h3><strong th:text="${consultationCount}">0</strong></article><article class="card"><h3>Completed</h3><strong th:text="${completedCount}">0</strong></article></section>
-<section class="card"><h2>Today's appointments</h2><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Time</th><th>Patient</th><th>Doctor</th><th>Reason</th><th>Status</th></tr></thead><tbody><tr th:each="appointment : ${todayAppointments}"><td th:text="${appointment.appointmentTime}">Time</td><td th:text="${appointment.patient.fullName}">Patient</td><td th:text="${appointment.doctor.fullName}">Doctor</td><td th:text="${appointment.reasonForVisit}">Reason</td><td th:text="${appointment.status}">Status</td></tr><tr th:if="${#lists.isEmpty(todayAppointments)}"><td colspan="5">No appointments scheduled for today.</td></tr></tbody></table></div></section>
-<section class="card" style="margin-top:24px"><h2>Today's waiting queue</h2><p>Move a waiting patient into consultation, then mark the queue entry completed or skipped.</p><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Queue</th><th>Patient</th><th>Doctor</th><th>Check-in</th><th>Status</th><th>Action</th></tr></thead><tbody><tr th:each="entry : ${queueEntries}"><td th:text="${entry.queueNumber}">Q-1</td><td th:text="${entry.patient.fullName}">Patient</td><td th:text="${entry.doctor.fullName}">Doctor</td><td th:text="${entry.checkInTime}">Time</td><td th:text="${entry.status}">WAITING</td><td><form th:if="${entry.status.name() == 'WAITING'}" th:action="@{/staff/queue/{id}/status(id=${entry.id})}" method="post" style="display:flex;gap:6px;flex-wrap:wrap"><input type="hidden" name="status" value="IN_CONSULTATION"><button type="submit">Call patient</button></form><form th:if="${entry.status.name() == 'IN_CONSULTATION'}" th:action="@{/staff/queue/{id}/status(id=${entry.id})}" method="post" style="display:flex;gap:6px;flex-wrap:wrap"><input type="hidden" name="status" value="COMPLETED"><button type="submit">Complete</button></form><form th:if="${entry.status.name() == 'WAITING'}" th:action="@{/staff/queue/{id}/status(id=${entry.id})}" method="post" style="margin-top:4px"><input type="hidden" name="status" value="SKIPPED"><button type="submit">Skip</button></form><span th:if="${entry.status.name() == 'COMPLETED' || entry.status.name() == 'SKIPPED'}">Closed</span></td></tr><tr th:if="${#lists.isEmpty(queueEntries)}"><td colspan="6">No queue entries for today.</td></tr></tbody></table></div></section>
-</main></body></html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Staff & Nursing - CareFlow</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <main class="container" style="max-width:1250px;margin:32px auto;padding:24px">
+        <header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+            <div>
+                <p>CAREFLOW / CARE TEAMS</p>
+                <h1>Staff & Nursing Dashboard</h1>
+                <p>Today's appointment list, queue operations and care-team overview.</p>
+            </div><a th:href="@{/logout}">Sign out</a>
+        </header>
+        <p th:if="${successMessage}" th:text="${successMessage}" role="status" class="alert alert-success"></p>
+        <p th:if="${errorMessage}" th:text="${errorMessage}" role="alert" class="alert alert-danger"></p>
+        <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin:24px 0">
+            <article class="card">
+                <h3>Registered patients</h3><strong th:text="${patientCount}">0</strong>
+            </article>
+            <article class="card">
+                <h3>Doctors</h3><strong th:text="${doctorCount}">0</strong>
+            </article>
+            <article class="card">
+                <h3>Today's appointments</h3><strong th:text="${#lists.size(todayAppointments)}">0</strong>
+            </article>
+            <article class="card">
+                <h3>Waiting</h3><strong th:text="${waitingCount}">0</strong>
+            </article>
+            <article class="card">
+                <h3>In consultation</h3><strong th:text="${consultationCount}">0</strong>
+            </article>
+            <article class="card">
+                <h3>Completed</h3><strong th:text="${completedCount}">0</strong>
+            </article>
+        </section>
+        <section class="card">
+            <h2>Today's appointments</h2>
+            <div style="overflow-x:auto">
+                <table style="width:100%;border-collapse:collapse">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Patient</th>
+                            <th>Doctor</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="appointment : ${todayAppointments}">
+                            <td th:text="${appointment.appointmentTime}">Time</td>
+                            <td th:text="${appointment.patient.fullName}">Patient</td>
+                            <td th:text="${appointment.doctor.fullName}">Doctor</td>
+                            <td th:text="${appointment.reasonForVisit}">Reason</td>
+                            <td th:text="${appointment.status}">Status</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(todayAppointments)}">
+                            <td colspan="5">No appointments scheduled for today.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        <section class="card" style="margin-top:24px">
+            <h2>Today's waiting queue</h2>
+            <p>Move a waiting patient into consultation, then mark the queue entry completed or skipped.</p>
+            <div style="overflow-x:auto">
+                <table style="width:100%;border-collapse:collapse">
+                    <thead>
+                        <tr>
+                            <th>Queue</th>
+                            <th>Patient</th>
+                            <th>Doctor</th>
+                            <th>Check-in</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="entry : ${queueEntries}">
+                            <td th:text="${entry.queueNumber}">Q-1</td>
+                            <td th:text="${entry.patient.fullName}">Patient</td>
+                            <td th:text="${entry.doctor.fullName}">Doctor</td>
+                            <td th:text="${entry.checkInTime}">Time</td>
+                            <td th:text="${entry.status}">WAITING</td>
+                            <td>
+                                <form th:if="${entry.status.name() == 'WAITING'}"
+                                    th:action="@{/staff/queue/{id}/status(id=${entry.id})}" method="post"
+                                    style="display:flex;gap:6px;flex-wrap:wrap"><input type="hidden" name="status"
+                                        value="IN_CONSULTATION"><button type="submit">Call patient</button></form>
+                                <form th:if="${entry.status.name() == 'IN_CONSULTATION'}"
+                                    th:action="@{/staff/queue/{id}/status(id=${entry.id})}" method="post"
+                                    style="display:flex;gap:6px;flex-wrap:wrap"><input type="hidden" name="status"
+                                        value="COMPLETED"><button type="submit">Complete</button></form>
+                                <form th:if="${entry.status.name() == 'WAITING'}"
+                                    th:action="@{/staff/queue/{id}/status(id=${entry.id})}" method="post"
+                                    style="margin-top:4px"><input type="hidden" name="status" value="SKIPPED"><button
+                                        type="submit">Skip</button></form><span
+                                    th:if="${entry.status.name() == 'COMPLETED' || entry.status.name() == 'SKIPPED'}">Closed</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(queueEntries)}">
+                            <td colspan="6">No queue entries for today.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</body>
+
+</html>
