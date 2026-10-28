@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: htmlHead('Edit Patient - Receptionist')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('patients')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Edit Patient Information', 'Update patient contact details, emergency information, or clinical baseline')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <div class="card" style="max-width: 800px;">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>✏️ Updating Patient: <span th:text="${patient.fullName}">Sarah Jenkins</span> (<span th:text="${patient.patientId}">PAT-2026-0001</span>)</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/receptionist/patients/{id}/edit(id=${patient.id})}" th:object="${profileDto}" method="post">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label required">Full Legal Name</label>
+                                <input type="text" th:field="*{fullName}" class="form-control" required>
+                                <div th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="text-danger"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label required">Primary Contact Phone</label>
+                                <input type="tel" th:field="*{phone}" class="form-control" required>
+                                <div th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="text-danger"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" th:field="*{email}" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Blood Group</label>
+                                <select th:field="*{bloodGroup}" class="form-control">
+                                    <option value="">-- Select Blood Group --</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Residential Address</label>
+                            <input type="text" th:field="*{address}" class="form-control">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Emergency Contact Name</label>
+                                <input type="text" th:field="*{emergencyContactName}" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Emergency Contact Phone</label>
+                                <input type="tel" th:field="*{emergencyContactPhone}" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Known Allergies</label>
+                                <input type="text" th:field="*{allergies}" class="form-control" placeholder="e.g. Penicillin, Peanuts">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Chronic Conditions</label>
+                                <input type="text" th:field="*{chronicConditions}" class="form-control" placeholder="e.g. Asthma, Hypertension">
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 12px; margin-top: 10px;">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                Save Patient Details
+                            </button>
+                            <a th:href="@{/receptionist/patients/{id}(id=${patient.id})}" class="btn btn-outline btn-lg">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

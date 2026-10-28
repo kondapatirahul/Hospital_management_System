@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: htmlHead('Patient Profile Record - Receptionist')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('patients')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Patient Medical & Demographic Record', 'Full view of patient health record, history, appointments, and billing')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Header Patient Card -->
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="card-body" style="padding: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div class="user-avatar-sm" style="width: 60px; height: 60px; font-size: 24px; background: linear-gradient(135deg, #0d9488, #0284c7);">
+                            <span th:text="${#strings.substring(patient.fullName,0,1)}">P</span>
+                        </div>
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <h2 style="font-size: 1.4rem; color: #0f2c59; font-weight: 700;" th:text="${patient.fullName}">Sarah Jenkins</h2>
+                                <span class="badge badge-primary" style="font-size: 0.85rem;" th:text="${patient.patientId}">PAT-2026-0001</span>
+                            </div>
+                            <div style="font-size: 0.85rem; color: #64748b; margin-top: 4px;">
+                                📞 <span th:text="${patient.phone}">+1 (555) 234-5678</span> |
+                                ✉️ <span th:text="${patient.email != null ? patient.email : 'No email'}">sarah@email.com</span> |
+                                📍 <span th:text="${patient.address != null ? patient.address : 'No address'}">Springfield</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <a th:href="@{/receptionist/appointments/new(patientId=${patient.id})}" class="btn btn-teal">
+                            🗓️ Schedule Appointment
+                        </a>
+                        <a th:href="@{/receptionist/patients/{id}/edit(id=${patient.id})}" class="btn btn-outline">
+                            ✏️ Edit Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vitals & Emergency Row -->
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <p>Blood Group</p>
+                        <h3 th:text="${patient.bloodGroup != null ? patient.bloodGroup : 'N/A'}" style="color: #ef4444;">A+</h3>
+                        <div class="stat-subtitle">Certified</div>
+                    </div>
+                    <div class="stat-icon red">🩸</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <p>Allergies</p>
+                        <div style="font-size: 1rem; font-weight: 700; color: #d97706; margin-top: 4px;" th:text="${patient.allergies != null and patient.allergies != '' ? patient.allergies : 'None'}">Penicillin</div>
+                        <div class="stat-subtitle">Critical medical alert</div>
+                    </div>
+                    <div class="stat-icon amber">⚠️</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <p>Emergency Contact</p>
+                        <div style="font-size: 0.95rem; font-weight: 700; color: #0f2c59; margin-top: 4px;" th:text="${patient.emergencyContactName != null ? patient.emergencyContactName : 'None recorded'}">David Jenkins</div>
+                        <div class="stat-subtitle" th:text="${patient.emergencyContactPhone != null ? patient.emergencyContactPhone : '-'}">+1 555-234-9999</div>
+                    </div>
+                    <div class="stat-icon blue">📞</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <p>Portal Account</p>
+                        <div style="font-size: 1rem; font-weight: 700; color: #059669; margin-top: 4px;" th:text="${patient.user != null ? 'Active' : 'Offline only'}">Active</div>
+                        <div class="stat-subtitle">Self-service enabled</div>
+                    </div>
+                    <div class="stat-icon green">🔐</div>
+                </div>
+            </div>
+
+            <!-- Appointment History Table -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📅 Patient Appointments History</div>
+                </div>
+                <div class="card-body p-0">
+                    <div th:if="${#lists.isEmpty(appointments)}" style="padding: 24px; text-align: center; color: #64748b;">
+                        No appointments found for this patient.
+                    </div>
+                    <div th:unless="${#lists.isEmpty(appointments)}" class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Date & Slot</th>
+                                    <th>Doctor</th>
+                                    <th>Department</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="appt : ${appointments}">
+                                    <td>
+                                        <strong th:text="${#temporals.format(appt.appointmentDate, 'MMM d, yyyy')}">Oct 27, 2026</strong>
+                                        <div style="font-size: 0.75rem; color: #64748b;" th:text="${appt.appointmentSlot}">09:30 AM</div>
+                                    </td>
+                                    <td th:text="${'Dr. ' + appt.doctor.fullName}">Dr. Marcus Vance</td>
+                                    <td th:text="${appt.department.name}">General Medicine</td>
+                                    <td th:text="${appt.reasonForVisit}">Routine check</td>
+                                    <td>
+                                        <span class="badge" th:classappend="${appt.status.badgeClass}" th:text="${appt.status.displayName}">Scheduled</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prescriptions & Invoices Row -->
+            <div class="dashboard-grid">
+                <!-- Prescriptions -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">💊 Medication Orders</div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div th:if="${#lists.isEmpty(prescriptions)}" style="padding: 24px; text-align: center; color: #64748b; font-size: 0.85rem;">
+                            No medication records.
+                        </div>
+                        <div th:unless="${#lists.isEmpty(prescriptions)}" style="padding: 16px 20px;">
+                            <div th:each="rx : ${prescriptions}" style="padding: 10px 0; border-bottom: 1px solid #f1f5f9;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <strong style="color: #0f2c59;" th:text="${rx.medicationName + ' (' + rx.dosage + ')'}">Amoxicillin 625mg</strong>
+                                    <span class="badge badge-info" th:text="${rx.status}">Active</span>
+                                </div>
+                                <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;" th:text="${rx.frequency + ' • ' + rx.duration}">Twice daily • 7 days</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoices -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">💳 Billing Statements</div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div th:if="${#lists.isEmpty(invoices)}" style="padding: 24px; text-align: center; color: #64748b; font-size: 0.85rem;">
+                            No invoice records.
+                        </div>
+                        <div th:unless="${#lists.isEmpty(invoices)}" style="padding: 16px 20px;">
+                            <div th:each="inv : ${invoices}" style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong style="font-family: monospace; color: #0284c7;" th:text="${inv.invoiceNumber}">INV-2026-0001</strong>
+                                    <div style="font-size: 0.75rem; color: #64748b;" th:text="${inv.serviceDescription}">Consultation</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-weight: 700; color: #0f172a;" th:text="${'$' + #numbers.formatDecimal(inv.totalAmount, 1, 2)}">$52.50</div>
+                                    <span class="badge" th:classappend="${inv.status.badgeClass}" th:text="${inv.status.displayName}">Paid</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

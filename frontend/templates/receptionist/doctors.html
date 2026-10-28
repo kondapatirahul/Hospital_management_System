@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: htmlHead('Doctor Availability & Schedules - Receptionist')}"></head>
+<body>
+
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('doctors')}"></aside>
+
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Doctor Roster & Availability', 'Consultation hours, clinic room assignments, and on-duty status management')}"></header>
+
+        <main class="page-content">
+            <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
+
+            <!-- Doctors Table Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>👨‍⚕️ Medical Specialist Roster (<span th:text="${#lists.size(doctors)}">5</span>)</span>
+                    </div>
+                    <input type="text" class="form-control" style="max-width: 280px;" placeholder="Filter doctor or department..." data-table-search="#doctorsTable">
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table id="doctorsTable" class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Doctor Name</th>
+                                    <th>Specialty & Department</th>
+                                    <th>Room #</th>
+                                    <th>Consultation Fee</th>
+                                    <th>Clinic Hours</th>
+                                    <th>Working Days</th>
+                                    <th>Duty Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="doc : ${doctors}">
+                                    <td>
+                                        <div style="font-weight: 700; color: #0f2c59; font-size: 0.95rem;" th:text="${'Dr. ' + doc.fullName}">Dr. Alexander Wright</div>
+                                        <div style="font-size: 0.75rem; color: #64748b;" th:text="${doc.qualification}">MD, FACC</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-info" th:text="${doc.department.name}">Cardiology</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-secondary" style="font-weight: 600;" th:text="${doc.roomNumber}">Room 201</span>
+                                    </td>
+                                    <td>
+                                        <strong style="color: #0d9488;" th:text="${'$' + #numbers.formatDecimal(doc.consultationFee, 1, 2)}">$75.00</strong>
+                                    </td>
+                                    <td style="font-size: 0.825rem; color: #475569;" th:text="${doc.workingHours}">
+                                        09:00 AM - 04:30 PM
+                                    </td>
+                                    <td style="font-size: 0.8rem; color: #64748b;" th:text="${doc.workingDays}">
+                                        Mon, Tue, Wed, Thu, Fri
+                                    </td>
+                                    <td>
+                                        <span class="badge" th:classappend="${doc.availableToday ? 'badge-success' : 'badge-danger'}"
+                                              th:text="${doc.availableToday ? 'On Duty' : 'Off Duty'}">On Duty</span>
+                                    </td>
+                                    <td>
+                                        <form th:action="@{/receptionist/doctors/{id}/toggle-availability(id=${doc.id})}" method="post">
+                                            <button type="submit" class="btn btn-outline btn-sm" th:text="${doc.availableToday ? 'Mark Off-Duty' : 'Mark On-Duty'}">
+                                                Toggle Duty
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Departments Summary Cards -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🏥 Hospital Clinical Departments</div>
+                </div>
+                <div class="card-body">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px;">
+                        <div th:each="dept : ${departments}" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px;">
+                            <h4 style="color: #0f2c59; font-size: 0.95rem; margin-bottom: 4px;" th:text="${dept.name}">Cardiology</h4>
+                            <p style="color: #64748b; font-size: 0.8rem; line-height: 1.4;" th:text="${dept.description}">Heart and cardiovascular care</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>
