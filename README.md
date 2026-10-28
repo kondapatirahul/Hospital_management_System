@@ -54,3 +54,17 @@ The laboratory, billing, staff/nursing, and administration pages added in this i
 
 - `docs/PROJECT_AUDIT_AND_IMPLEMENTATION.md` — source inventory, reference comparison, gaps, security notes, and implementation status.
 - `.env.example` — environment variable names (replace placeholder values locally).
+
+
+## M3/M4 Batch 03 additions
+
+See `IMPLEMENTATION_PROGRESS_M3_M4_BATCH_03.md` for scope, limitations and verification steps, and `LOC_REPORT_BATCH_03.txt` for the before/after Java source-line counts.
+
+New routes:
+- `/staff/wards` — ward and bed inventory
+- `/staff/attendance` — staff check-in/check-out and team attendance
+- `/admin/audit` — audit trail (Admin)
+- `/admin/settings` — non-secret system settings (Admin)
+- `/reports` — cross-module reports and CSV exports
+
+This batch has not been compiled or tested in this packaging environment. Run `mvn -f backend/pom.xml test` from the project root before merging.

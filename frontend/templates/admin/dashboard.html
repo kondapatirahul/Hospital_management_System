@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Administration - CareFlow</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
 <body><main class="container" style="max-width:1250px;margin:32px auto;padding:24px">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><div><p>CAREFLOW / SYSTEM</p><h1>Administration Dashboard</h1><p>Operational overview, account access and department setup.</p></div><a th:href="@{/logout}">Sign out</a></header>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><div><p>CAREFLOW / SYSTEM</p><h1>Administration Dashboard</h1><p>Operational overview, account access and department setup.</p></div><a th:href="@{/reports}">Reports & analytics</a> · <a th:href="@{/admin/audit}">Audit trail</a> · <a th:href="@{/admin/settings}">System settings</a> · <a th:href="@{/logout}">Sign out</a></header>
 <p th:if="${successMessage}" th:text="${successMessage}" role="status" class="alert alert-success"></p><p th:if="${errorMessage}" th:text="${errorMessage}" role="alert" class="alert alert-danger"></p>
 <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin:24px 0">
 <article class="card"><h3>Users</h3><strong th:text="${userCount}">0</strong><p><small>Enabled: <span th:text="${enabledUserCount}">0</span> · Disabled: <span th:text="${disabledUserCount}">0</span></small></p></article>
