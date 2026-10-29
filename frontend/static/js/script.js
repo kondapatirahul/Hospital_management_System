@@ -254,3 +254,24 @@ function addPrescriptionRow() {
 
     container.appendChild(row);
 }
+
+
+/* CareFlow shared responsive navigation and small usability enhancements */
+document.addEventListener('DOMContentLoaded', function () {
+  const toggle = document.getElementById('mobileNavToggle');
+  const sidebar = document.querySelector('.app-sidebar');
+  if (toggle && sidebar) {
+    if (window.matchMedia('(max-width: 640px)').matches) toggle.style.display = 'inline-flex';
+    toggle.addEventListener('click', function () { sidebar.classList.toggle('mobile-open'); });
+    document.addEventListener('click', function (event) {
+      if (window.matchMedia('(max-width: 640px)').matches && sidebar.classList.contains('mobile-open') && !sidebar.contains(event.target) && !toggle.contains(event.target)) sidebar.classList.remove('mobile-open');
+    });
+    window.addEventListener('resize', function () { if (window.matchMedia('(min-width: 641px)').matches) sidebar.classList.remove('mobile-open'); else toggle.style.display = 'inline-flex'; });
+  }
+  document.querySelectorAll('form').forEach(function (form) {
+    form.addEventListener('submit', function () {
+      const submit = form.querySelector('button[type="submit"],input[type="submit"]');
+      if (submit && !form.hasAttribute('data-allow-repeat')) { submit.dataset.originalText = submit.textContent; submit.disabled = true; submit.setAttribute('aria-busy','true'); submit.style.opacity = '.75'; }
+    });
+  });
+});
