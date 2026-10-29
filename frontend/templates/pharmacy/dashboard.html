@@ -8,8 +8,53 @@
 
     <div class="app-main">
         <header th:replace="~{fragments/layout :: navbar('Pharmacy Operations Dashboard', 'Central dispensing, batch-level inventory, FEFO tracking, and procurement overview')}"></header>
+<section th:replace="~{fragments/operations-panel :: operationsPanel('pharmacy')}"></section>
+
+
+<div class="cf-launchpad-callout">
+  <div class="cf-launchpad-symbol" aria-hidden="true">↗</div>
+  <div class="cf-launchpad-copy"><strong>Open your workflow workspace</strong><span>All role-specific tools and common actions in one place.</span></div>
+  <a th:href="@{/workflows/pharmacy}">View workflows <span aria-hidden="true">→</span></a>
+</div>
+
+
 
         <main class="page-content">
+<section class="cf-quick-panel" aria-label="Pharmacy operations">
+  <div class="cf-section-heading">
+    <div><span class="cf-eyebrow">WORKSPACE SHORTCUTS</span><h2>Pharmacy operations</h2><p>Open a workflow directly. Actions still use the existing server routes and permissions.</p></div>
+    <span class="cf-section-mark" aria-hidden="true">✦</span>
+  </div>
+  <div class="cf-dashboard-filter-row"><input class="cf-dashboard-filter" type="search" data-cf-shortcut-filter placeholder="Filter shortcuts…" aria-label="Filter dashboard shortcuts"><span class="cf-shortcut-count" aria-live="polite"></span></div>
+  <div class="cf-quick-grid">
+    <a class="cf-quick-action" th:href="@{/pharmacy/prescriptions}">
+  <span class="cf-quick-action-icon" aria-hidden="true">✓</span>
+  <span class="cf-quick-action-copy"><strong>Prescription queue</strong><small>Review prescriptions awaiting dispensing</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/pharmacy/dispense}">
+  <span class="cf-quick-action-icon" aria-hidden="true">✚</span>
+  <span class="cf-quick-action-copy"><strong>Dispense medicine</strong><small>Open the dispensing workflow</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/pharmacy/medicines}">
+  <span class="cf-quick-action-icon" aria-hidden="true">▣</span>
+  <span class="cf-quick-action-copy"><strong>Medicine inventory</strong><small>Search catalogue and stock levels</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/pharmacy/stock/in}">
+  <span class="cf-quick-action-icon" aria-hidden="true">＋</span>
+  <span class="cf-quick-action-copy"><strong>Stock intake</strong><small>Record incoming stock</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/pharmacy/alerts/expiry}">
+  <span class="cf-quick-action-icon" aria-hidden="true">◷</span>
+  <span class="cf-quick-action-copy"><strong>Expiry alerts</strong><small>Review batches approaching expiry</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/pharmacy/purchases}">
+  <span class="cf-quick-action-icon" aria-hidden="true">⇢</span>
+  <span class="cf-quick-action-copy"><strong>Purchases & suppliers</strong><small>Track purchasing and replenishment</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a>
+  </div>
+</section>
+
             <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
 
             <!-- Pharmacy Welcome Greeting Banner -->

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   Overdue contacts | CareFlow
+  </title>
+  <link rel="stylesheet" th:href="@{/css/careflow-outreach.css}"/>
+  <script defer="" th:src="@{/js/careflow-outreach.js}">
+  </script>
+ </head>
+ <body class="co-page">
+  <header class="co-topbar">
+   <a class="co-brand" th:href="@{/}">
+    <span class="co-logo">
+     C
+    </span>
+    <span>
+     CareFlow
+     <small>
+      CONTINUITY OF CARE
+     </small>
+    </span>
+   </a>
+   <nav>
+    <a th:href="@{/staff/enterprise/dischargeChecklist}">
+     Discharge readiness
+    </a>
+    <a th:href="@{/staff/enterprise/patient-outreach}">
+     Patient outreach
+    </a>
+    <a class="active" th:href="@{/staff/enterprise/patient-outreach/overdue}">
+     Overdue contacts
+    </a>
+    <a th:href="@{/staff/enterprise/patient-outreach/analytics}">
+     Analytics
+    </a>
+   </nav>
+   <a class="co-user" th:href="@{/workflows/doctor}">
+    Clinical workspace ↗
+   </a>
+  </header>
+  <main class="co-shell">
+   <div class="co-breadcrumb">
+    <a th:href="@{/staff/enterprise/patient-outreach}">
+     Patient outreach
+    </a>
+    <span>
+     /
+    </span>
+    <span>
+     Overdue contacts
+    </span>
+   </div>
+   <section class="co-hero">
+    <div>
+     <p class="co-eyebrow">
+      AFTERCARE / SCHEDULE CONTROL
+     </p>
+     <h1>
+      Overdue patient contacts
+     </h1>
+     <p class="co-muted">
+      Active records with a next-contact date before today. Review ownership and document a realistic next step.
+     </p>
+    </div>
+    <a class="co-button co-secondary" th:href="@{/staff/enterprise/patient-outreach}">
+     ← All outreach
+    </a>
+   </section>
+   <section class="co-panel co-safety-note">
+    <span class="co-alert-symbol">
+     ◷
+    </span>
+    <div>
+     <strong>
+      Keep schedules current
+     </strong>
+     <p>
+      Overdue status is derived from the scheduled date and active state. Closed and cancelled records are excluded.
+     </p>
+    </div>
+   </section>
+   <section class="co-panel">
+    <div class="co-panel-heading">
+     <div>
+      <h2>
+       Past-due work items
+      </h2>
+      <p>
+       Oldest due dates appear first.
+      </p>
+     </div>
+     <span class="co-count" th:text="${#lists.size(items) + ' records'}">
+      0 records
+     </span>
+    </div>
+    <div class="co-table-wrap">
+     <table>
+      <thead>
+       <tr>
+        <th>
+         Patient / reference
+        </th>
+        <th>
+         Purpose
+        </th>
+        <th>
+         Team / owner
+        </th>
+        <th>
+         Due date
+        </th>
+        <th>
+         Priority
+        </th>
+        <th>
+         Status
+        </th>
+        <th>
+         Action
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr th:each="item : ${items}">
+        <td>
+         <a class="co-patient-link" th:href="@{/staff/enterprise/patient-outreach/{id}(id=${item.id})}" th:text="${item.patientName}">
+          Patient
+         </a>
+         <small class="co-cell-sub" th:text="${item.referenceCode}">
+          OUT-REF
+         </small>
+        </td>
+        <td th:text="${item.purpose}">
+         Purpose
+        </td>
+        <td>
+         <span th:text="${item.assignedTeam}">
+          Team
+         </span>
+         <small class="co-cell-sub" th:text="${item.assignedTo == null ? 'Unassigned' : item.assignedTo}">
+          Owner
+         </small>
+        </td>
+        <td class="co-overdue" th:text="${item.nextContactDate}">
+         Date
+        </td>
+        <td>
+         <span class="co-pill" th:classappend="${' priority-' + #strings.toLowerCase(item.priority)}" th:text="${item.priority}">
+          NORMAL
+         </span>
+        </td>
+        <td>
+         <span class="co-pill" th:classappend="${' status-' + #strings.toLowerCase(item.status)}" th:text="${item.status.replace('_',' ')}">
+          OPEN
+         </span>
+        </td>
+        <td>
+         <a class="co-row-action" th:href="@{/staff/enterprise/patient-outreach/{id}(id=${item.id})}">
+          Work item →
+         </a>
+        </td>
+       </tr>
+       <tr th:if="${#lists.isEmpty(items)}">
+        <td class="co-empty" colspan="7">
+         <span>
+          ✓
+         </span>
+         <strong>
+          No overdue contacts
+         </strong>
+         <p>
+          All active contact records are scheduled for today or a future date.
+         </p>
+         <a class="co-button co-secondary" th:href="@{/staff/enterprise/patient-outreach}">
+          Return to outreach
+         </a>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+   </section>
+  </main>
+  <footer class="co-footer">
+   <span>
+    CareFlow · Patient continuity operations
+   </span>
+   <span>
+    Schedule updates should reflect a real plan.
+   </span>
+  </footer>
+ </body>
+</html>
+

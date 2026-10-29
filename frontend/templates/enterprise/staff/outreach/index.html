@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   Patient outreach | CareFlow
+  </title>
+  <link rel="stylesheet" th:href="@{/css/careflow-outreach.css}"/>
+  <script defer="" th:src="@{/js/careflow-outreach.js}">
+  </script>
+ </head>
+ <body class="co-page">
+  <header class="co-topbar">
+   <a class="co-brand" th:href="@{/}">
+    <span class="co-logo">
+     C
+    </span>
+    <span>
+     CareFlow
+     <small>
+      CONTINUITY OF CARE
+     </small>
+    </span>
+   </a>
+   <nav>
+    <a th:href="@{/staff/enterprise/dischargeChecklist}">
+     Discharge readiness
+    </a>
+    <a class="active" th:href="@{/staff/enterprise/patient-outreach}">
+     Patient outreach
+    </a>
+    <a th:href="@{/staff/handovers}">
+     Shift handovers
+    </a>
+    <a th:href="@{/safety/incidents}">
+     Safety
+    </a>
+   </nav>
+   <a class="co-user" th:href="@{/workflows/doctor}">
+    Clinical workspace ↗
+   </a>
+  </header>
+  <main class="co-shell">
+   <div class="co-alert co-success" role="status" th:if="${successMessage}" th:text="${successMessage}">
+   </div>
+   <div class="co-alert co-error" role="alert" th:if="${errorMessage}" th:text="${errorMessage}">
+   </div>
+   <section class="co-hero">
+    <div>
+     <p class="co-eyebrow">
+      AFTERCARE / PATIENT CONTACT
+     </p>
+     <h1>
+      Patient outreach
+     </h1>
+     <p class="co-muted">
+      Track post-discharge calls, document reported concerns and route unresolved safety issues to the appropriate clinical team.
+     </p>
+    </div>
+    <div class="co-actions">
+     <a class="co-button co-secondary" th:href="@{/staff/enterprise/patient-outreach/safety-queue}">
+      Safety queue
+     </a>
+     <a class="co-button co-secondary" th:href="@{/staff/enterprise/patient-outreach/overdue}">
+      Overdue contacts
+     </a>
+     <a class="co-button co-primary" th:href="@{/staff/enterprise/patient-outreach/new}">
+      ＋ Create outreach
+     </a>
+    </div>
+   </section>
+   <section class="co-metrics">
+    <article class="co-metric">
+     <span class="co-metric-icon blue">
+      ◷
+     </span>
+     <div>
+      <span>
+       Open
+      </span>
+      <strong th:text="${metrics.open}">
+       0
+      </strong>
+      <small>
+       New records
+      </small>
+     </div>
+    </article>
+    <article class="co-metric">
+     <span class="co-metric-icon violet">
+      ↻
+     </span>
+     <div>
+      <span>
+       In progress
+      </span>
+      <strong th:text="${metrics.inProgress}">
+       0
+      </strong>
+      <small>
+       Being worked
+      </small>
+     </div>
+    </article>
+    <article class="co-metric">
+     <span class="co-metric-icon amber">
+      !
+     </span>
+     <div>
+      <span>
+       Overdue
+      </span>
+      <strong th:text="${metrics.overdue}">
+       0
+      </strong>
+      <small>
+       Contact date passed
+      </small>
+     </div>
+    </article>
+    <article class="co-metric">
+     <span class="co-metric-icon red">
+      ✚
+     </span>
+     <div>
+      <span>
+       Safety queue
+      </span>
+      <strong th:text="${metrics.safety}">
+       0
+      </strong>
+      <small>
+       Needs review
+      </small>
+     </div>
+    </article>
+    <article class="co-metric">
+     <span class="co-metric-icon green">
+      ✓
+     </span>
+     <div>
+      <span>
+       Due today
+      </span>
+      <strong th:text="${metrics.dueToday}">
+       0
+      </strong>
+      <small>
+       Scheduled contacts
+      </small>
+     </div>
+    </article>
+   </section>
+   <section class="co-panel co-safety-note">
+    <span class="co-alert-symbol">
+     !
+    </span>
+    <div>
+     <strong>
+      Safety-first workflow
+     </strong>
+     <p>
+      Red-flag symptoms trigger emergency escalation and require a clinician handoff. This worklist records coordination; it does not replace local emergency response procedures.
+     </p>
+    </div>
+    <a th:href="@{/staff/enterprise/patient-outreach/safety-queue}">
+     Review queue →
+    </a>
+   </section>
+   <section class="co-panel">
+    <div class="co-panel-heading">
+     <div>
+      <h2>
+       Outreach worklist
+      </h2>
+      <p>
+       Search by patient, reference, purpose or assigned staff.
+      </p>
+     </div>
+     <span class="co-count">
+      <b th:text="${#lists.size(items)}">
+       0
+      </b>
+      records
+     </span>
+    </div>
+    <form class="co-filters" id="outreachFilters" method="get" th:action="@{/staff/enterprise/patient-outreach}">
+     <label class="co-search">
+      <span>
+       ⌕
+      </span>
+      <input aria-label="Search outreach records" name="q" placeholder="Search patients, reference, purpose…" th:value="${filterQuery}" type="search"/>
+     </label>
+     <label>
+      <span>
+       Status
+      </span>
+      <select name="status">
+       <option value="">
+        All statuses
+       </option>
+       <option th:each="v : ${statuses}" th:selected="${filterStatus == v}" th:text="${v.replace('_',' ')}" th:value="${v}">
+       </option>
+      </select>
+     </label>
+     <label>
+      <span>
+       Team
+      </span>
+      <select name="team">
+       <option value="">
+        All teams
+       </option>
+       <option th:each="v : ${teams}" th:selected="${filterTeam == v}" th:text="${v}" th:value="${v}">
+       </option>
+      </select>
+     </label>
+     <label>
+      <span>
+       Priority
+      </span>
+      <select name="priority">
+       <option value="">
+        All priorities
+       </option>
+       <option th:each="v : ${priorities}" th:selected="${filterPriority == v}" th:text="${v}" th:value="${v}">
+       </option>
+      </select>
+     </label>
+     <label>
+      <span>
+       Escalation
+      </span>
+      <select name="escalation">
+       <option value="">
+        All levels
+       </option>
+       <option th:each="v : ${escalations}" th:selected="${filterEscalation == v}" th:text="${v}" th:value="${v}">
+       </option>
+      </select>
+     </label>
+     <label>
+      <span>
+       Due from
+      </span>
+      <input name="from" th:value="${filterFrom}" type="date"/>
+     </label>
+     <label>
+      <span>
+       Due to
+      </span>
+      <input name="to" th:value="${filterTo}" type="date"/>
+     </label>
+     <div class="co-filter-buttons">
+      <button class="co-button co-primary" type="submit">
+       Apply filters
+      </button>
+      <a class="co-button co-secondary" th:href="@{/staff/enterprise/patient-outreach}">
+       Reset
+      </a>
+     </div>
+    </form>
+    <div class="co-table-tools">
+     <label class="co-inline-search">
+      Quick filter
+      <input id="quickFilter" placeholder="Filter loaded rows…" type="search"/>
+     </label>
+     <span id="visibleCount" th:text="${#lists.size(items) + ' records shown'}">
+      0 records shown
+     </span>
+     <a class="co-text-link" th:href="@{/staff/enterprise/patient-outreach/export.csv(status=${filterStatus},team=${filterTeam},priority=${filterPriority},escalation=${filterEscalation},from=${filterFrom},to=${filterTo},q=${filterQuery})}">
+      Export CSV ↓
+     </a>
+    </div>
+    <div class="co-table-wrap">
+     <table id="outreachTable">
+      <thead>
+       <tr>
+        <th>
+         Patient / reference
+        </th>
+        <th>
+         Purpose
+        </th>
+        <th>
+         Team / owner
+        </th>
+        <th>
+         Priority
+        </th>
+        <th>
+         Next contact
+        </th>
+        <th>
+         Outcome
+        </th>
+        <th>
+         Status
+        </th>
+        <th>
+         Action
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr th:attr="data-search=${item.patientName + ' ' + item.patientReference + ' ' + item.referenceCode + ' ' + item.purpose + ' ' + item.assignedTeam + ' ' + item.status}" th:each="item : ${items}">
+        <td>
+         <a class="co-patient-link" th:href="@{/staff/enterprise/patient-outreach/{id}(id=${item.id})}" th:text="${item.patientName}">
+          Patient
+         </a>
+         <small class="co-cell-sub" th:text="${item.referenceCode + ' · ' + item.patientReference}">
+          OUT-REF
+         </small>
+         <span class="co-flag" th:if="${item.redFlagSymptoms}">
+          Safety flag
+         </span>
+        </td>
+        <td>
+         <span class="co-purpose" th:text="${item.purpose}">
+          Follow-up
+         </span>
+         <small class="co-cell-sub" th:text="${item.channel.replace('_',' ') + ' · ' + item.attemptCount + ' attempts'}">
+          PHONE · 0 attempts
+         </small>
+        </td>
+        <td>
+         <span th:text="${item.assignedTeam}">
+          Nursing
+         </span>
+         <small class="co-cell-sub" th:text="${item.assignedTo == null ? 'Unassigned' : item.assignedTo}">
+          Owner
+         </small>
+        </td>
+        <td>
+         <span class="co-pill" th:classappend="${' priority-' + #strings.toLowerCase(item.priority)}" th:text="${item.priority}">
+          NORMAL
+         </span>
+         <small class="co-cell-sub" th:if="${item.escalationLevel != 'NONE'}" th:text="${item.escalationLevel}">
+          ESCALATION
+         </small>
+        </td>
+        <td>
+         <span th:text="${item.nextContactDate == null ? '—' : item.nextContactDate}">
+          Date
+         </span>
+         <small class="co-cell-sub co-overdue" th:if="${item.overdue}">
+          Overdue
+         </small>
+        </td>
+        <td th:text="${item.outcome.replace('_',' ')}">
+         NOT ATTEMPTED
+        </td>
+        <td>
+         <span class="co-pill" th:classappend="${' status-' + #strings.toLowerCase(item.status)}" th:text="${item.status.replace('_',' ')}">
+          OPEN
+         </span>
+         <small class="co-cell-sub co-red-text" th:if="${item.clinicianHandoffRequired or item.supervisorReviewRequired}">
+          Handoff pending
+         </small>
+        </td>
+        <td>
+         <a class="co-row-action" th:href="@{/staff/enterprise/patient-outreach/{id}(id=${item.id})}">
+          Open →
+         </a>
+        </td>
+       </tr>
+       <tr th:if="${#lists.isEmpty(items)}">
+        <td class="co-empty" colspan="8">
+         <span>
+          ◎
+         </span>
+         <strong>
+          No outreach records found
+         </strong>
+         <p>
+          Try changing the filters or create a record for a completed discharge checklist.
+         </p>
+         <a class="co-button co-primary" th:href="@{/staff/enterprise/patient-outreach/new}">
+          Create outreach
+         </a>
+        </td>
+       </tr>
+       <tr hidden="" id="quickEmpty">
+        <td class="co-empty" colspan="8">
+         No loaded rows match the quick filter.
+        </td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+    <footer class="co-table-footer">
+     <span>
+      Access contact details only for an assigned care purpose.
+     </span>
+     <span th:text="${metrics.total + ' total records'}">
+      0 total records
+     </span>
+    </footer>
+   </section>
+  </main>
+  <footer class="co-footer">
+   <span>
+    CareFlow · Patient continuity operations
+   </span>
+   <span>
+    Actions are subject to hospital policy and role permissions.
+   </span>
+  </footer>
+ </body>
+</html>
+

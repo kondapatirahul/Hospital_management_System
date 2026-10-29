@@ -68,3 +68,8 @@ New routes:
 - `/reports` — cross-module reports and CSV exports
 
 This batch has not been compiled or tested in this packaging environment. Run `mvn -f backend/pom.xml test` from the project root before merging.
+
+
+## Batch 10 Workflow Hub
+
+See `BATCH10_WORKFLOW_HUB.md` for the role-specific workspace routes, UI changes, and verification steps. The eight routes are protected by role-based method security.

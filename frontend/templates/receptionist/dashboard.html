@@ -8,8 +8,53 @@
 
     <div class="app-main">
         <header th:replace="~{fragments/layout :: navbar('Front Desk Receptionist Dashboard', 'Real-time patient intake, waiting room queue, and clinic appointment coordination')}"></header>
+<section th:replace="~{fragments/operations-panel :: operationsPanel('receptionist')}"></section>
+
+
+<div class="cf-launchpad-callout">
+  <div class="cf-launchpad-symbol" aria-hidden="true">↗</div>
+  <div class="cf-launchpad-copy"><strong>Open your workflow workspace</strong><span>All role-specific tools and common actions in one place.</span></div>
+  <a th:href="@{/workflows/receptionist}">View workflows <span aria-hidden="true">→</span></a>
+</div>
+
+
 
         <main class="page-content">
+<section class="cf-quick-panel" aria-label="Front desk quick actions">
+  <div class="cf-section-heading">
+    <div><span class="cf-eyebrow">WORKSPACE SHORTCUTS</span><h2>Front desk quick actions</h2><p>Open a workflow directly. Actions still use the existing server routes and permissions.</p></div>
+    <span class="cf-section-mark" aria-hidden="true">✦</span>
+  </div>
+  <div class="cf-dashboard-filter-row"><input class="cf-dashboard-filter" type="search" data-cf-shortcut-filter placeholder="Filter shortcuts…" aria-label="Filter dashboard shortcuts"><span class="cf-shortcut-count" aria-live="polite"></span></div>
+  <div class="cf-quick-grid">
+    <a class="cf-quick-action" th:href="@{/receptionist/patients/new}">
+  <span class="cf-quick-action-icon" aria-hidden="true">＋</span>
+  <span class="cf-quick-action-copy"><strong>Register patient</strong><small>Create a patient record at the front desk</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/receptionist/appointments/new}">
+  <span class="cf-quick-action-icon" aria-hidden="true">＋</span>
+  <span class="cf-quick-action-copy"><strong>Schedule appointment</strong><small>Book a doctor visit for a patient</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/receptionist/queue}">
+  <span class="cf-quick-action-icon" aria-hidden="true">☷</span>
+  <span class="cf-quick-action-copy"><strong>Waiting queue</strong><small>Track arrivals and consultation status</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/receptionist/patients}">
+  <span class="cf-quick-action-icon" aria-hidden="true">♙</span>
+  <span class="cf-quick-action-copy"><strong>Patient directory</strong><small>Search and open patient records</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/receptionist/doctors}">
+  <span class="cf-quick-action-icon" aria-hidden="true">⚕</span>
+  <span class="cf-quick-action-copy"><strong>Doctor schedules</strong><small>Check doctor availability</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/receptionist/appointments}">
+  <span class="cf-quick-action-icon" aria-hidden="true">▦</span>
+  <span class="cf-quick-action-copy"><strong>Appointments</strong><small>Manage today's appointment list</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a>
+  </div>
+</section>
+
             <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
 
             <!-- Quick Action Toolbar -->

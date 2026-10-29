@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   Create outreach | CareFlow
+  </title>
+  <link rel="stylesheet" th:href="@{/css/careflow-outreach.css}"/>
+  <script defer="" th:src="@{/js/careflow-outreach.js}">
+  </script>
+ </head>
+ <body class="co-page">
+  <header class="co-topbar">
+   <a class="co-brand" th:href="@{/}">
+    <span class="co-logo">
+     C
+    </span>
+    <span>
+     CareFlow
+     <small>
+      CONTINUITY OF CARE
+     </small>
+    </span>
+   </a>
+   <nav>
+    <a th:href="@{/staff/enterprise/dischargeChecklist}">
+     Discharge readiness
+    </a>
+    <a class="active" th:href="@{/staff/enterprise/patient-outreach}">
+     Patient outreach
+    </a>
+    <a th:href="@{/staff/handovers}">
+     Shift handovers
+    </a>
+   </nav>
+   <a class="co-user" th:href="@{/workflows/doctor}">
+    Clinical workspace ↗
+   </a>
+  </header>
+  <main class="co-shell co-form-shell">
+   <div class="co-breadcrumb">
+    <a th:href="@{/staff/enterprise/patient-outreach}">
+     Patient outreach
+    </a>
+    <span>
+     /
+    </span>
+    <span>
+     New record
+    </span>
+   </div>
+   <div class="co-alert co-error" role="alert" th:if="${errorMessage}" th:text="${errorMessage}">
+   </div>
+   <section class="co-hero">
+    <div>
+     <p class="co-eyebrow">
+      AFTERCARE / NEW CONTACT
+     </p>
+     <h1>
+      Create outreach record
+     </h1>
+     <p class="co-muted">
+      The record must link to a completed discharge-readiness checklist.
+     </p>
+    </div>
+    <a class="co-button co-secondary" th:href="@{/staff/enterprise/patient-outreach}">
+     Cancel
+    </a>
+   </section>
+   <form class="co-panel co-form" id="outreachCreateForm" method="post" th:action="@{/staff/enterprise/patient-outreach}">
+    <input th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+    <div class="co-form-section">
+     <div class="co-section-number">
+      01
+     </div>
+     <div class="co-section-content">
+      <h2>
+       Patient and discharge reference
+      </h2>
+      <p>
+       Use the patient's existing reference from the hospital record.
+      </p>
+      <div class="co-form-grid">
+       <label class="co-field co-span-2">
+        <span>
+         Completed discharge checklist
+         <b>
+          *
+         </b>
+        </span>
+        <select name="checklistId" required="">
+         <option value="">
+          Choose checklist…
+         </option>
+         <option th:each="c : ${eligibleChecklists}" th:selected="${checklistId != '' and checklistId == c.id}" th:text="${c.referenceCode + ' · ' + c.title}" th:value="${c.id}">
+         </option>
+        </select>
+        <small>
+         Only completed discharge checklists are eligible.
+        </small>
+       </label>
+       <label class="co-field">
+        <span>
+         Patient reference
+         <b>
+          *
+         </b>
+        </span>
+        <input maxlength="60" name="patientReference" placeholder="e.g. PT-1048" required=""/>
+       </label>
+       <label class="co-field">
+        <span>
+         Patient full name
+         <b>
+          *
+         </b>
+        </span>
+        <input autocomplete="off" maxlength="140" name="patientName" placeholder="As recorded in patient file" required=""/>
+       </label>
+       <label class="co-field co-span-2">
+        <span>
+         Contact purpose
+         <b>
+          *
+         </b>
+        </span>
+        <input maxlength="180" name="purpose" placeholder="e.g. 48-hour post-discharge wellbeing check" required=""/>
+       </label>
+       <label class="co-field">
+        <span>
+         Contact channel
+         <b>
+          *
+         </b>
+        </span>
+        <select name="channel">
+         <option th:each="v : ${channels}" th:selected="${v == 'PHONE'}" th:text="${v.replace('_',' ')}" th:value="${v}">
+         </option>
+        </select>
+       </label>
+       <label class="co-field">
+        <span>
+         Priority
+         <b>
+          *
+         </b>
+        </span>
+        <select name="priority">
+         <option th:each="v : ${priorities}" th:selected="${v == 'NORMAL'}" th:text="${v}" th:value="${v}">
+         </option>
+        </select>
+       </label>
+      </div>
+     </div>
+    </div>
+    <div class="co-form-section">
+     <div class="co-section-number">
+      02
+     </div>
+     <div class="co-section-content">
+      <h2>
+       Assignment and schedule
+      </h2>
+      <p>
+       Choose an accountable team and an actionable due date.
+      </p>
+      <div class="co-form-grid">
+       <label class="co-field">
+        <span>
+         Assigned team
+         <b>
+          *
+         </b>
+        </span>
+        <select name="assignedTeam" required="">
+         <option value="">
+          Choose team…
+         </option>
+         <option th:each="v : ${teams}" th:selected="${v == 'Nursing'}" th:text="${v}" th:value="${v}">
+         </option>
+        </select>
+       </label>
+       <label class="co-field">
+        <span>
+         Assigned staff
+        </span>
+        <input maxlength="100" name="assignedTo" placeholder="Staff username or name"/>
+       </label>
+       <label class="co-field">
+        <span>
+         Next contact date
+        </span>
+        <input name="nextContactDate" th:min="${today}" th:value="${today}" type="date"/>
+       </label>
+       <label class="co-field">
+        <span>
+         Preferred contact window
+        </span>
+        <input maxlength="120" name="preferredWindow" placeholder="e.g. 10:00–12:00"/>
+       </label>
+       <label class="co-field co-span-2">
+        <span>
+         Contact number (only if necessary)
+        </span>
+        <input autocomplete="off" maxlength="1000" name="contactNumber" placeholder="Follow hospital privacy policy"/>
+        <small>
+         Do not enter unrelated sensitive information in this field.
+        </small>
+       </label>
+       <label class="co-check-card">
+        <input name="consent" type="checkbox" value="true"/>
+        <span>
+         <b>
+          Contact consent documented
+         </b>
+         <small>
+          Consent has been confirmed in the appropriate patient record.
+         </small>
+        </span>
+       </label>
+       <label class="co-check-card">
+        <input name="interpreter" type="checkbox" value="true"/>
+        <span>
+         <b>
+          Interpreter required
+         </b>
+         <small>
+          Arrange language support before discussing care details.
+         </small>
+        </span>
+       </label>
+      </div>
+     </div>
+    </div>
+    <div class="co-form-footer">
+     <a class="co-button co-secondary" th:href="@{/staff/enterprise/patient-outreach}">
+      Cancel
+     </a>
+     <button class="co-button co-primary" type="submit">
+      Create outreach →
+     </button>
+    </div>
+   </form>
+  </main>
+  <footer class="co-footer">
+   <span>
+    CareFlow · Patient continuity operations
+   </span>
+   <span>
+    Contact scheduling does not replace urgent care procedures.
+   </span>
+  </footer>
+ </body>
+</html>
+

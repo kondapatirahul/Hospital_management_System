@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   Outreach analytics | CareFlow
+  </title>
+  <link rel="stylesheet" th:href="@{/css/careflow-outreach.css}"/>
+  <script defer="" th:src="@{/js/careflow-outreach.js}">
+  </script>
+ </head>
+ <body class="co-page">
+  <header class="co-topbar">
+   <a class="co-brand" th:href="@{/}">
+    <span class="co-logo">
+     C
+    </span>
+    <span>
+     CareFlow
+     <small>
+      CONTINUITY OF CARE
+     </small>
+    </span>
+   </a>
+   <nav>
+    <a th:href="@{/staff/enterprise/dischargeChecklist}">
+     Discharge readiness
+    </a>
+    <a th:href="@{/staff/enterprise/patient-outreach}">
+     Patient outreach
+    </a>
+    <a class="active" th:href="@{/staff/enterprise/patient-outreach/analytics}">
+     Analytics
+    </a>
+   </nav>
+   <a class="co-user" th:href="@{/workflows/doctor}">
+    Clinical workspace ↗
+   </a>
+  </header>
+  <main class="co-shell">
+   <div class="co-breadcrumb">
+    <a th:href="@{/staff/enterprise/patient-outreach}">
+     Patient outreach
+    </a>
+    <span>
+     /
+    </span>
+    <span>
+     Analytics
+    </span>
+   </div>
+   <section class="co-hero">
+    <div>
+     <p class="co-eyebrow">
+      AFTERCARE / OPERATIONAL INSIGHTS
+     </p>
+     <h1>
+      Outreach analytics
+     </h1>
+     <p class="co-muted">
+      Current snapshot of workflow states, contact outcomes, team workload and safety review items.
+     </p>
+    </div>
+    <div class="co-actions">
+     <a class="co-button co-secondary" th:href="@{/staff/enterprise/patient-outreach/export.csv}">
+      Export register ↓
+     </a>
+     <a class="co-button co-primary" th:href="@{/staff/enterprise/patient-outreach}">
+      Open worklist →
+     </a>
+    </div>
+   </section>
+   <section class="co-metrics">
+    <article class="co-metric">
+     <span class="co-metric-icon blue">
+      ◷
+     </span>
+     <div>
+      <span>
+       Total records
+      </span>
+      <strong th:text="${metrics.total}">
+       0
+      </strong>
+      <small>
+       All outreach records
+      </small>
+     </div>
+    </article>
+    <article class="co-metric">
+     <span class="co-metric-icon amber">
+      !
+     </span>
+     <div>
+      <span>
+       Overdue
+      </span>
+      <strong th:text="${metrics.overdue}">
+       0
+      </strong>
+      <small>
+       Past due
+      </small>
+     </div>
+    </article>
+    <article class="co-metric">
+     <span class="co-metric-icon red">
+      ✚
+     </span>
+     <div>
+      <span>
+       Safety queue
+      </span>
+      <strong th:text="${metrics.safety}">
+       0
+      </strong>
+      <small>
+       Requires review
+      </small>
+     </div>
+    </article>
+    <article class="co-metric">
+     <span class="co-metric-icon green">
+      ✓
+     </span>
+     <div>
+      <span>
+       Due today
+      </span>
+      <strong th:text="${metrics.dueToday}">
+       0
+      </strong>
+      <small>
+       Scheduled contacts
+      </small>
+     </div>
+    </article>
+   </section>
+   <section class="co-analytics-grid">
+    <article class="co-panel">
+     <div class="co-panel-heading">
+      <div>
+       <h2>
+        Records by status
+       </h2>
+       <p>
+        Current distribution of workflow states.
+       </p>
+      </div>
+     </div>
+     <div class="co-bar-list">
+      <div class="co-bar-row" th:each="e : ${statuses}">
+       <div>
+        <span th:text="${e.key.replace('_',' ')}">
+         OPEN
+        </span>
+        <b th:text="${e.value}">
+         0
+        </b>
+       </div>
+       <div class="co-bar-track">
+        <span class="co-bar-fill" th:attr="data-value=${e.value}">
+        </span>
+       </div>
+      </div>
+      <p class="co-muted" th:if="${#maps.isEmpty(statuses)}">
+       No status data available.
+      </p>
+     </div>
+    </article>
+    <article class="co-panel">
+     <div class="co-panel-heading">
+      <div>
+       <h2>
+        Contact outcomes
+       </h2>
+       <p>
+        Latest outcome for each outreach record.
+       </p>
+      </div>
+     </div>
+     <div class="co-bar-list">
+      <div class="co-bar-row" th:each="e : ${outcomes}">
+       <div>
+        <span th:text="${e.key.replace('_',' ')}">
+         REACHED
+        </span>
+        <b th:text="${e.value}">
+         0
+        </b>
+       </div>
+       <div class="co-bar-track">
+        <span class="co-bar-fill co-bar-secondary" th:attr="data-value=${e.value}">
+        </span>
+       </div>
+      </div>
+      <p class="co-muted" th:if="${#maps.isEmpty(outcomes)}">
+       No outcome data available.
+      </p>
+     </div>
+    </article>
+    <article class="co-panel">
+     <div class="co-panel-heading">
+      <div>
+       <h2>
+        Active workload by team
+       </h2>
+       <p>
+        Unclosed outreach grouped by team.
+       </p>
+      </div>
+     </div>
+     <div class="co-bar-list">
+      <div class="co-bar-row" th:each="e : ${workload}">
+       <div>
+        <span th:text="${e.key}">
+         Nursing
+        </span>
+        <b th:text="${e.value}">
+         0
+        </b>
+       </div>
+       <div class="co-bar-track">
+        <span class="co-bar-fill co-bar-tertiary" th:attr="data-value=${e.value}">
+        </span>
+       </div>
+      </div>
+      <p class="co-muted" th:if="${#maps.isEmpty(workload)}">
+       No active workload to display.
+      </p>
+     </div>
+    </article>
+    <article class="co-panel">
+     <div class="co-panel-heading">
+      <div>
+       <h2>
+        Safety review list
+       </h2>
+       <p>
+        Highest-priority unresolved records.
+       </p>
+      </div>
+      <a class="co-text-link" th:href="@{/staff/enterprise/patient-outreach/safety-queue}">
+       Full queue →
+      </a>
+     </div>
+     <div class="co-mini-list">
+      <article class="co-mini-item" th:each="item : ${queue}">
+       <div>
+        <a th:href="@{/staff/enterprise/patient-outreach/{id}(id=${item.id})}" th:text="${item.patientName}">
+         Patient
+        </a>
+        <small th:text="${item.referenceCode + ' · ' + item.assignedTeam}">
+         Reference
+        </small>
+       </div>
+       <span class="co-pill priority-urgent" th:text="${item.escalationLevel}">
+        EMERGENCY
+       </span>
+      </article>
+      <p class="co-muted" th:if="${#lists.isEmpty(queue)}">
+       No open safety escalations.
+      </p>
+     </div>
+    </article>
+   </section>
+   <section class="co-panel co-note-panel">
+    <strong>
+     Interpretation
+    </strong>
+    <p>
+     These are operational counts from the current application database. They are not clinical outcome measures and should be interpreted using hospital-approved quality reporting definitions.
+    </p>
+   </section>
+  </main>
+  <footer class="co-footer">
+   <span>
+    CareFlow · Patient continuity operations
+   </span>
+   <span>
+    Metrics reflect data available at page load.
+   </span>
+  </footer>
+ </body>
+</html>
+

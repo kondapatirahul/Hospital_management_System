@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Report Quality Case | CareFlow</title><link rel="stylesheet" th:href="@{/css/quality-governance.css}"></head>
+<body><main class="qg-shell narrow"><header class="qg-header"><div><p class="eyebrow">QUALITY & SAFETY</p><h1>Report a quality case</h1><p class="muted">Capture facts clearly. Avoid speculation and unnecessary patient identifiers.</p></div><a th:href="@{/quality/reviews}" class="button secondary">Back to register</a></header>
+<div class="notice info">For immediate danger or a time-critical clinical emergency, follow the hospital's emergency escalation procedure first. This register is not an emergency alert system.</div>
+<form class="panel form-grid" method="post" th:action="@{/quality/reviews}" th:object="${request}">
+<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+<label class="span-2">Case title *<input th:field="*{title}" maxlength="160" required placeholder="Short factual summary"></label>
+<label>Category *<select th:field="*{category}" required><option value="">Choose category</option><option th:each="c:${categories}" th:value="${c}" th:text="${c}"></option></select></label>
+<label>Severity *<select th:field="*{severity}" required><option value="">Choose severity</option><option th:each="s:${severities}" th:value="${s}" th:text="${s}"></option></select></label>
+<label>Event date<input type="date" th:field="*{eventDate}"></label><label>Target due date<input type="date" th:field="*{dueDate}"></label>
+<label>Department<input th:field="*{department}" maxlength="100" placeholder="e.g. Emergency"></label><label>Location<input th:field="*{location}" maxlength="100" placeholder="Ward / room / area"></label>
+<label>Patient reference<input th:field="*{patientReference}" maxlength="80"></label><label>Patient display name<input th:field="*{patientDisplayName}" maxlength="160"></label>
+<label>Assigned owner<input th:field="*{ownerUsername}" maxlength="100" placeholder="Username"></label>
+<label class="span-2">Event description *<textarea th:field="*{eventDescription}" maxlength="5000" rows="5" required placeholder="What happened? Include observed facts and immediate context."></textarea></label>
+<div class="checkbox-grid span-2">
+<label><input type="checkbox" th:field="*{patientSafetyImpact}"> Patient-safety impact identified</label>
+<label><input type="checkbox" th:field="*{sentinelEvent}"> Potential sentinel event</label>
+<label><input type="checkbox" th:field="*{requiresDisclosure}"> Disclosure assessment required</label>
+<label><input type="checkbox" th:field="*{regulatoryNotification}"> Regulatory notification assessment required</label>
+<label><input type="checkbox" th:field="*{privacySensitive}"> Privacy-sensitive case</label>
+<label><input type="checkbox" th:field="*{followUpRequired}"> Follow-up required</label>
+<label><input type="checkbox" th:field="*{evidencePreserved}"> Relevant evidence preserved</label>
+</div>
+<div class="span-2 form-actions"><a class="button secondary" th:href="@{/quality/reviews}">Cancel</a><button class="button" type="submit">Create case</button></div>
+</form></main><script th:src="@{/js/quality-governance.js}"></script></body></html>

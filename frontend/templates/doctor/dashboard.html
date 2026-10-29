@@ -8,8 +8,49 @@
 
     <div class="app-main">
         <header th:replace="~{fragments/layout :: navbar('Doctor Clinical Dashboard', 'Manage daily patient appointments, consultations, diagnoses, and medical prescriptions')}"></header>
+<section th:replace="~{fragments/operations-panel :: operationsPanel('doctor')}"></section>
+
+
+<div class="cf-launchpad-callout">
+  <div class="cf-launchpad-symbol" aria-hidden="true">↗</div>
+  <div class="cf-launchpad-copy"><strong>Open your workflow workspace</strong><span>All role-specific tools and common actions in one place.</span></div>
+  <a th:href="@{/workflows/doctor}">View workflows <span aria-hidden="true">→</span></a>
+</div>
+
+
 
         <main class="page-content">
+<section class="cf-quick-panel" aria-label="Clinical workspace">
+  <div class="cf-section-heading">
+    <div><span class="cf-eyebrow">WORKSPACE SHORTCUTS</span><h2>Clinical workspace</h2><p>Open a workflow directly. Actions still use the existing server routes and permissions.</p></div>
+    <span class="cf-section-mark" aria-hidden="true">✦</span>
+  </div>
+  <div class="cf-dashboard-filter-row"><input class="cf-dashboard-filter" type="search" data-cf-shortcut-filter placeholder="Filter shortcuts…" aria-label="Filter dashboard shortcuts"><span class="cf-shortcut-count" aria-live="polite"></span></div>
+  <div class="cf-quick-grid">
+    <a class="cf-quick-action" th:href="@{/doctor/appointments}">
+  <span class="cf-quick-action-icon" aria-hidden="true">▦</span>
+  <span class="cf-quick-action-copy"><strong>Today's appointments</strong><small>Review visits and patient status</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/doctor/patients}">
+  <span class="cf-quick-action-icon" aria-hidden="true">♙</span>
+  <span class="cf-quick-action-copy"><strong>Patient directory</strong><small>Open authorized patient records</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/doctor/consultations}">
+  <span class="cf-quick-action-icon" aria-hidden="true">▤</span>
+  <span class="cf-quick-action-copy"><strong>Consultations</strong><small>Document and review consultations</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/doctor/prescriptions}">
+  <span class="cf-quick-action-icon" aria-hidden="true">✚</span>
+  <span class="cf-quick-action-copy"><strong>Prescriptions</strong><small>Review prescribed medicines</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/doctor/availability}">
+  <span class="cf-quick-action-icon" aria-hidden="true">◷</span>
+  <span class="cf-quick-action-copy"><strong>Availability</strong><small>Manage duty status and availability</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a>
+  </div>
+</section>
+
             <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
 
             <!-- Doctor Welcome Greeting Banner -->
@@ -99,7 +140,7 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table id="todayApptsTable" class="custom-table">
+                        <table id="todayApptsTable" data-sortable class="custom-table">
                             <thead>
                                 <tr>
                                     <th>Time Slot</th>

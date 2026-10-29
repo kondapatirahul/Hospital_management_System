@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${workspaceTitle} + ' | CareFlow'">CareFlow Workspace</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/workflow-hub.css}">
+  <script defer th:src="@{/js/workflow-hub.js}"></script>
+</head>
+<body class="cf-workspace-page">
+<div class="app-container">
+  <aside th:replace="~{fragments/layout :: sidebar('workflow-hub')}"></aside>
+  <main class="app-main cf-main">
+    <header th:replace="~{fragments/layout :: navbar(${workspaceTitle}, 'A focused launchpad for your authorized day-to-day workflows')}"></header>
+    <section class="cf-hero">
+      <div class="cf-hero-copy">
+        <div class="cf-eyebrow"><span class="cf-pulse"></span> CAREFLOW OPERATIONS</div>
+        <h1 th:text="${workspaceTitle}">Workspace</h1>
+        <p>Pick up your next task from one place. Each shortcut opens the corresponding CareFlow workflow, where records and actions are handled by the existing application services.</p>
+        <div class="cf-hero-meta">
+          <span><i class="cf-dot cf-dot-green"></i> Role-protected workspace</span>
+          <span><i class="cf-dot cf-dot-blue"></i> Connected to CareFlow modules</span>
+        </div>
+      </div>
+      <div class="cf-hero-art" aria-hidden="true">
+        <div class="cf-orbit cf-orbit-one"></div><div class="cf-orbit cf-orbit-two"></div>
+        <div class="cf-art-core"><span>CF</span><small>CareFlow</small></div>
+        <div class="cf-art-node cf-node-a">+</div><div class="cf-art-node cf-node-b">✓</div><div class="cf-art-node cf-node-c">↗</div>
+      </div>
+    </section>
+
+    <section th:if="${workspaceRole == 'patient'}" th:replace="~{fragments/role-boards/patient :: patient}"></section>
+    <section th:if="${workspaceRole == 'receptionist'}" th:replace="~{fragments/role-boards/receptionist :: receptionist}"></section>
+    <section th:if="${workspaceRole == 'doctor'}" th:replace="~{fragments/role-boards/doctor :: doctor}"></section>
+    <section th:if="${workspaceRole == 'pharmacy'}" th:replace="~{fragments/role-boards/pharmacy :: pharmacy}"></section>
+    <section th:if="${workspaceRole == 'laboratory'}" th:replace="~{fragments/role-boards/laboratory :: laboratory}"></section>
+    <section th:if="${workspaceRole == 'billing'}" th:replace="~{fragments/role-boards/billing :: billing}"></section>
+    <section th:if="${workspaceRole == 'admin'}" th:replace="~{fragments/role-boards/admin :: admin}"></section>
+    <section th:if="${workspaceRole == 'staff'}" th:replace="~{fragments/role-boards/staff :: staff}"></section>
+    <section class="cf-toolbar" aria-label="Workflow tools">
+      <div class="cf-search-wrap">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 4.5 4.5"></path></svg>
+        <input id="workflowSearch" type="search" placeholder="Search workflows, e.g. appointments, invoices..." autocomplete="off" aria-label="Search workflows">
+        <kbd>⌘ K</kbd>
+      </div>
+      <div class="cf-toolbar-right">
+        <span class="cf-count"><strong th:text="${#lists.size(workflows)}">8</strong> workflows</span>
+        <button type="button" class="cf-view-toggle" id="viewToggle" aria-pressed="false" title="Toggle compact view">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="7" height="7" rx="1"></rect><rect x="14" y="4" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
+          <span>Compact view</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="cf-section-heading">
+      <div><span class="cf-section-kicker">YOUR TOOLKIT</span><h2>Available workflows</h2><p>Choose a workflow to continue into its working screen.</p></div>
+      <span class="cf-secure-label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 11V7a7 7 0 0 1 14 0v4"></path><rect x="3" y="11" width="18" height="10" rx="2"></rect><path d="m10 16 1.5 1.5L15 14"></path></svg> Authorized access</span>
+    </section>
+
+    <section class="cf-workflow-grid" id="workflowGrid">
+      <article class="cf-workflow-card" th:each="flow, stat : ${workflows}"
+               th:attr="data-search=${#strings.toLowerCase(flow.title + ' ' + flow.description)}">
+        <div class="cf-card-top">
+          <div class="cf-card-icon" th:attr="data-icon=${flow.icon}">
+            <span th:text="${#strings.substring(flow.title,0,1)}">W</span>
+          </div>
+          <span class="cf-card-number" th:text="${#numbers.formatInteger(stat.count,2)}">01</span>
+        </div>
+        <div class="cf-card-content">
+          <h3 th:text="${flow.title}">Workflow title</h3>
+          <p th:text="${flow.description}">Workflow description</p>
+        </div>
+        <div class="cf-card-footer">
+          <span class="cf-card-tag"><i></i> WORKFLOW</span>
+          <a class="cf-open-link" th:href="${flow.url}">
+            <span>Open workflow</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"></path></svg>
+          </a>
+        </div>
+      </article>
+      <div class="cf-empty-state" id="noWorkflowResults" hidden>
+        <div class="cf-empty-icon">⌕</div><h3>No workflows found</h3><p>Try another keyword or clear your search.</p>
+        <button type="button" id="clearWorkflowSearch">Clear search</button>
+      </div>
+    </section>
+
+    <section class="cf-help-strip">
+      <div class="cf-help-icon">i</div>
+      <div><strong>Need access to another area?</strong><p>CareFlow restricts workspaces by role. Ask your administrator to review your account role if a workflow you need is not listed.</p></div>
+      <a th:href="@{/login}">Account help <span>↗</span></a>
+    </section>
+    <footer class="cf-footer"><span>CareFlow Hospital Management</span><span>Secure · Role-based · Auditable</span></footer>
+  </main>
+</div>
+
+<!-- BATCH14_OPERATIONAL_WORKFLOWS -->
+<section class="workflow-card" aria-label="Quality and continuity workflows">
+  <div class="workflow-card-heading"><h2>Quality &amp; continuity</h2><p>Report a safety event or prepare a structured shift handover.</p></div>
+  <div class="workflow-card-actions"><a th:href="@{/safety/incidents}">Safety incident register <span aria-hidden="true">→</span></a><a th:href="@{/safety/incidents/new}">Report incident <span aria-hidden="true">→</span></a><a th:href="@{/staff/handovers}">Shift handovers <span aria-hidden="true">→</span></a></div>
+</section>
+</body>
+</html>

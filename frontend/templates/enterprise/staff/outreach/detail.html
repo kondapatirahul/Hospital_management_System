@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title th:text="${item.referenceCode + ' | Patient outreach'}">
+   Outreach detail
+  </title>
+  <link rel="stylesheet" th:href="@{/css/careflow-outreach.css}"/>
+  <script defer="" th:src="@{/js/careflow-outreach.js}">
+  </script>
+ </head>
+ <body class="co-page">
+  <header class="co-topbar">
+   <a class="co-brand" th:href="@{/}">
+    <span class="co-logo">
+     C
+    </span>
+    <span>
+     CareFlow
+     <small>
+      CONTINUITY OF CARE
+     </small>
+    </span>
+   </a>
+   <nav>
+    <a th:href="@{/staff/enterprise/dischargeChecklist}">
+     Discharge readiness
+    </a>
+    <a class="active" th:href="@{/staff/enterprise/patient-outreach}">
+     Patient outreach
+    </a>
+    <a th:href="@{/staff/handovers}">
+     Shift handovers
+    </a>
+   </nav>
+   <a class="co-user" th:href="@{/workflows/doctor}">
+    Clinical workspace ↗
+   </a>
+  </header>
+  <main class="co-shell">
+   <div class="co-alert co-success" role="status" th:if="${successMessage}" th:text="${successMessage}">
+   </div>
+   <div class="co-alert co-error" role="alert" th:if="${errorMessage}" th:text="${errorMessage}">
+   </div>
+   <div class="co-breadcrumb">
+    <a th:href="@{/staff/enterprise/patient-outreach}">
+     Patient outreach
+    </a>
+    <span>
+     /
+    </span>
+    <span th:text="${item.referenceCode}">
+     OUT-REF
+    </span>
+   </div>
+   <section class="co-hero">
+    <div>
+     <p class="co-eyebrow">
+      OUTREACH RECORD /
+      <span th:text="${item.referenceCode}">
+       OUT-REF
+      </span>
+     </p>
+     <h1 th:text="${item.patientName}">
+      Patient name
+     </h1>
+     <p class="co-muted" th:text="${item.patientReference + ' · ' + item.purpose}">
+      Reference and purpose
+     </p>
+     <div class="co-hero-pills">
+      <span class="co-pill" th:classappend="${' status-' + #strings.toLowerCase(item.status)}" th:text="${item.status.replace('_',' ')}">
+       OPEN
+      </span>
+      <span class="co-pill" th:classappend="${' priority-' + #strings.toLowerCase(item.priority)}" th:text="${item.priority}">
+       NORMAL
+      </span>
+      <span class="co-pill co-escalation" th:if="${item.escalationLevel != 'NONE'}" th:text="${item.escalationLevel + ' ESCALATION'}">
+       ESCALATION
+      </span>
+     </div>
+    </div>
+    <div class="co-actions">
+     <a class="co-button co-secondary" th:href="@{/staff/enterprise/patient-outreach}">
+      ← Worklist
+     </a>
+     <a class="co-button co-secondary" th:href="@{/staff/enterprise/dischargeChecklist}">
+      Discharge checklist ↗
+     </a>
+    </div>
+   </section>
+   <section class="co-critical-banner" th:if="${!#lists.isEmpty(safetyFlags)}">
+    <span class="co-critical-icon">
+     !
+    </span>
+    <div>
+     <strong>
+      Safety review required
+     </strong>
+     <p>
+      Follow local emergency procedures for immediate danger. Do not close this record while red flags or handoffs remain active.
+     </p>
+     <ul>
+      <li th:each="flag : ${safetyFlags}" th:text="${flag}">
+       Safety flag
+      </li>
+     </ul>
+    </div>
+   </section>
+   <section class="co-detail-grid">
+    <div class="co-main-column">
+     <section class="co-panel">
+      <div class="co-panel-heading">
+       <div>
+        <h2>
+         Record overview
+        </h2>
+        <p>
+         Assignment, schedule and contact status.
+        </p>
+       </div>
+       <span class="co-record-badge" th:text="${item.referenceCode}">
+        OUT-REF
+       </span>
+      </div>
+      <div class="co-fact-grid">
+       <div class="co-fact">
+        <span>
+         Discharge checklist
+        </span>
+        <strong th:text="${item.dischargeChecklist.referenceCode + ' · ' + item.dischargeChecklist.title}">
+         Checklist
+        </strong>
+       </div>
+       <div class="co-fact">
+        <span>
+         Contact channel
+        </span>
+        <strong th:text="${item.channel.replace('_',' ')}">
+         PHONE
+        </strong>
+       </div>
+       <div class="co-fact">
+        <span>
+         Assigned team
+        </span>
+        <strong th:text="${item.assignedTeam}">
+         Nursing
+        </strong>
+       </div>
+       <div class="co-fact">
+        <span>
+         Assigned staff
+        </span>
+        <strong th:text="${item.assignedTo == null ? 'Unassigned' : item.assignedTo}">
+         Unassigned
+        </strong>
+       </div>
+       <div class="co-fact">
+        <span>
+         Next contact
+        </span>
+        <strong th:text="${item.nextContactDate == null ? 'Not scheduled' : item.nextContactDate}">
+         Date
+        </strong>
+       </div>
+       <div class="co-fact">
+        <span>
+         Last attempt
+        </span>
+        <strong th:text="${item.lastAttemptAt == null ? 'No attempts yet' : #temporals.format(item.lastAttemptAt,'dd MMM yyyy, HH:mm')}">
+         Date
+        </strong>
+       </div>
+       <div class="co-fact">
+        <span>
+         Attempts recorded
+        </span>
+        <strong th:text="${item.attemptCount}">
+         0
+        </strong>
+       </div>
+       <div class="co-fact">
+        <span>
+         Latest outcome
+        </span>
+        <strong th:text="${item.outcome.replace('_',' ')}">
+         NOT ATTEMPTED
+        </strong>
+       </div>
+       <div class="co-fact">
+        <span>
+         Consent documented
+        </span>
+        <strong th:text="${item.consentConfirmed ? 'Yes' : 'Not confirmed'}">
+         No
+        </strong>
+       </div>
+       <div class="co-fact">
+        <span>
+         Identity verified
+        </span>
+        <strong th:text="${item.identityVerified ? 'Yes' : 'Not verified'}">
+         No
+        </strong>
+       </div>
+       <div class="co-fact">
+        <span>
+         Created by
+        </span>
+        <strong th:text="${item.createdBy}">
+         User
+        </strong>
+       </div>
+       <div class="co-fact">
+        <span>
+         Updated
+        </span>
+        <strong th:text="${#temporals.format(item.updatedAt,'dd MMM yyyy, HH:mm')}">
+         Date
+        </strong>
+       </div>
+      </div>
+     </section>
+     <section class="co-panel">
+      <div class="co-panel-heading">
+       <div>
+        <h2>
+         Record a contact attempt
+        </h2>
+        <p>
+         Capture reported information accurately. A safety flag changes the workflow state.
+        </p>
+       </div>
+       <span class="co-step-tag">
+        ATTEMPT
+        <span th:text="${item.attemptCount + 1}">
+         1
+        </span>
+       </span>
+      </div>
+      <form class="co-form co-compact-form" data-confirm="Record this contact attempt? Review any safety flags carefully before saving." method="post" th:action="@{/staff/enterprise/patient-outreach/{id}/attempt(id=${item.id})}">
+       <input th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+       <fieldset th:disabled="${item.finalised}">
+        <div class="co-form-grid">
+         <label class="co-field">
+          <span>
+           Contact outcome
+           <b>
+            *
+           </b>
+          </span>
+          <select name="outcome" required="">
+           <option value="NOT_ATTEMPTED">
+            Not attempted
+           </option>
+           <option value="REACHED">
+            Patient reached
+           </option>
+           <option value="NO_ANSWER">
+            No answer
+           </option>
+           <option value="BUSY">
+            Busy
+           </option>
+           <option value="WRONG_NUMBER">
+            Wrong number
+           </option>
+           <option value="CALLBACK_REQUESTED">
+            Callback requested
+           </option>
+           <option value="CAREGIVER_REACHED">
+            Caregiver reached
+           </option>
+           <option value="PORTAL_RESPONSE">
+            Portal response
+           </option>
+           <option value="ESCALATED">
+            Escalated
+           </option>
+           <option value="DECLINED">
+            Contact declined
+           </option>
+          </select>
+         </label>
+         <label class="co-field">
+          <span>
+           Next contact date
+          </span>
+          <input name="nextDate" th:min="${today}" th:value="${item.nextContactDate}" type="date"/>
+         </label>
+         <label class="co-field co-span-2">
+          <span>
+           Conversation summary
+          </span>
+          <textarea maxlength="3000" name="summary" placeholder="What did the patient or caregiver report? Include objective details only." rows="3"></textarea>
+         </label>
+         <label class="co-field co-span-2">
+          <span>
+           Patient-reported symptoms
+          </span>
+          <textarea maxlength="2500" name="symptoms" placeholder="Document symptoms in the patient's words where possible." rows="2"></textarea>
+         </label>
+         <label class="co-field">
+          <span>
+           Medication concerns
+          </span>
+          <textarea maxlength="2500" name="medication" placeholder="Access, adherence or side effects reported…" rows="2"></textarea>
+         </label>
+         <label class="co-field">
+          <span>
+           Wound or device concerns
+          </span>
+          <textarea maxlength="2500" name="wound" placeholder="Reported concern, not a diagnosis…" rows="2"></textarea>
+         </label>
+         <label class="co-field">
+          <span>
+           Nutrition and mobility
+          </span>
+          <textarea maxlength="2500" name="mobility" placeholder="Intake, movement or support needs…" rows="2"></textarea>
+         </label>
+         <label class="co-field">
+          <span>
+           Social support concerns
+          </span>
+          <textarea maxlength="2500" name="social" placeholder="Caregiver, transport or home support…" rows="2"></textarea>
+         </label>
+         <label class="co-field">
+          <span>
+           Patient questions
+          </span>
+          <textarea maxlength="2500" name="questions" placeholder="Questions requiring a response…" rows="2"></textarea>
+         </label>
+         <label class="co-field">
+          <span>
+           Advice provided
+          </span>
+          <textarea maxlength="2500" name="advice" placeholder="Approved instructions or referrals discussed." rows="2"></textarea>
+         </label>
+        </div>
+        <div class="co-checklist-block">
+         <h3>
+          Verification and continuity checks
+         </h3>
+         <div class="co-check-grid">
+          <label class="co-check-card">
+           <input name="identity" type="checkbox" value="true"/>
+           <span>
+            <b>
+             Identity verified
+            </b>
+            <small>
+             Follow the approved identity verification procedure.
+            </small>
+           </span>
+          </label>
+          <label class="co-check-card">
+           <input name="caregiver" type="checkbox" value="true"/>
+           <span>
+            <b>
+             Caregiver contacted
+            </b>
+            <small>
+             Where appropriate and consented.
+            </small>
+           </span>
+          </label>
+          <label class="co-check-card">
+           <input name="appointment" type="checkbox" value="true"/>
+           <span>
+            <b>
+             Follow-up appointment confirmed
+            </b>
+            <small>
+             Appointment timing checked with the patient.
+            </small>
+           </span>
+          </label>
+          <label class="co-check-card">
+           <input name="warningSigns" type="checkbox" value="true"/>
+           <span>
+            <b>
+             Warning signs understood
+            </b>
+            <small>
+             Check understanding of discharge instructions.
+            </small>
+           </span>
+          </label>
+         </div>
+        </div>
+        <div class="co-safety-checks">
+         <h3>
+          Safety screening
+         </h3>
+         <p>
+          Select any concern reported. Red flags trigger emergency escalation and a required clinical handoff.
+         </p>
+         <div class="co-red-check-grid">
+          <label>
+           <input name="redFlag" type="checkbox" value="true"/>
+           <span>
+            Other red-flag symptom
+           </span>
+          </label>
+          <label>
+           <input name="breathing" type="checkbox" value="true"/>
+           <span>
+            Breathing difficulty
+           </span>
+          </label>
+          <label>
+           <input name="chestPain" type="checkbox" value="true"/>
+           <span>
+            Chest pain concern
+           </span>
+          </label>
+          <label>
+           <input name="neurological" type="checkbox" value="true"/>
+           <span>
+            New neurological concern
+           </span>
+          </label>
+          <label>
+           <input name="pain" type="checkbox" value="true"/>
+           <span>
+            Uncontrolled pain
+           </span>
+          </label>
+          <label>
+           <input name="medicationAccess" type="checkbox" value="true"/>
+           <span>
+            Unable to access medication
+           </span>
+          </label>
+         </div>
+         <p class="co-safety-disclaimer">
+          If the patient reports an immediate emergency, follow local emergency procedures first. Saving this form is not an emergency response.
+         </p>
+        </div>
+        <div class="co-form-footer">
+         <button class="co-button co-primary" type="submit">
+          Save contact attempt →
+         </button>
+        </div>
+       </fieldset>
+      </form>
+     </section>
+     <section class="co-panel">
+      <div class="co-panel-heading">
+       <div>
+        <h2>
+         Escalation and handoff
+        </h2>
+        <p>
+         Route unresolved concerns to clinical review and document the next action.
+        </p>
+       </div>
+      </div>
+      <form class="co-form co-compact-form" data-confirm="Escalate this record for clinical review?" method="post" th:action="@{/staff/enterprise/patient-outreach/{id}/escalate(id=${item.id})}">
+       <input th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+       <fieldset th:disabled="${item.finalised}">
+        <div class="co-form-grid">
+         <label class="co-field">
+          <span>
+           Escalation level
+           <b>
+            *
+           </b>
+          </span>
+          <select name="level">
+           <option th:each="v : ${escalations}" th:text="${v}" th:value="${v}">
+           </option>
+          </select>
+         </label>
+         <label class="co-check-card">
+          <input checked="" name="clinician" type="checkbox" value="true"/>
+          <span>
+           <b>
+            Clinician handoff
+           </b>
+           <small>
+            Route for clinical review.
+           </small>
+          </span>
+         </label>
+         <label class="co-check-card">
+          <input name="supervisor" type="checkbox" value="true"/>
+          <span>
+           <b>
+            Supervisor review
+           </b>
+           <small>
+            Request operational oversight.
+           </small>
+          </span>
+         </label>
+         <label class="co-field co-span-2">
+          <span>
+           Escalation reason
+           <b>
+            *
+           </b>
+          </span>
+          <textarea maxlength="2500" name="reason" placeholder="Concern, urgency, action taken and requested next step." required="" rows="3"></textarea>
+         </label>
+        </div>
+        <div class="co-form-footer">
+         <button class="co-button co-danger" type="submit">
+          Escalate record
+         </button>
+        </div>
+       </fieldset>
+      </form>
+      <div class="co-handoff-ack" th:if="${item.clinicianHandoffRequired or item.supervisorReviewRequired}">
+       <h3>
+        Handoff acknowledgement pending
+       </h3>
+       <p>
+        Document who accepted responsibility and the agreed next step.
+       </p>
+       <form class="co-form co-compact-form" data-confirm="Acknowledge the pending handoff?" method="post" th:action="@{/staff/enterprise/patient-outreach/{id}/acknowledge(id=${item.id})}">
+        <input th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+        <label class="co-field">
+         <span>
+          Handoff note
+          <b>
+           *
+          </b>
+         </span>
+         <textarea maxlength="2500" name="note" placeholder="Receiving clinician, accepted actions and review point…" required="" rows="2"></textarea>
+        </label>
+        <div class="co-form-footer">
+         <button class="co-button co-primary" type="submit">
+          Acknowledge handoff
+         </button>
+        </div>
+       </form>
+      </div>
+      <div class="co-handoff-ack" th:if="${(item.redFlagSymptoms or item.medicationAccessConcern) and !item.clinicianHandoffRequired and !item.supervisorReviewRequired and !item.finalised}">
+       <h3>
+        Resolve active safety flags
+       </h3>
+       <p>
+        After handoff acknowledgement, document the clinical disposition before clearing active safety flags.
+       </p>
+       <form class="co-form co-compact-form" data-confirm="Confirm the safety review resolution?" method="post" th:action="@{/staff/enterprise/patient-outreach/{id}/resolve-safety(id=${item.id})}">
+        <input th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+        <label class="co-field">
+         <span>
+          Resolution and next step
+          <b>
+           *
+          </b>
+         </span>
+         <textarea maxlength="2500" name="note" placeholder="Document the review outcome and follow-up plan." required="" rows="3"></textarea>
+        </label>
+        <div class="co-form-footer">
+         <button class="co-button co-primary" type="submit">
+          Record safety resolution
+         </button>
+        </div>
+       </form>
+      </div>
+      <div class="co-notes-block" th:if="${item.handoffNotes != null}">
+       <h3>
+        Handoff history
+       </h3>
+       <pre th:text="${item.handoffNotes}">Handoff notes</pre>
+      </div>
+      <div class="co-notes-block" th:if="${item.escalationNotes != null}">
+       <h3>
+        Escalation history
+       </h3>
+       <pre th:text="${item.escalationNotes}">Escalation notes</pre>
+      </div>
+     </section>
+    </div>
+    <aside class="co-side-column">
+     <section class="co-panel co-side-panel">
+      <div class="co-panel-heading">
+       <div>
+        <h2>
+         Update ownership
+        </h2>
+        <p>
+         Assign the next action.
+        </p>
+       </div>
+      </div>
+      <form class="co-form co-compact-form" data-confirm="Save assignment changes?" method="post" th:action="@{/staff/enterprise/patient-outreach/{id}/assign(id=${item.id})}">
+       <input th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+       <fieldset th:disabled="${item.finalised}">
+        <label class="co-field">
+         <span>
+          Assigned team
+         </span>
+         <select name="assignedTeam">
+          <option th:each="v : ${teams}" th:selected="${v == item.assignedTeam}" th:text="${v}" th:value="${v}">
+          </option>
+         </select>
+        </label>
+        <label class="co-field">
+         <span>
+          Assigned staff
+         </span>
+         <input maxlength="100" name="assignedTo" th:value="${item.assignedTo}"/>
+        </label>
+        <label class="co-field">
+         <span>
+          Priority
+         </span>
+         <select name="priority">
+          <option th:each="v : ${priorities}" th:selected="${v == item.priority}" th:text="${v}" th:value="${v}">
+          </option>
+         </select>
+        </label>
+        <button class="co-button co-secondary co-full" type="submit">
+         Save assignment
+        </button>
+       </fieldset>
+      </form>
+     </section>
+     <section class="co-panel co-side-panel">
+      <div class="co-panel-heading">
+       <div>
+        <h2>
+         Close outreach
+        </h2>
+        <p>
+         Close only when contact work is complete and no safety handoff remains.
+        </p>
+       </div>
+      </div>
+      <form class="co-form co-compact-form" data-confirm="Close this outreach record?" method="post" th:action="@{/staff/enterprise/patient-outreach/{id}/close(id=${item.id})}">
+       <input th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+       <fieldset th:disabled="${item.finalised}">
+        <label class="co-field">
+         <span>
+          Closure summary
+          <b>
+           *
+          </b>
+         </span>
+         <textarea maxlength="2500" name="notes" placeholder="Outcome, remaining plan and patient understanding." required="" rows="3"></textarea>
+        </label>
+        <button class="co-button co-primary co-full" type="submit">
+         Close outreach
+        </button>
+       </fieldset>
+      </form>
+      <div class="co-closed-state" th:if="${item.status == 'CLOSED'}">
+       <strong>
+        ✓ Closed
+       </strong>
+       <span th:text="${item.closedAt == null ? '' : #temporals.format(item.closedAt,'dd MMM yyyy, HH:mm')}">
+        Date
+       </span>
+       <p th:text="${item.closureNotes}">
+        Closure notes
+       </p>
+       <form data-confirm="Reopen this record for additional work?" method="post" th:action="@{/staff/enterprise/patient-outreach/{id}/reopen(id=${item.id})}">
+        <input th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+        <label class="co-field">
+         <span>
+          Reason to reopen
+         </span>
+         <input maxlength="1000" name="reason" required=""/>
+        </label>
+        <button class="co-button co-secondary co-full" type="submit">
+         Reopen record
+        </button>
+       </form>
+      </div>
+      <form class="co-cancel-form" data-confirm="Cancel this outreach record?" method="post" th:action="@{/staff/enterprise/patient-outreach/{id}/cancel(id=${item.id})}" th:if="${!item.finalised}">
+       <input th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+       <label class="co-field">
+        <span>
+         Cancellation reason
+        </span>
+        <input maxlength="1000" name="reason" required=""/>
+       </label>
+       <button class="co-text-danger" type="submit">
+        Cancel outreach record
+       </button>
+      </form>
+     </section>
+     <section class="co-panel co-side-panel">
+      <div class="co-panel-heading">
+       <div>
+        <h2>
+         Patient outreach history
+        </h2>
+        <p>
+         Other records linked to this patient reference.
+        </p>
+       </div>
+      </div>
+      <div class="co-history-list">
+       <article class="co-history-item" th:each="record : ${patientHistory}" th:if="${record.id != item.id}">
+        <a th:href="@{/staff/enterprise/patient-outreach/{id}(id=${record.id})}" th:text="${record.referenceCode}">
+         OUT-REF
+        </a>
+        <span th:text="${record.purpose}">
+         Purpose
+        </span>
+        <small th:text="${#temporals.format(record.createdAt,'dd MMM yyyy')}">
+         Date
+        </small>
+        <span class="co-pill" th:classappend="${' status-' + #strings.toLowerCase(record.status)}" th:text="${record.status}">
+         OPEN
+        </span>
+       </article>
+       <p class="co-muted" th:if="${#lists.size(patientHistory) &lt;= 1}">
+        No other outreach records are linked to this patient.
+       </p>
+      </div>
+     </section>
+     <div class="co-side-disclaimer">
+      <strong>
+       Clinical safety reminder
+      </strong>
+      <p>
+       This tool records workflow information. It does not provide diagnoses or replace clinician judgement or emergency protocols.
+      </p>
+     </div>
+    </aside>
+   </section>
+  </main>
+  <footer class="co-footer">
+   <span>
+    CareFlow · Patient continuity operations
+   </span>
+   <span>
+    Updates are subject to role permissions and hospital policy.
+   </span>
+  </footer>
+ </body>
+</html>
+

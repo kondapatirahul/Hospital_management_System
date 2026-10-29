@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <title>
+   Handover Detail | CareFlow
+  </title>
+  <link rel="stylesheet" th:href="@{/css/careflow-safety.css}"/>
+ </head>
+ <body class="cf-safety-page">
+  <header class="cf-topbar">
+   <a class="cf-brand" th:href="@{/}">
+    <span class="cf-brand-mark">
+     C
+    </span>
+    <span>
+     CareFlow
+     <small>
+      CLINICAL OPERATIONS
+     </small>
+    </span>
+   </a>
+   <nav>
+    <a th:href="@{/staff/handovers}">
+     Handover register
+    </a>
+    <a th:href="@{/safety/incidents}">
+     Safety incidents
+    </a>
+   </nav>
+   <div class="cf-user-pill">
+    <span class="cf-online-dot">
+    </span>
+    Secure workspace
+   </div>
+  </header>
+  <main class="cf-shell">
+   <a class="cf-back-link" th:href="@{/staff/handovers}">
+    ← Back to handovers
+   </a>
+   <div class="cf-alert cf-alert-success" role="status" th:if="${successMessage}" th:text="${successMessage}">
+   </div>
+   <div class="cf-alert cf-alert-error" role="alert" th:if="${errorMessage}" th:text="${errorMessage}">
+   </div>
+   <section class="cf-detail-hero">
+    <div>
+     <div class="cf-eyebrow" th:text="${handover.referenceCode}">
+      HAND-REF
+     </div>
+     <h1 th:text="${handover.department} + ' handover'">
+      Department handover
+     </h1>
+     <p>
+      <span th:text="${handover.shiftName}">
+       Night
+      </span>
+      <span class="cf-dot-separator">
+       ·
+      </span>
+      <span th:text="${#temporals.format(handover.shiftDate,'dd MMM yyyy, HH:mm')}">
+       Date
+      </span>
+     </p>
+    </div>
+    <div class="cf-detail-badges">
+     <span class="cf-status" th:classappend="${' status-' + #strings.toLowerCase(handover.status)}" th:text="${handover.status}">
+      DRAFT
+     </span>
+     <span class="cf-status severity-high" th:if="${handover.urgent}">
+      URGENT
+     </span>
+    </div>
+   </section>
+   <div class="cf-detail-grid">
+    <div class="cf-detail-main">
+     <section class="cf-panel cf-detail-panel">
+      <div class="cf-panel-heading">
+       <div>
+        <h2>
+         Shift summary
+        </h2>
+        <p>
+         Outgoing and incoming staff ownership.
+        </p>
+       </div>
+      </div>
+      <div class="cf-transfer-strip">
+       <div>
+        <small>
+         OUTGOING STAFF
+        </small>
+        <strong th:text="${handover.outgoingStaff}">
+         Outgoing
+        </strong>
+       </div>
+       <span>
+        →
+       </span>
+       <div>
+        <small>
+         INCOMING STAFF
+        </small>
+        <strong th:text="${handover.incomingStaff}">
+         Incoming
+        </strong>
+       </div>
+      </div>
+      <div class="cf-detail-content">
+       <div class="cf-detail-label">
+        Summary
+       </div>
+       <p class="cf-detail-paragraph" th:text="${handover.summary}">
+        Summary
+       </p>
+       <div class="cf-detail-label">
+        Outstanding tasks
+       </div>
+       <p class="cf-detail-paragraph" th:text="${handover.outstandingTasks == null ? 'No outstanding tasks recorded.' : handover.outstandingTasks}">
+        Tasks
+       </p>
+       <div class="cf-detail-label">
+        Patient watchlist
+       </div>
+       <p class="cf-detail-paragraph" th:text="${handover.patientWatchlist == null ? 'No watchlist details recorded.' : handover.patientWatchlist}">
+        Watchlist
+       </p>
+       <div class="cf-detail-label">
+        Equipment / supply issues
+       </div>
+       <p class="cf-detail-paragraph" th:text="${handover.equipmentOrSupplyIssues == null ? 'No issues recorded.' : handover.equipmentOrSupplyIssues}">
+        Issues
+       </p>
+       <div class="cf-detail-label">
+        Escalations and pending calls
+       </div>
+       <p class="cf-detail-paragraph" th:text="${handover.escalationNotes == null ? 'No escalation notes recorded.' : handover.escalationNotes}">
+        Escalations
+       </p>
+      </div>
+     </section>
+     <section class="cf-panel cf-detail-panel">
+      <div class="cf-panel-heading">
+       <div>
+        <h2>
+         Shift safety checklist
+        </h2>
+        <p>
+         Recorded checks at the time this handover was prepared.
+        </p>
+       </div>
+      </div>
+      <div class="cf-checklist-results">
+       <div class="cf-check-result" th:classappend="${handover.medicationCountVerified ? ' checked' : ''}">
+        <span th:text="${handover.medicationCountVerified ? '✓' : '—'}">
+         —
+        </span>
+        <div>
+         <strong>
+          Medication count reviewed
+         </strong>
+         <small th:text="${handover.medicationCountVerified ? 'Marked complete' : 'Not marked complete'}">
+          Pending
+         </small>
+        </div>
+       </div>
+       <div class="cf-check-result" th:classappend="${handover.controlledItemsVerified ? ' checked' : ''}">
+        <span th:text="${handover.controlledItemsVerified ? '✓' : '—'}">
+         —
+        </span>
+        <div>
+         <strong>
+          Controlled items verified
+         </strong>
+         <small th:text="${handover.controlledItemsVerified ? 'Marked complete' : 'Not marked complete'}">
+          Pending
+         </small>
+        </div>
+       </div>
+       <div class="cf-check-result" th:classappend="${handover.patientBoardReviewed ? ' checked' : ''}">
+        <span th:text="${handover.patientBoardReviewed ? '✓' : '—'}">
+         —
+        </span>
+        <div>
+         <strong>
+          Patient board reviewed
+         </strong>
+         <small th:text="${handover.patientBoardReviewed ? 'Marked complete' : 'Not marked complete'}">
+          Pending
+         </small>
+        </div>
+       </div>
+       <div class="cf-check-result" th:classappend="${handover.safetyChecksComplete ? ' checked' : ''}">
+        <span th:text="${handover.safetyChecksComplete ? '✓' : '—'}">
+         —
+        </span>
+        <div>
+         <strong>
+          Safety checks complete
+         </strong>
+         <small th:text="${handover.safetyChecksComplete ? 'Marked complete' : 'Not marked complete'}">
+          Pending
+         </small>
+        </div>
+       </div>
+      </div>
+     </section>
+     <section class="cf-panel cf-detail-panel" th:if="${handover.receiverComment != null}">
+      <div class="cf-panel-heading">
+       <div>
+        <h2>
+         Receiver feedback
+        </h2>
+        <p th:text="${handover.acknowledgedBy}">
+         Receiver
+        </p>
+       </div>
+      </div>
+      <p class="cf-detail-paragraph" th:text="${handover.receiverComment}">
+       Comment
+      </p>
+     </section>
+    </div>
+    <aside class="cf-detail-aside">
+     <section class="cf-panel cf-action-panel">
+      <h2>
+       Handover actions
+      </h2>
+      <p class="cf-panel-intro">
+       Submit the record when it is ready for the incoming team.
+      </p>
+      <form method="post" th:action="@{/staff/handovers/{id}/submit(id=${handover.id})}" th:if="${handover.status == 'DRAFT' or handover.status == 'RETURNED'}">
+       <button class="cf-btn cf-btn-primary cf-btn-block" data-confirm="Submit this handover to the incoming team?" type="submit">
+        Submit handover
+       </button>
+      </form>
+      <form class="cf-action-form" method="post" th:action="@{/staff/handovers/{id}/acknowledge(id=${handover.id})}" th:if="${handover.status == 'SUBMITTED'}">
+       <label class="cf-field">
+        <span>
+         Receiver comment (optional)
+        </span>
+        <textarea maxlength="1000" name="comment" placeholder="Receipt note or next-step context"></textarea>
+       </label>
+       <button class="cf-btn cf-btn-success cf-btn-block" data-confirm="Confirm you received this handover?" type="submit">
+        Acknowledge receipt
+       </button>
+      </form>
+      <form class="cf-action-form" method="post" th:action="@{/staff/handovers/{id}/return(id=${handover.id})}" th:if="${handover.status == 'SUBMITTED'}">
+       <label class="cf-field">
+        <span>
+         Reason to return
+        </span>
+        <textarea maxlength="1000" name="reason" placeholder="Explain what needs clarification" required=""></textarea>
+       </label>
+       <button class="cf-btn cf-btn-quiet cf-btn-block" type="submit">
+        Return for correction
+       </button>
+      </form>
+      <div class="cf-complete-banner" th:if="${handover.status == 'ACKNOWLEDGED'}">
+       ✓ Receipt acknowledged
+      </div>
+     </section>
+     <section class="cf-panel cf-timeline-panel">
+      <h2>
+       Handover timeline
+      </h2>
+      <ol class="cf-timeline">
+       <li>
+        <span class="cf-timeline-dot">
+        </span>
+        <div>
+         <strong>
+          Draft created
+         </strong>
+         <p th:text="${#temporals.format(handover.createdAt,'dd MMM yyyy, HH:mm')}">
+          time
+         </p>
+        </div>
+       </li>
+       <li th:if="${handover.submittedAt != null}">
+        <span class="cf-timeline-dot">
+        </span>
+        <div>
+         <strong>
+          Submitted
+         </strong>
+         <p th:text="${#temporals.format(handover.submittedAt,'dd MMM yyyy, HH:mm')}">
+          time
+         </p>
+        </div>
+       </li>
+       <li th:if="${handover.acknowledgedAt != null}">
+        <span class="cf-timeline-dot">
+        </span>
+        <div>
+         <strong th:text="${handover.status == 'RETURNED' ? 'Returned for correction' : 'Acknowledged'}">
+          Acknowledged
+         </strong>
+         <p th:text="${#temporals.format(handover.acknowledgedAt,'dd MMM yyyy, HH:mm')}">
+          time
+         </p>
+         <small th:text="${handover.acknowledgedBy}">
+          receiver
+         </small>
+        </div>
+       </li>
+      </ol>
+     </section>
+    </aside>
+   </div>
+  </main>
+  <script th:src="@{/js/careflow-safety.js}">
+  </script>
+ </body>
+</html>
+

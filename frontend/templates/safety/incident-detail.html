@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <title>
+   Incident Review | CareFlow
+  </title>
+  <link rel="stylesheet" th:href="@{/css/careflow-safety.css}"/>
+ </head>
+ <body class="cf-safety-page">
+  <header class="cf-topbar">
+   <a class="cf-brand" th:href="@{/}">
+    <span class="cf-brand-mark">
+     C
+    </span>
+    <span>
+     CareFlow
+     <small>
+      QUALITY &amp; SAFETY
+     </small>
+    </span>
+   </a>
+   <nav>
+    <a th:href="@{/safety/incidents}">
+     Incident register
+    </a>
+    <a th:href="@{/staff/handovers}">
+     Shift handovers
+    </a>
+   </nav>
+   <div class="cf-user-pill">
+    <span class="cf-online-dot">
+    </span>
+    Secure workspace
+   </div>
+  </header>
+  <main class="cf-shell">
+   <a class="cf-back-link" th:href="@{/safety/incidents}">
+    ← Back to incident register
+   </a>
+   <div class="cf-alert cf-alert-success" role="status" th:if="${successMessage}" th:text="${successMessage}">
+   </div>
+   <div class="cf-alert cf-alert-error" role="alert" th:if="${errorMessage}" th:text="${errorMessage}">
+   </div>
+   <section class="cf-detail-hero">
+    <div>
+     <div class="cf-eyebrow" th:text="${incident.referenceCode}">
+      SAFE-REF
+     </div>
+     <h1 th:text="${incident.title}">
+      Incident title
+     </h1>
+     <p>
+      <span th:text="${incident.department}">
+       Department
+      </span>
+      <span class="cf-dot-separator">
+       ·
+      </span>
+      <span th:text="${#temporals.format(incident.occurredAt,'dd MMM yyyy, HH:mm')}">
+       Date
+      </span>
+     </p>
+    </div>
+    <div class="cf-detail-badges">
+     <span class="cf-status" th:classappend="${' severity-' + #strings.toLowerCase(incident.severity)}" th:text="${incident.severity}">
+      HIGH
+     </span>
+     <span class="cf-status" th:classappend="${' status-' + #strings.toLowerCase(incident.status)}" th:text="${#strings.replace(incident.status,'_',' ')}">
+      REPORTED
+     </span>
+    </div>
+   </section>
+   <div class="cf-detail-grid">
+    <div class="cf-detail-main">
+     <section class="cf-panel cf-detail-panel">
+      <div class="cf-panel-heading">
+       <div>
+        <h2>
+         Event record
+        </h2>
+        <p>
+         Submitted by
+         <strong th:text="${incident.reportedBy}">
+          reporter
+         </strong>
+         on
+         <span th:text="${#temporals.format(incident.reportedAt,'dd MMM yyyy, HH:mm')}">
+          date
+         </span>
+        </p>
+       </div>
+       <span class="cf-private-note" th:if="${incident.confidential}">
+        ▣ Confidential
+       </span>
+      </div>
+      <div class="cf-detail-content">
+       <div class="cf-detail-label">
+        Category
+       </div>
+       <div class="cf-detail-value" th:text="${#strings.replace(incident.category,'_',' ')}">
+        Category
+       </div>
+       <div class="cf-detail-label">
+        Location
+       </div>
+       <div class="cf-detail-value" th:text="${incident.location == null ? 'Not recorded' : incident.location}">
+        Location
+       </div>
+       <div class="cf-detail-label">
+        Patient reference
+       </div>
+       <div class="cf-detail-value" th:text="${incident.patientReference == null ? 'Not recorded' : incident.patientReference}">
+        Reference
+       </div>
+       <div class="cf-detail-label">
+        Description
+       </div>
+       <p class="cf-detail-paragraph" th:text="${incident.description}">
+        Description
+       </p>
+       <div class="cf-detail-label">
+        Immediate action taken
+       </div>
+       <p class="cf-detail-paragraph" th:text="${incident.immediateAction == null ? 'No immediate action was recorded.' : incident.immediateAction}">
+        Immediate action
+       </p>
+      </div>
+     </section>
+     <section class="cf-panel cf-detail-panel">
+      <div class="cf-panel-heading">
+       <div>
+        <h2>
+         Investigation and prevention
+        </h2>
+        <p>
+         Capture the learning and the changes needed to reduce recurrence.
+        </p>
+       </div>
+      </div>
+      <form class="cf-review-form" method="post" th:action="@{/safety/incidents/{id}/investigation(id=${incident.id})}">
+       <label class="cf-field">
+        <span>
+         Root cause / contributing factors
+        </span>
+        <textarea maxlength="3000" name="rootCause" placeholder="What factors contributed to this event?" rows="3" th:text="${incident.rootCause}"></textarea>
+       </label>
+       <label class="cf-field">
+        <span>
+         Corrective action
+        </span>
+        <textarea maxlength="3000" name="correctiveAction" placeholder="What action will address this event?" rows="3" th:text="${incident.correctiveAction}"></textarea>
+       </label>
+       <label class="cf-field">
+        <span>
+         Prevention plan
+        </span>
+        <textarea maxlength="3000" name="preventionPlan" placeholder="What will reduce the chance of recurrence?" rows="3" th:text="${incident.preventionPlan}"></textarea>
+       </label>
+       <label class="cf-field">
+        <span>
+         Review notes
+        </span>
+        <textarea maxlength="2000" name="reviewNotes" placeholder="Additional review context" rows="2" th:text="${incident.reviewNotes}"></textarea>
+       </label>
+       <button class="cf-btn cf-btn-dark" type="submit">
+        Save investigation notes
+       </button>
+      </form>
+     </section>
+    </div>
+    <aside class="cf-detail-aside">
+     <section class="cf-panel cf-action-panel">
+      <h2>
+       Workflow actions
+      </h2>
+      <p class="cf-panel-intro">
+       Actions are available according to your assigned role.
+      </p>
+      <form method="post" th:action="@{/safety/incidents/{id}/acknowledge(id=${incident.id})}" th:if="${incident.status == 'REPORTED'}">
+       <button class="cf-btn cf-btn-primary cf-btn-block" type="submit">
+        Acknowledge incident
+       </button>
+      </form>
+      <form class="cf-action-form" method="post" th:action="@{/safety/incidents/{id}/investigate(id=${incident.id})}" th:if="${incident.status == 'REPORTED' or incident.status == 'ACKNOWLEDGED'}">
+       <label class="cf-field">
+        <span>
+         Assign to
+        </span>
+        <input name="assignedTo" placeholder="Reviewer or owner" th:value="${incident.assignedTo}"/>
+       </label>
+       <button class="cf-btn cf-btn-dark cf-btn-block" type="submit">
+        Start investigation
+       </button>
+      </form>
+      <form class="cf-action-form" method="post" th:action="@{/safety/incidents/{id}/resolve(id=${incident.id})}" th:if="${incident.status == 'INVESTIGATING' or incident.status == 'ACTION_REQUIRED' or incident.status == 'ACKNOWLEDGED'}">
+       <label class="cf-field">
+        <span>
+         Resolution summary
+         <b>
+          *
+         </b>
+        </span>
+        <textarea maxlength="2000" name="summary" placeholder="Summarize actions completed and outcome" required=""></textarea>
+       </label>
+       <button class="cf-btn cf-btn-success cf-btn-block" data-confirm="Mark this incident resolved?" type="submit">
+        Mark resolved
+       </button>
+      </form>
+      <form class="cf-action-form" method="post" th:action="@{/safety/incidents/{id}/close(id=${incident.id})}" th:if="${incident.status == 'RESOLVED'}">
+       <label class="cf-field">
+        <span>
+         Closure note
+        </span>
+        <textarea maxlength="2000" name="note" placeholder="Optional final note"></textarea>
+       </label>
+       <button class="cf-btn cf-btn-dark cf-btn-block" data-confirm="Close this incident?" type="submit">
+        Close incident
+       </button>
+      </form>
+      <div class="cf-complete-banner" th:if="${incident.status == 'CLOSED'}">
+       ✓ This incident is closed.
+      </div>
+     </section>
+     <section class="cf-panel cf-timeline-panel">
+      <h2>
+       Record timeline
+      </h2>
+      <ol class="cf-timeline">
+       <li>
+        <span class="cf-timeline-dot">
+        </span>
+        <div>
+         <strong>
+          Reported
+         </strong>
+         <p th:text="${#temporals.format(incident.reportedAt,'dd MMM yyyy, HH:mm')}">
+          time
+         </p>
+         <small th:text="${incident.reportedBy}">
+          reporter
+         </small>
+        </div>
+       </li>
+       <li th:if="${incident.acknowledgedAt != null}">
+        <span class="cf-timeline-dot">
+        </span>
+        <div>
+         <strong>
+          Acknowledged
+         </strong>
+         <p th:text="${#temporals.format(incident.acknowledgedAt,'dd MMM yyyy, HH:mm')}">
+          time
+         </p>
+         <small th:text="${incident.acknowledgedBy}">
+          reviewer
+         </small>
+        </div>
+       </li>
+       <li th:if="${incident.resolvedAt != null}">
+        <span class="cf-timeline-dot">
+        </span>
+        <div>
+         <strong>
+          Resolved
+         </strong>
+         <p th:text="${#temporals.format(incident.resolvedAt,'dd MMM yyyy, HH:mm')}">
+          time
+         </p>
+         <small th:text="${incident.resolvedBy}">
+          reviewer
+         </small>
+        </div>
+       </li>
+      </ol>
+     </section>
+     <section class="cf-panel cf-owner-panel">
+      <span class="cf-owner-icon">
+       ◎
+      </span>
+      <div>
+       <strong>
+        Follow-up owner
+       </strong>
+       <p th:text="${incident.assignedTo == null ? 'No owner assigned' : incident.assignedTo}">
+        Owner
+       </p>
+      </div>
+     </section>
+    </aside>
+   </div>
+  </main>
+  <script th:src="@{/js/careflow-safety.js}">
+  </script>
+ </body>
+</html>
+

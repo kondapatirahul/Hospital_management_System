@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clinical Quality Register | CareFlow</title>
+<link rel="stylesheet" th:href="@{/css/quality-governance.css}">
+</head>
+<body>
+<main class="qg-shell">
+<header class="qg-header">
+  <div><p class="eyebrow">CARE DELIVERY · QUALITY & SAFETY</p><h1>Clinical quality register</h1>
+  <p class="muted">Investigate events, assign accountable actions and verify improvements.</p></div>
+  <div class="header-actions"><a class="button secondary" th:href="@{/quality/reviews/export.csv}">Export register</a>
+  <a class="button" th:href="@{/quality/reviews/new}">+ Report a case</a></div>
+</header>
+<div th:if="${successMessage}" class="notice success" th:text="${successMessage}"></div>
+<div th:if="${errorMessage}" class="notice error" th:text="${errorMessage}"></div>
+<section class="metric-grid">
+  <article class="metric" th:each="metric : ${metrics}"><span th:text="${metric.label}">Metric</span>
+  <strong th:text="${metric.value}">0</strong><small th:text="${metric.detail}">Details</small></article>
+</section>
+<section class="panel">
+  <form class="filters" method="get" th:action="@{/quality/reviews}">
+    <label>Search<input type="search" name="q" th:value="${filterQuery}" placeholder="Case reference, title or patient ref"></label>
+    <label>Status<select name="status"><option value="">All statuses</option><option th:each="s:${statuses}" th:value="${s}" th:text="${s}" th:selected="${s==filterStatus}"></option></select></label>
+    <label>Severity<select name="severity"><option value="">All severities</option><option th:each="s:${severities}" th:value="${s}" th:text="${s}" th:selected="${s==filterSeverity}"></option></select></label>
+    <label>Category<select name="category"><option value="">All categories</option><option th:each="c:${categories}" th:value="${c}" th:text="${c}" th:selected="${c==filterCategory}"></option></select></label>
+    <label>Event from<input type="date" name="from" th:value="${filterFrom}"></label>
+    <label>Event to<input type="date" name="to" th:value="${filterTo}"></label>
+    <button class="button" type="submit">Apply filters</button><a class="button secondary" th:href="@{/quality/reviews}">Clear</a>
+  </form>
+</section>
+<section class="panel">
+  <div class="panel-heading"><div><h2>Cases</h2><p class="muted" th:text="${results.totalElements}+' records match your filters'">Records</p></div>
+  <a th:href="@{/quality/reviews/export-overdue.csv}">Export overdue only</a></div>
+  <div class="table-wrap"><table><thead><tr><th>Case</th><th>Category</th><th>Severity</th><th>Status</th><th>Owner</th><th>Due date</th><th></th></tr></thead>
+  <tbody><tr th:each="item:${items}">
+    <td><a class="case-link" th:href="@{/quality/reviews/{id}(id=${item.id})}" th:text="${item.caseReference}">QCR</a><small class="block" th:text="${item.title}">Title</small></td>
+    <td th:text="${item.category}">Category</td>
+    <td><span class="pill" th:classappend="'severity-' + #strings.toLowerCase(item.severity)" th:text="${item.severity}">Moderate</span></td>
+    <td><span class="pill" th:text="${item.status}">Status</span></td>
+    <td th:text="${item.ownerUsername==null?'Unassigned':item.ownerUsername}">Owner</td>
+    <td><span th:text="${item.dueDate==null?'—':item.dueDate}">Date</span><small class="block overdue" th:if="${item.dueDate!=null and item.dueDate.isBefore(today) and item.status!='CLOSED' and item.status!='CANCELLED'}">Overdue</small></td>
+    <td><a class="button small secondary" th:href="@{/quality/reviews/{id}(id=${item.id})}">Open</a></td>
+  </tr><tr th:if="${#lists.isEmpty(items)}"><td colspan="7" class="empty">No cases match these filters. Try clearing the filters or report a new case.</td></tr></tbody></table></div>
+  <nav class="pagination" th:if="${results.totalPages>1}">
+    <a th:if="${!results.first}" th:href="@{/quality/reviews(page=${results.number-1},status=${filterStatus},severity=${filterSeverity},category=${filterCategory},q=${filterQuery})}">← Previous</a>
+    <span th:text="'Page '+${results.number+1}+' of '+${results.totalPages}">Page</span>
+    <a th:if="${!results.last}" th:href="@{/quality/reviews(page=${results.number+1},status=${filterStatus},severity=${filterSeverity},category=${filterCategory},q=${filterQuery})}">Next →</a>
+  </nav>
+</section>
+<section class="panel"><h2>Distribution snapshot</h2><div class="distribution-grid">
+<div><h3>By status</h3><p th:each="entry:${summary.byStatus}"><span th:text="${entry.key}">State</span><strong th:text="${entry.value}">0</strong></p></div>
+<div><h3>By severity</h3><p th:each="entry:${summary.bySeverity}"><span th:text="${entry.key}">Severity</span><strong th:text="${entry.value}">0</strong></p></div>
+<div><h3>By category</h3><p th:each="entry:${summary.byCategory}"><span th:text="${entry.key}">Category</span><strong th:text="${entry.value}">0</strong></p></div>
+</div><small class="muted">Distribution uses the 200 most recently updated cases. Use the filtered register for case-level review.</small></section>
+<footer>CareFlow · Quality data should be handled according to hospital privacy and incident-reporting policies.</footer>
+</main><script th:src="@{/js/quality-governance.js}"></script></body></html>
