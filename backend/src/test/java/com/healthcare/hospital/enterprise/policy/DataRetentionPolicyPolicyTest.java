@@ -53,7 +53,7 @@ class DataRetentionPolicyPolicyTest {
     @Test void searchesAndDeduplicatesCaseInsensitively() {
         assertTrue(DataRetentionPolicyPolicy.matchesSearch(List.of("Patient Record", "Ward"), "patient"));
         assertFalse(DataRetentionPolicyPolicy.matchesSearch(List.of("Ward"), "patient"));
-        assertEquals(List.of("Alpha", "beta"), DataRetentionPolicyPolicy.distinctSorted(List.of("beta", "Alpha", "alpha", null)));
+        assertEquals(List.of("Alpha", "beta"), DataRetentionPolicyPolicy.distinctSorted(java.util.Arrays.asList("beta", "Alpha", "alpha", null)));
         assertTrue(DataRetentionPolicyPolicy.isReferenceDuplicate(List.of("ABC-1"), "abc-1"));
     }
     @Test void createsUsefulSummariesAndAuditMetadata() {

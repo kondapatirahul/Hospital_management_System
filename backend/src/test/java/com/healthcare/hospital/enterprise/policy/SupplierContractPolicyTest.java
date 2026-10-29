@@ -53,7 +53,7 @@ class SupplierContractPolicyTest {
     @Test void searchesAndDeduplicatesCaseInsensitively() {
         assertTrue(SupplierContractPolicy.matchesSearch(List.of("Patient Record", "Ward"), "patient"));
         assertFalse(SupplierContractPolicy.matchesSearch(List.of("Ward"), "patient"));
-        assertEquals(List.of("Alpha", "beta"), SupplierContractPolicy.distinctSorted(List.of("beta", "Alpha", "alpha", null)));
+        assertEquals(List.of("Alpha", "beta"), SupplierContractPolicy.distinctSorted(java.util.Arrays.asList("beta", "Alpha", "alpha", null)));
         assertTrue(SupplierContractPolicy.isReferenceDuplicate(List.of("ABC-1"), "abc-1"));
     }
     @Test void createsUsefulSummariesAndAuditMetadata() {

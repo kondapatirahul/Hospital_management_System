@@ -53,7 +53,7 @@ class PharmacyStocktakePolicyTest {
     @Test void searchesAndDeduplicatesCaseInsensitively() {
         assertTrue(PharmacyStocktakePolicy.matchesSearch(List.of("Patient Record", "Ward"), "patient"));
         assertFalse(PharmacyStocktakePolicy.matchesSearch(List.of("Ward"), "patient"));
-        assertEquals(List.of("Alpha", "beta"), PharmacyStocktakePolicy.distinctSorted(List.of("beta", "Alpha", "alpha", null)));
+        assertEquals(List.of("Alpha", "beta"), PharmacyStocktakePolicy.distinctSorted(java.util.Arrays.asList("beta", "Alpha", "alpha", null)));
         assertTrue(PharmacyStocktakePolicy.isReferenceDuplicate(List.of("ABC-1"), "abc-1"));
     }
     @Test void createsUsefulSummariesAndAuditMetadata() {

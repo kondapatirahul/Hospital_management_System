@@ -53,7 +53,7 @@ class StaffCredentialPolicyTest {
     @Test void searchesAndDeduplicatesCaseInsensitively() {
         assertTrue(StaffCredentialPolicy.matchesSearch(List.of("Patient Record", "Ward"), "patient"));
         assertFalse(StaffCredentialPolicy.matchesSearch(List.of("Ward"), "patient"));
-        assertEquals(List.of("Alpha", "beta"), StaffCredentialPolicy.distinctSorted(List.of("beta", "Alpha", "alpha", null)));
+        assertEquals(List.of("Alpha", "beta"), StaffCredentialPolicy.distinctSorted(java.util.Arrays.asList("beta", "Alpha", "alpha", null)));
         assertTrue(StaffCredentialPolicy.isReferenceDuplicate(List.of("ABC-1"), "abc-1"));
     }
     @Test void createsUsefulSummariesAndAuditMetadata() {

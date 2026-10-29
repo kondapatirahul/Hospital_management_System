@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Theatres & Resource Management')}"></head>
+<body>
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('ot-theatres')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Theatres & Resource Management', 'Maintain operation theatres, equipment readiness, sterilization states, and maintenance downtime.')}"></header>
+        <main class="page-content">
+            <div class="dashboard-legacy">
+
+                <!-- Alert Messages -->
+                <div th:if="${successMessage}" class="alert alert-success" role="status" th:text="${successMessage}"></div>
+                <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+
+                <!-- Register New Theatre Form (Admin Only) -->
+                <section sec:authorize="hasRole('ADMIN')" class="card" style="margin-bottom:24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                        <h2>Register Operation Theatre</h2>
+                        <span style="font-size:12px; color:var(--text-muted);">Define room capacity and installed medical equipment</span>
+                    </div>
+
+                    <form th:action="@{/ot/theatres}" th:object="${theatreDto}" method="post" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:14px; align-items:end;">
+                        <div>
+                            <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Theatre Code *</label>
+                            <input type="text" th:field="*{theatreCode}" required maxlength="30" placeholder="e.g. OT-05" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Theatre Name *</label>
+                            <input type="text" th:field="*{name}" required maxlength="120" placeholder="e.g. Ophthalmic & Microsurgery OT" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Location *</label>
+                            <input type="text" th:field="*{location}" required maxlength="150" placeholder="e.g. Wing D, 4th Floor" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Specialty Type *</label>
+                            <select th:field="*{theatreType}" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                                <option value="GENERAL">GENERAL</option>
+                                <option value="CARDIAC">CARDIAC</option>
+                                <option value="ORTHOPEDIC">ORTHOPEDIC</option>
+                                <option value="NEURO">NEURO</option>
+                                <option value="OPHTHALMIC">OPHTHALMIC</option>
+                                <option value="EMERGENCY">EMERGENCY</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Capacity (Tables) *</label>
+                            <input type="number" th:field="*{capacity}" min="1" max="5" value="1" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                        </div>
+                        <div style="grid-column:1 / -1;">
+                            <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Key Equipment Inventory & Setup</label>
+                            <input type="text" th:field="*{equipmentDetails}" maxlength="1500" placeholder="e.g. Operating Microscope, Phacoemulsification System, Vitrectomy Unit, Diathermy" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                        </div>
+                        <div>
+                            <button type="submit" class="btn btn-primary" style="padding:9px 18px;">Register Theatre Room</button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Theatres Directory and Status Management -->
+                <section class="card" style="margin-bottom:24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                        <div>
+                            <h2>Operation Theatres Directory</h2>
+                            <p style="font-size:13px; color:var(--text-muted);">Real-time status, room readiness, and immediate state transitions.</p>
+                        </div>
+                        <form method="get" th:action="@{/ot/theatres}" style="display:flex; gap:8px;">
+                            <select name="status" onchange="this.form.submit()" style="padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                                <option value="">All Statuses</option>
+                                <option th:each="st : ${statuses}" th:value="${st}" th:text="${st}" th:selected="${st == statusFilter}"></option>
+                            </select>
+                        </form>
+                    </div>
+
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:collapse;" class="table">
+                            <thead>
+                                <tr style="border-bottom:2px solid var(--border); text-align:left;">
+                                    <th style="padding:10px;">Code</th>
+                                    <th style="padding:10px;">Name & Location</th>
+                                    <th style="padding:10px;">Type</th>
+                                    <th style="padding:10px;">Capacity</th>
+                                    <th style="padding:10px;">Status</th>
+                                    <th style="padding:10px;">Installed Equipment</th>
+                                    <th style="padding:10px; text-align:right;">Operational Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="th : ${theatres}" style="border-bottom:1px solid var(--border);">
+                                    <td style="padding:12px 10px;">
+                                        <strong style="color:var(--primary-navy);" th:text="${th.theatreCode}">OT-01</strong>
+                                    </td>
+                                    <td style="padding:12px 10px;">
+                                        <div style="font-weight:600;" th:text="${th.name}">Main Suite</div>
+                                        <div style="font-size:12px; color:var(--text-muted);" th:text="${th.location}">Location</div>
+                                    </td>
+                                    <td style="padding:12px 10px;">
+                                        <span class="badge" style="background:#f0fdfa; color:#0d9488; font-weight:600;" th:text="${th.theatreType}">GENERAL</span>
+                                    </td>
+                                    <td style="padding:12px 10px;">
+                                        <span th:text="${th.capacity + ' Table(s)'}">1 Table</span>
+                                    </td>
+                                    <td style="padding:12px 10px;">
+                                        <span th:if="${th.status.name() == 'AVAILABLE'}" class="badge" style="background:#dcfce7; color:#15803d;">AVAILABLE</span>
+                                        <span th:if="${th.status.name() == 'RESERVED'}" class="badge" style="background:#e0f2fe; color:#0369a1;">RESERVED</span>
+                                        <span th:if="${th.status.name() == 'IN_USE'}" class="badge" style="background:#fee2e2; color:#b91c1c;">IN USE</span>
+                                        <span th:if="${th.status.name() == 'CLEANING'}" class="badge" style="background:#fef3c7; color:#b45309;">CLEANING / STERILIZING</span>
+                                        <span th:if="${th.status.name() == 'MAINTENANCE'}" class="badge" style="background:#f1f5f9; color:#475569;">MAINTENANCE</span>
+                                    </td>
+                                    <td style="padding:12px 10px; font-size:12px; max-width:240px; color:var(--text-secondary);" th:text="${th.equipmentDetails ?: 'Standard surgical setup'}">
+                                        Equipment details
+                                    </td>
+                                    <td style="padding:12px 10px; text-align:right;">
+                                        <div style="display:inline-flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
+                                            <!-- Status Changer -->
+                                            <form th:action="@{/ot/theatres/{id}/status(id=${th.id})}" method="post" style="display:inline-flex; gap:4px;">
+                                                <select name="status" style="padding:4px 6px; font-size:12px; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                                                    <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}" th:selected="${s == th.status}"></option>
+                                                </select>
+                                                <button type="submit" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px;">Update</button>
+                                            </form>
+
+                                            <!-- Maintenance Log Button (Admin) -->
+                                            <button sec:authorize="hasRole('ADMIN')" type="button" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px;"
+                                                    th:onclick="'document.getElementById(\'maintModal-' + ${th.id} + '\').style.display=\'block\''">
+                                                Log Downtime
+                                            </button>
+                                        </div>
+
+                                        <!-- Maintenance Downtime Modal -->
+                                        <div th:id="'maintModal-' + ${th.id}" style="display:none; position:fixed; z-index:100; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+                                            <div style="background:white; max-width:480px; margin:80px auto; padding:24px; border-radius:var(--radius-md); text-align:left;">
+                                                <h3 th:text="${'Record Maintenance: ' + th.theatreCode + ' (' + th.name + ')'}">Record Maintenance</h3>
+                                                <form th:action="@{/ot/theatres/{id}/maintenance(id=${th.id})}" method="post" style="margin-top:14px; display:grid; gap:12px;">
+                                                    <div>
+                                                        <label style="font-size:12px; font-weight:600;">Maintenance Reason *</label>
+                                                        <select name="maintenanceType" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                                                            <option value="ROUTINE_SERVICE">Routine Bi-Weekly Servicing</option>
+                                                            <option value="EQUIPMENT_REPAIR">Equipment Malfunction / Repair</option>
+                                                            <option value="DEEP_CLEANING">Deep Sterilization & Microbiological Fogging</option>
+                                                            <option value="CALIBRATION">Anesthesia & Gas Line Calibration</option>
+                                                            <option value="EMERGENCY_DOWNTIME">Emergency Unplanned Downtime</option>
+                                                        </select>
+                                                    </div>
+                                                    <div>
+                                                        <label style="font-size:12px; font-weight:600;">Details & Work Order *</label>
+                                                        <textarea name="details" required rows="3" placeholder="Describe the maintenance performed, biomedical engineer details, or component replacement..." style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;"></textarea>
+                                                    </div>
+                                                    <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+                                                        <button type="button" class="btn btn-outline btn-sm" th:onclick="'document.getElementById(\'maintModal-' + ${th.id} + '\').style.display=\'none\''">Cancel</button>
+                                                        <button type="submit" class="btn btn-primary btn-sm">Confirm & Set In Maintenance</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${theatres == null or #lists.isEmpty(theatres)}">
+                                    <td colspan="7" style="text-align:center; padding:24px; color:var(--text-muted);">No operation theatres registered. Register a new theatre above.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+</div>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

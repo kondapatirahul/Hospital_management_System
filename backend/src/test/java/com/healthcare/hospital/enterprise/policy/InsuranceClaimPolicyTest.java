@@ -53,7 +53,7 @@ class InsuranceClaimPolicyTest {
     @Test void searchesAndDeduplicatesCaseInsensitively() {
         assertTrue(InsuranceClaimPolicy.matchesSearch(List.of("Patient Record", "Ward"), "patient"));
         assertFalse(InsuranceClaimPolicy.matchesSearch(List.of("Ward"), "patient"));
-        assertEquals(List.of("Alpha", "beta"), InsuranceClaimPolicy.distinctSorted(List.of("beta", "Alpha", "alpha", null)));
+        assertEquals(List.of("Alpha", "beta"), InsuranceClaimPolicy.distinctSorted(java.util.Arrays.asList("beta", "Alpha", "alpha", null)));
         assertTrue(InsuranceClaimPolicy.isReferenceDuplicate(List.of("ABC-1"), "abc-1"));
     }
     @Test void createsUsefulSummariesAndAuditMetadata() {

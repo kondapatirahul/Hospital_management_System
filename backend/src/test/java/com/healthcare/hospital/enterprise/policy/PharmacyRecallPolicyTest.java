@@ -53,7 +53,7 @@ class PharmacyRecallPolicyTest {
     @Test void searchesAndDeduplicatesCaseInsensitively() {
         assertTrue(PharmacyRecallPolicy.matchesSearch(List.of("Patient Record", "Ward"), "patient"));
         assertFalse(PharmacyRecallPolicy.matchesSearch(List.of("Ward"), "patient"));
-        assertEquals(List.of("Alpha", "beta"), PharmacyRecallPolicy.distinctSorted(List.of("beta", "Alpha", "alpha", null)));
+        assertEquals(List.of("Alpha", "beta"), PharmacyRecallPolicy.distinctSorted(java.util.Arrays.asList("beta", "Alpha", "alpha", null)));
         assertTrue(PharmacyRecallPolicy.isReferenceDuplicate(List.of("ABC-1"), "abc-1"));
     }
     @Test void createsUsefulSummariesAndAuditMetadata() {

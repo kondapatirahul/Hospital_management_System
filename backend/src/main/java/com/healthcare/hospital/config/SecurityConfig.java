@@ -47,6 +47,7 @@ public class SecurityConfig {
                 .requestMatchers("/laboratory/**").hasAnyRole("LAB_TECHNICIAN", "ADMIN")
                 .requestMatchers("/billing/**").hasAnyRole("BILLING", "ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/ot/**").hasAnyRole("ADMIN", "DOCTOR", "NURSE", "STAFF", "BILLING")
                 .requestMatchers("/reports/**").hasAnyRole("ADMIN", "BILLING", "LAB_TECHNICIAN", "PHARMACIST")
                 .requestMatchers("/staff/**").hasAnyRole("STAFF", "NURSE", "ADMIN")
                 .anyRequest().authenticated()

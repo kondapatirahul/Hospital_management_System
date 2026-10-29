@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Operation Theatre Reports & Analytics')}"></head>
+<body>
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('ot-reports')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Operation Theatre Reports & Analytics', 'Surgical throughput, theatre room utilization, start delays, and cancellation audits.')}"></header>
+        <main class="page-content">
+            <div class="dashboard-legacy">
+
+                <!-- Date Range Filter & CSV Export Bar -->
+                <div class="card" style="margin-bottom:24px; padding:18px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+                        <form method="get" th:action="@{/ot/reports}" style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                            <label style="font-size:13px; font-weight:600;">From:
+                                <input type="date" name="startDate" th:value="${startDate}" style="padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-left:4px;">
+                            </label>
+                            <label style="font-size:13px; font-weight:600;">To:
+                                <input type="date" name="endDate" th:value="${endDate}" style="padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-left:4px;">
+                            </label>
+                            <button type="submit" class="btn btn-outline btn-sm">Filter Report</button>
+                        </form>
+
+                        <a th:href="@{/ot/reports/export(startDate=${startDate}, endDate=${endDate})}" class="btn btn-primary btn-sm">
+                            📥 Export CSV Report
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Aggregated KPIs Cards -->
+                <section style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:16px; margin-bottom:24px;">
+                    <article class="card" style="border-left: 4px solid var(--accent-teal);">
+                        <span style="font-size:12px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Overall Utilization</span>
+                        <div style="font-size:26px; font-weight:700; color:var(--accent-teal); margin-top:4px;">
+                            <span th:text="${stats.overallUtilizationRatePercent}">0</span>%
+                        </div>
+                        <span style="font-size:11px; color:var(--text-muted);">Of 8h daily capacity</span>
+                    </article>
+
+                    <article class="card" style="border-left: 4px solid var(--primary-blue);">
+                        <span style="font-size:12px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Total Surgeries</span>
+                        <div style="font-size:26px; font-weight:700; color:var(--primary-navy); margin-top:4px;" th:text="${stats.totalSurgeries}">0</div>
+                        <span style="font-size:11px; color:var(--text-muted);">In selected period</span>
+                    </article>
+
+                    <article class="card" style="border-left: 4px solid var(--success);">
+                        <span style="font-size:12px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Completed</span>
+                        <div style="font-size:26px; font-weight:700; color:var(--success); margin-top:4px;" th:text="${stats.completedSurgeries}">0</div>
+                        <span style="font-size:11px; color:var(--text-muted);">Successfully finished</span>
+                    </article>
+
+                    <article class="card" style="border-left: 4px solid var(--info);">
+                        <span style="font-size:12px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Avg Start Delay</span>
+                        <div style="font-size:26px; font-weight:700; color:var(--info); margin-top:4px;">
+                            <span th:text="${stats.averageDelayMinutes}">0</span> <small style="font-size:14px; font-weight:normal;">min</small>
+                        </div>
+                        <span style="font-size:11px; color:var(--text-muted);">Planned vs Actual start</span>
+                    </article>
+
+                    <article class="card" style="border-left: 4px solid var(--warning);">
+                        <span style="font-size:12px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Cancelled / Postponed</span>
+                        <div style="font-size:26px; font-weight:700; color:var(--warning); margin-top:4px;">
+                            <span th:text="${stats.cancelledSurgeries + stats.postponedSurgeries}">0</span>
+                        </div>
+                        <span style="font-size:11px; color:var(--text-muted);">Cancelled: <span th:text="${stats.cancelledSurgeries}">0</span> · Postponed: <span th:text="${stats.postponedSurgeries}">0</span></span>
+                    </article>
+
+                    <article class="card" style="border-left: 4px solid var(--primary-navy);">
+                        <span style="font-size:12px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Surgical Revenue</span>
+                        <div style="font-size:24px; font-weight:700; color:var(--primary-navy); margin-top:4px;" th:text="${'$' + stats.totalSurgeryRevenue}">$0.00</div>
+                        <span style="font-size:11px; color:var(--text-muted);">From linked invoices</span>
+                    </article>
+                </section>
+
+                <!-- Breakdown Sections: Procedure Categories and Theatre Allocation -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                    <section class="card" style="padding:20px;">
+                        <h3 style="margin-bottom:14px; color:var(--primary-navy);">Procedures by Specialty Category</h3>
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%; border-collapse:collapse;" class="table">
+                                <thead>
+                                    <tr style="border-bottom:2px solid var(--border); text-align:left;">
+                                        <th style="padding:8px;">Specialty</th>
+                                        <th style="padding:8px; text-align:right;">Operations Count</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="entry : ${stats.procedureCategoryCounts}" style="border-bottom:1px solid var(--border);">
+                                        <td style="padding:10px 8px; font-weight:600;" th:text="${entry.key}">Category</td>
+                                        <td style="padding:10px 8px; text-align:right;">
+                                            <span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700;" th:text="${entry.value}">0</span>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${stats.procedureCategoryCounts == null or stats.procedureCategoryCounts.isEmpty()}">
+                                        <td colspan="2" style="text-align:center; padding:16px; color:var(--text-muted);">No procedures recorded in this range.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <section class="card" style="padding:20px;">
+                        <h3 style="margin-bottom:14px; color:var(--primary-navy);">Operations by Theatre Room</h3>
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%; border-collapse:collapse;" class="table">
+                                <thead>
+                                    <tr style="border-bottom:2px solid var(--border); text-align:left;">
+                                        <th style="padding:8px;">Theatre Name</th>
+                                        <th style="padding:8px; text-align:right;">Operations Hosted</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="entry : ${stats.theatreSurgeryCounts}" style="border-bottom:1px solid var(--border);">
+                                        <td style="padding:10px 8px; font-weight:600;" th:text="${entry.key}">Theatre</td>
+                                        <td style="padding:10px 8px; text-align:right;">
+                                            <span class="badge" style="background:#dcfce7; color:#15803d; font-weight:700;" th:text="${entry.value}">0</span>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${stats.theatreSurgeryCounts == null or stats.theatreSurgeryCounts.isEmpty()}">
+                                        <td colspan="2" style="text-align:center; padding:16px; color:var(--text-muted);">No theatre allocations recorded in this range.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</div>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

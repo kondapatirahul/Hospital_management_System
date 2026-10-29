@@ -53,7 +53,7 @@ class PurchaseApprovalPolicyTest {
     @Test void searchesAndDeduplicatesCaseInsensitively() {
         assertTrue(PurchaseApprovalPolicy.matchesSearch(List.of("Patient Record", "Ward"), "patient"));
         assertFalse(PurchaseApprovalPolicy.matchesSearch(List.of("Ward"), "patient"));
-        assertEquals(List.of("Alpha", "beta"), PurchaseApprovalPolicy.distinctSorted(List.of("beta", "Alpha", "alpha", null)));
+        assertEquals(List.of("Alpha", "beta"), PurchaseApprovalPolicy.distinctSorted(java.util.Arrays.asList("beta", "Alpha", "alpha", null)));
         assertTrue(PurchaseApprovalPolicy.isReferenceDuplicate(List.of("ABC-1"), "abc-1"));
     }
     @Test void createsUsefulSummariesAndAuditMetadata() {

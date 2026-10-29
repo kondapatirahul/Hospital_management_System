@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('OT Inventory & Consumables')}"></head>
+<body>
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('ot-inventory')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('OT Inventory & Consumables', 'Surgical consumables, anesthesia pharmaceuticals, and stock movement tracking.')}"></header>
+        <main class="page-content">
+            <div class="dashboard-legacy">
+
+                <div class="card" style="margin-bottom:24px; padding:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <h2>Available Pharmacy &amp; Surgical Inventory</h2>
+                            <p style="font-size:13px; color:var(--text-muted);">Medications and surgical items available for immediate deduction in operating theatres.</p>
+                        </div>
+                        <div sec:authorize="hasAnyRole('PHARMACIST', 'ADMIN')">
+                            <a th:href="@{/pharmacy/medicines}" class="btn btn-outline btn-sm">Open Pharmacy Inventory →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="padding:20px;">
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:collapse;" class="table">
+                            <thead>
+                                <tr style="border-bottom:2px solid var(--border); text-align:left;">
+                                    <th style="padding:10px;">Code</th>
+                                    <th style="padding:10px;">Medicine / Item</th>
+                                    <th style="padding:10px;">Category</th>
+                                    <th style="padding:10px;">Dosage Form</th>
+                                    <th style="padding:10px;">Strength</th>
+                                    <th style="padding:10px;">Unit Price</th>
+                                    <th style="padding:10px;">Current Stock</th>
+                                    <th style="padding:10px;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="med : ${medicines}" style="border-bottom:1px solid var(--border);">
+                                    <td style="padding:12px 10px; font-weight:600; color:var(--primary-blue);" th:text="${med.medicineCode}">MED-001</td>
+                                    <td style="padding:12px 10px;">
+                                        <strong th:text="${med.name}">Medicine Name</strong>
+                                        <div style="font-size:11px; color:var(--text-muted);" th:text="${med.genericName}">Generic</div>
+                                    </td>
+                                    <td style="padding:12px 10px;" th:text="${med.category != null ? med.category.name : 'General'}">Category</td>
+                                    <td style="padding:12px 10px;" th:text="${med.dosageForm}">Form</td>
+                                    <td style="padding:12px 10px;" th:text="${med.strength}">Strength</td>
+                                    <td style="padding:12px 10px; font-weight:600;" th:text="${'$' + med.unitPrice}">$10.00</td>
+                                    <td style="padding:12px 10px;">
+                                        <strong th:text="${med.totalStock}">100</strong> <span style="font-size:12px; color:var(--text-muted);" th:text="${med.unitOfMeasure}">units</span>
+                                    </td>
+                                    <td style="padding:12px 10px;">
+                                        <span th:if="${med.totalStock > med.reorderLevel}" class="badge" style="background:#dcfce7; color:#15803d;">IN STOCK</span>
+                                        <span th:if="${med.totalStock <= med.reorderLevel and med.totalStock > 0}" class="badge" style="background:#fef3c7; color:#b45309;">LOW STOCK</span>
+                                        <span th:if="${med.totalStock == 0}" class="badge" style="background:#fee2e2; color:#b91c1c;">OUT OF STOCK</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</div>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

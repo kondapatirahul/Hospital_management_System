@@ -53,7 +53,7 @@ class PatientTransferPolicyTest {
     @Test void searchesAndDeduplicatesCaseInsensitively() {
         assertTrue(PatientTransferPolicy.matchesSearch(List.of("Patient Record", "Ward"), "patient"));
         assertFalse(PatientTransferPolicy.matchesSearch(List.of("Ward"), "patient"));
-        assertEquals(List.of("Alpha", "beta"), PatientTransferPolicy.distinctSorted(List.of("beta", "Alpha", "alpha", null)));
+        assertEquals(List.of("Alpha", "beta"), PatientTransferPolicy.distinctSorted(java.util.Arrays.asList("beta", "Alpha", "alpha", null)));
         assertTrue(PatientTransferPolicy.isReferenceDuplicate(List.of("ABC-1"), "abc-1"));
     }
     @Test void createsUsefulSummariesAndAuditMetadata() {
