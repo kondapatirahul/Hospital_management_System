@@ -53,7 +53,7 @@ class AppointmentWaitlistPolicyTest {
     @Test void searchesAndDeduplicatesCaseInsensitively() {
         assertTrue(AppointmentWaitlistPolicy.matchesSearch(List.of("Patient Record", "Ward"), "patient"));
         assertFalse(AppointmentWaitlistPolicy.matchesSearch(List.of("Ward"), "patient"));
-        assertEquals(List.of("Alpha", "beta"), AppointmentWaitlistPolicy.distinctSorted(List.of("beta", "Alpha", "alpha", null)));
+        assertEquals(List.of("Alpha", "beta"), AppointmentWaitlistPolicy.distinctSorted(java.util.Arrays.asList("beta", "Alpha", "alpha", null)));
         assertTrue(AppointmentWaitlistPolicy.isReferenceDuplicate(List.of("ABC-1"), "abc-1"));
     }
     @Test void createsUsefulSummariesAndAuditMetadata() {

@@ -53,7 +53,7 @@ class ServiceRequestPolicyTest {
     @Test void searchesAndDeduplicatesCaseInsensitively() {
         assertTrue(ServiceRequestPolicy.matchesSearch(List.of("Patient Record", "Ward"), "patient"));
         assertFalse(ServiceRequestPolicy.matchesSearch(List.of("Ward"), "patient"));
-        assertEquals(List.of("Alpha", "beta"), ServiceRequestPolicy.distinctSorted(List.of("beta", "Alpha", "alpha", null)));
+        assertEquals(List.of("Alpha", "beta"), ServiceRequestPolicy.distinctSorted(java.util.Arrays.asList("beta", "Alpha", "alpha", null)));
         assertTrue(ServiceRequestPolicy.isReferenceDuplicate(List.of("ABC-1"), "abc-1"));
     }
     @Test void createsUsefulSummariesAndAuditMetadata() {

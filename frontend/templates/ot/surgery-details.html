@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Surgery Hub: ' + ${booking.bookingNumber})}"></head>
+<body>
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('ot-schedule')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Surgical Workflow Hub', 'Comprehensive intraoperative record, team assignments, clinical checklists and handover.')}"></header>
+        <main class="page-content">
+            <div class="dashboard-legacy">
+
+                <!-- Alert Messages -->
+                <div th:if="${successMessage}" class="alert alert-success" role="status" th:text="${successMessage}"></div>
+                <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+
+                <!-- Surgery Summary Banner -->
+                <div class="card" style="margin-bottom:20px; padding:20px; border-left:5px solid var(--primary-blue);">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span class="badge" style="background:#e0f2fe; color:#0369a1; font-size:13px; font-weight:700;" th:text="${booking.bookingNumber}">SURG-0001</span>
+                                <span th:if="${booking.priority.name() == 'ROUTINE'}" class="badge" style="background:#f1f5f9; color:#475569;">ROUTINE</span>
+                                <span th:if="${booking.priority.name() == 'URGENT'}" class="badge" style="background:#fef3c7; color:#b45309;">URGENT</span>
+                                <span th:if="${booking.priority.name() == 'EMERGENCY'}" class="badge" style="background:#fee2e2; color:#b91c1c;">EMERGENCY</span>
+                                <span th:if="${booking.status.name() == 'SCHEDULED'}" class="badge" style="background:#e0f2fe; color:#0284c7;">SCHEDULED</span>
+                                <span th:if="${booking.status.name() == 'PREPARATION'}" class="badge" style="background:#fef3c7; color:#d97706;">PREPARATION</span>
+                                <span th:if="${booking.status.name() == 'IN_PROGRESS'}" class="badge" style="background:#fee2e2; color:#dc2626;">IN PROGRESS</span>
+                                <span th:if="${booking.status.name() == 'COMPLETED'}" class="badge" style="background:#dcfce7; color:#15803d;">COMPLETED</span>
+                                <span th:if="${booking.status.name() == 'CANCELLED'}" class="badge" style="background:#f1f5f9; color:#94a3b8;">CANCELLED</span>
+                                <span th:if="${booking.status.name() == 'POSTPONED'}" class="badge" style="background:#ffedd5; color:#c2410c;">POSTPONED</span>
+                            </div>
+                            <h1 style="font-size:22px; margin-top:8px;" th:text="${booking.procedureName}">Procedure Name</h1>
+                            <div style="display:flex; gap:18px; margin-top:8px; font-size:13px; color:var(--text-secondary); flex-wrap:wrap;">
+                                <span>👤 <strong>Patient:</strong> <span th:text="${booking.patient.fullName}">Patient Name</span> (<span th:text="${booking.patient.patientId}">PAT-001</span>)</span>
+                                <span>👨‍⚕️ <strong>Surgeon:</strong> Dr. <span th:text="${booking.leadSurgeon.fullName}">Surgeon</span></span>
+                                <span>🏥 <strong>Theatre:</strong> <span th:text="${booking.theatre.theatreCode + ' (' + booking.theatre.name + ')'}">OT-01</span></span>
+                                <span>📅 <strong>Scheduled:</strong> <span th:text="${#temporals.format(booking.plannedDate, 'MMM d, yyyy') + ' at ' + booking.plannedStartTime + ' (' + booking.expectedDurationMinutes + ' mins)'}">Date</span></span>
+                            </div>
+                        </div>
+
+                        <!-- Workflow Transition Quick Action Buttons -->
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <!-- Move to Preparation -->
+                            <form th:if="${booking.status.name() == 'SCHEDULED'}" th:action="@{/ot/surgeries/{id}/status(id=${booking.id})}" method="post">
+                                <input type="hidden" name="targetStatus" value="PREPARATION">
+                                <button sec:authorize="hasAnyRole('ADMIN', 'DOCTOR')" type="submit" class="btn btn-outline btn-sm" style="color:var(--warning); border-color:var(--warning);">Begin Pre-op Prep ▶</button>
+                            </form>
+
+                            <!-- Start Surgery (IN_PROGRESS) -->
+                            <form th:if="${booking.status.name() == 'PREPARATION' or booking.status.name() == 'SCHEDULED'}" th:action="@{/ot/surgeries/{id}/status(id=${booking.id})}" method="post">
+                                <input type="hidden" name="targetStatus" value="IN_PROGRESS">
+                                <button sec:authorize="hasAnyRole('ADMIN', 'DOCTOR')" type="submit" class="btn btn-sm" style="background:var(--danger); color:white;">Start Surgery (In Progress) 🔴</button>
+                            </form>
+
+                            <!-- Complete Surgery -->
+                            <button th:if="${booking.status.name() == 'IN_PROGRESS'}" sec:authorize="hasAnyRole('ADMIN', 'DOCTOR')" type="button" class="btn btn-sm" style="background:var(--success); color:white;"
+                                    onclick="document.getElementById('completeSurgeryModal').style.display='block'">
+                                Complete Operation ✅
+                            </button>
+
+                            <!-- Reschedule Modal Trigger -->
+                            <button th:if="${booking.status.name() != 'COMPLETED' and booking.status.name() != 'CANCELLED'}" sec:authorize="hasAnyRole('ADMIN', 'DOCTOR')" type="button" class="btn btn-outline btn-sm"
+                                    onclick="document.getElementById('rescheduleModal').style.display='block'">
+                                Reschedule 🗓️
+                            </button>
+
+                            <!-- Cancel Modal Trigger -->
+                            <button th:if="${booking.status.name() != 'COMPLETED' and booking.status.name() != 'CANCELLED'}" sec:authorize="hasAnyRole('ADMIN', 'DOCTOR')" type="button" class="btn btn-outline btn-sm" style="color:var(--danger);"
+                                    onclick="document.getElementById('cancelModal').style.display='block'">
+                                Cancel ✖
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB NAVIGATION -->
+                <nav style="display:flex; border-bottom:2px solid var(--border); margin-bottom:20px; overflow-x:auto;">
+                    <a th:href="@{/ot/surgeries/{id}(id=${booking.id}, tab='overview')}" class="btn btn-sm" style="border-radius:0; padding:10px 16px; border:none; font-weight:600;"
+                       th:styleappend="${activeTab == 'overview' ? 'border-bottom:3px solid var(--primary-blue); color:var(--primary-blue); background:white;' : 'color:var(--text-secondary); background:transparent;'}">
+                        📋 Overview &amp; Indication
+                    </a>
+                    <a th:href="@{/ot/surgeries/{id}(id=${booking.id}, tab='team')}" class="btn btn-sm" style="border-radius:0; padding:10px 16px; border:none; font-weight:600;"
+                       th:styleappend="${activeTab == 'team' ? 'border-bottom:3px solid var(--primary-blue); color:var(--primary-blue); background:white;' : 'color:var(--text-secondary); background:transparent;'}">
+                        👨‍⚕️ Surgical Team (<span th:text="${teamMembers.size()}">1</span>)
+                    </a>
+                    <a th:href="@{/ot/surgeries/{id}(id=${booking.id}, tab='preop')}" class="btn btn-sm" style="border-radius:0; padding:10px 16px; border:none; font-weight:600;"
+                       th:styleappend="${activeTab == 'preop' ? 'border-bottom:3px solid var(--primary-blue); color:var(--primary-blue); background:white;' : 'color:var(--text-secondary); background:transparent;'}">
+                        📝 Preoperative Checklist (<span th:text="${preopItems.size()}">0</span>)
+                    </a>
+                    <a th:href="@{/ot/surgeries/{id}(id=${booking.id}, tab='intraop')}" class="btn btn-sm" style="border-radius:0; padding:10px 16px; border:none; font-weight:600;"
+                       th:styleappend="${activeTab == 'intraop' ? 'border-bottom:3px solid var(--primary-blue); color:var(--primary-blue); background:white;' : 'color:var(--text-secondary); background:transparent;'}">
+                        🩺 WHO Intra-op &amp; Notes
+                    </a>
+                    <a th:href="@{/ot/surgeries/{id}(id=${booking.id}, tab='postop')}" class="btn btn-sm" style="border-radius:0; padding:10px 16px; border:none; font-weight:600;"
+                       th:styleappend="${activeTab == 'postop' ? 'border-bottom:3px solid var(--primary-blue); color:var(--primary-blue); background:white;' : 'color:var(--text-secondary); background:transparent;'}">
+                        🛏️ Post-op Recovery &amp; Handover
+                    </a>
+                    <a th:href="@{/ot/surgeries/{id}(id=${booking.id}, tab='inventory')}" class="btn btn-sm" style="border-radius:0; padding:10px 16px; border:none; font-weight:600;"
+                       th:styleappend="${activeTab == 'inventory' ? 'border-bottom:3px solid var(--primary-blue); color:var(--primary-blue); background:white;' : 'color:var(--text-secondary); background:transparent;'}">
+                        📦 Consumables &amp; Stock (<span th:text="${consumables.size()}">0</span>)
+                    </a>
+                    <a th:href="@{/ot/surgeries/{id}(id=${booking.id}, tab='billing')}" class="btn btn-sm" style="border-radius:0; padding:10px 16px; border:none; font-weight:600;"
+                       th:styleappend="${activeTab == 'billing' ? 'border-bottom:3px solid var(--primary-blue); color:var(--primary-blue); background:white;' : 'color:var(--text-secondary); background:transparent;'}">
+                        💳 Billing &amp; Charges
+                    </a>
+                    <a th:href="@{/ot/surgeries/{id}(id=${booking.id}, tab='audit')}" class="btn btn-sm" style="border-radius:0; padding:10px 16px; border:none; font-weight:600;"
+                       th:styleappend="${activeTab == 'audit' ? 'border-bottom:3px solid var(--primary-blue); color:var(--primary-blue); background:white;' : 'color:var(--text-secondary); background:transparent;'}">
+                        🛡️ Audit History
+                    </a>
+                </nav>
+
+                <!-- TAB 1: OVERVIEW -->
+                <div th:if="${activeTab == 'overview'}" class="card" style="padding:24px;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                        <div>
+                            <h3 style="margin-bottom:12px; color:var(--primary-navy);">Patient Clinical Profile</h3>
+                            <table style="width:100%; border-collapse:collapse;" class="table">
+                                <tr><td style="padding:8px 0; color:var(--text-muted); width:140px;">Patient ID:</td><td><strong th:text="${booking.patient.patientId}">PAT-0001</strong></td></tr>
+                                <tr><td style="padding:8px 0; color:var(--text-muted);">Full Name:</td><td th:text="${booking.patient.fullName}">Full Name</td></tr>
+                                <tr><td style="padding:8px 0; color:var(--text-muted);">Date of Birth:</td><td th:text="${booking.patient.dateOfBirth != null ? booking.patient.dateOfBirth : '—'}">DOB</td></tr>
+                                <tr><td style="padding:8px 0; color:var(--text-muted);">Gender / Blood:</td><td><span th:text="${booking.patient.gender}">Gender</span> · <strong style="color:var(--danger);" th:text="${booking.patient.bloodGroup ?: 'Not documented'}">O+</strong></td></tr>
+                                <tr><td style="padding:8px 0; color:var(--text-muted);">Documented Allergies:</td><td style="color:var(--danger); font-weight:bold;" th:text="${booking.patient.allergies ?: 'No known drug allergies'}">Allergies</td></tr>
+                                <tr><td style="padding:8px 0; color:var(--text-muted);">Chronic Conditions:</td><td th:text="${booking.patient.chronicConditions ?: 'None'}">Conditions</td></tr>
+                            </table>
+                        </div>
+
+                        <div>
+                            <h3 style="margin-bottom:12px; color:var(--primary-navy);">Surgical Pathway &amp; Resource Details</h3>
+                            <table style="width:100%; border-collapse:collapse;" class="table">
+                                <tr><td style="padding:8px 0; color:var(--text-muted); width:140px;">Assigned Theatre:</td><td><span th:text="${booking.theatre.theatreCode + ' - ' + booking.theatre.name}">OT-01</span> (<span th:text="${booking.theatre.location}">Location</span>)</td></tr>
+                                <tr><td style="padding:8px 0; color:var(--text-muted);">Lead Surgeon:</td><td>Dr. <span th:text="${booking.leadSurgeon.fullName}">Surgeon</span> (<span th:text="${booking.leadSurgeon.qualification}">Qualification</span>)</td></tr>
+                                <tr><td style="padding:8px 0; color:var(--text-muted);">Planned Start:</td><td th:text="${#temporals.format(booking.plannedDate, 'MMM d, yyyy') + ' at ' + booking.plannedStartTime}">Time</td></tr>
+                                <tr><td style="padding:8px 0; color:var(--text-muted);">Actual Start:</td><td th:text="${booking.actualStartTime != null ? #temporals.format(booking.actualStartTime, 'MMM d, yyyy HH:mm') : 'Not started yet'}">Not started</td></tr>
+                                <tr><td style="padding:8px 0; color:var(--text-muted);">Actual End:</td><td th:text="${booking.actualEndTime != null ? #temporals.format(booking.actualEndTime, 'MMM d, yyyy HH:mm') : '—'}">—</td></tr>
+                                <tr><td style="padding:8px 0; color:var(--text-muted);">Ward / Bed Link:</td><td><span th:if="${booking.wardBed != null}" th:text="${booking.wardBed.wardName + ' - ' + booking.wardBed.bedNumber}">Ward</span><span th:if="${booking.wardBed == null}">None linked</span></td></tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:16px;">
+                        <h3 style="color:var(--primary-navy); margin-bottom:8px;">Preoperative Clinical Diagnosis &amp; Indication</h3>
+                        <div style="background:#f8fafc; padding:14px; border-radius:var(--radius-sm); border:1px solid var(--border);">
+                            <p><strong>Clinical Indication:</strong> <span th:text="${booking.clinicalIndication ?: 'None provided'}">Indication</span></p>
+                            <p style="margin-top:8px;"><strong>Pre-op Diagnosis:</strong> <span th:text="${booking.preoperativeDiagnosis ?: 'None provided'}">Diagnosis</span></p>
+                            <p th:if="${booking.cancellationReason != null}" style="margin-top:8px; color:var(--danger);"><strong>Cancellation Reason:</strong> <span th:text="${booking.cancellationReason}">Reason</span></p>
+                            <p th:if="${booking.postponedReason != null}" style="margin-top:8px; color:var(--warning);"><strong>Postponement / Reschedule Reason:</strong> <span th:text="${booking.postponedReason}">Reason</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: SURGICAL TEAM -->
+                <div th:if="${activeTab == 'team'}" class="card" style="padding:24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                        <div>
+                            <h2>Assigned Surgical Team</h2>
+                            <p style="font-size:13px; color:var(--text-muted);">Personnel allocated to this operation. Reuses existing staff and doctor records.</p>
+                        </div>
+                    </div>
+
+                    <!-- Assign Team Member Form -->
+                    <div sec:authorize="hasAnyRole('ADMIN', 'DOCTOR')" style="background:#f8fafc; padding:16px; border-radius:var(--radius-sm); margin-bottom:20px; border:1px solid var(--border);">
+                        <h4 style="margin-bottom:10px;">➕ Assign Team Member</h4>
+                        <form th:action="@{/ot/surgeries/{id}/team(id=${booking.id})}" method="post" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)) 120px; gap:12px; align-items:end;">
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">Doctor (Surgeon / Anesthesia)</label>
+                                <select name="doctorId" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                                    <option value="">-- Or select staff below --</option>
+                                    <option th:each="doc : ${allDoctors}" th:value="${doc.id}" th:text="${'Dr. ' + doc.fullName + ' (' + doc.department.name + ')'}"></option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">Nursing / OT Staff User</label>
+                                <select name="userId" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                                    <option value="">-- Or select doctor above --</option>
+                                    <option th:each="u : ${allStaffUsers}" th:value="${u.id}" th:text="${u.fullName + ' (' + u.role + ')'}"></option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">Surgical Role *</label>
+                                <select name="memberRole" required style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                                    <option value="ASSISTANT_SURGEON">Assistant Surgeon</option>
+                                    <option value="ANESTHESIOLOGIST">Anesthesiologist</option>
+                                    <option value="SCRUB_NURSE">Scrub Nurse</option>
+                                    <option value="CIRCULATING_NURSE">Circulating Nurse</option>
+                                    <option value="OT_TECHNICIAN">OT Technician</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button type="submit" class="btn btn-primary btn-sm" style="width:100%; padding:9px;">Assign</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Team Members Table -->
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:collapse;" class="table">
+                            <thead>
+                                <tr style="border-bottom:2px solid var(--border); text-align:left;">
+                                    <th style="padding:10px;">Role</th>
+                                    <th style="padding:10px;">Member Name</th>
+                                    <th style="padding:10px;">Classification</th>
+                                    <th style="padding:10px;">Assigned At</th>
+                                    <th style="padding:10px; text-align:right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="tm : ${teamMembers}" style="border-bottom:1px solid var(--border);">
+                                    <td style="padding:12px 10px;">
+                                        <span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:600;" th:text="${tm.memberRole}">LEAD_SURGEON</span>
+                                    </td>
+                                    <td style="padding:12px 10px; font-weight:600;" th:text="${tm.memberName}">Member Name</td>
+                                    <td style="padding:12px 10px;">
+                                        <span th:if="${tm.doctor != null}">Licensed Physician / Specialist</span>
+                                        <span th:if="${tm.user != null}" th:text="${'Staff Account: ' + tm.user.role}">Nurse / Staff</span>
+                                    </td>
+                                    <td style="padding:12px 10px; font-size:12px; color:var(--text-muted);" th:text="${#temporals.format(tm.assignedAt, 'MMM d, yyyy HH:mm')}">Date</td>
+                                    <td style="padding:12px 10px; text-align:right;">
+                                        <form th:if="${tm.memberRole != 'LEAD_SURGEON'}" sec:authorize="hasAnyRole('ADMIN', 'DOCTOR')" th:action="@{/ot/surgeries/{id}/team/{memberId}/remove(id=${booking.id}, memberId=${tm.id})}" method="post" style="display:inline;">
+                                            <button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger); border-color:var(--danger);" onclick="return confirm('Remove team member from surgery?')">Remove</button>
+                                        </form>
+                                        <span th:if="${tm.memberRole == 'LEAD_SURGEON'}" style="font-size:12px; color:var(--text-muted); font-style:italic;">Primary Surgeon</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 3: PREOPERATIVE CHECKLIST -->
+                <div th:if="${activeTab == 'preop'}" class="card" style="padding:24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                        <div>
+                            <h2>Preoperative Safety Checklist</h2>
+                            <p style="font-size:13px; color:var(--text-muted);">Mandatory verification prior to surgical preparation and operating room entry.</p>
+                        </div>
+                    </div>
+
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:collapse;" class="table">
+                            <thead>
+                                <tr style="border-bottom:2px solid var(--border); text-align:left;">
+                                    <th style="padding:10px;">Item / Verification Check</th>
+                                    <th style="padding:10px;">Mandatory</th>
+                                    <th style="padding:10px;">Status</th>
+                                    <th style="padding:10px;">Completed By</th>
+                                    <th style="padding:10px;">Remarks</th>
+                                    <th style="padding:10px; text-align:right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item : ${preopItems}" style="border-bottom:1px solid var(--border);">
+                                    <td style="padding:12px 10px;">
+                                        <div style="font-weight:600;" th:text="${item.itemLabel}">Item label</div>
+                                        <div style="font-size:11px; color:var(--text-muted);" th:text="${item.itemCode}">PREOP_ID</div>
+                                    </td>
+                                    <td style="padding:12px 10px;">
+                                        <span th:if="${item.mandatory}" class="badge" style="background:#fee2e2; color:#b91c1c;">REQUIRED</span>
+                                        <span th:if="${!item.mandatory}" class="badge" style="background:#f1f5f9; color:#64748b;">OPTIONAL</span>
+                                    </td>
+                                    <td style="padding:12px 10px;">
+                                        <span th:if="${item.status.name() == 'COMPLETED'}" class="badge" style="background:#dcfce7; color:#15803d;">COMPLETED</span>
+                                        <span th:if="${item.status.name() == 'PENDING'}" class="badge" style="background:#fef3c7; color:#b45309;">PENDING</span>
+                                        <span th:if="${item.status.name() == 'FAILED'}" class="badge" style="background:#fee2e2; color:#b91c1c;">FAILED</span>
+                                        <span th:if="${item.status.name() == 'NOT_APPLICABLE'}" class="badge" style="background:#f1f5f9; color:#94a3b8;">N/A</span>
+                                    </td>
+                                    <td style="padding:12px 10px; font-size:12px;">
+                                        <span th:text="${item.completedBy ?: '—'}">—</span>
+                                        <div style="color:var(--text-muted);" th:if="${item.completedAt != null}" th:text="${#temporals.format(item.completedAt, 'MMM d, HH:mm')}">Date</div>
+                                    </td>
+                                    <td style="padding:12px 10px; font-size:12px; color:var(--text-secondary);" th:text="${item.remarks ?: 'None'}">Remarks</td>
+                                    <td style="padding:12px 10px; text-align:right;">
+                                        <form th:action="@{/ot/surgeries/{id}/checklist/{itemId}(id=${booking.id}, itemId=${item.id})}" method="post" style="display:inline-flex; gap:4px; align-items:center;">
+                                            <input type="hidden" name="phaseTab" value="preop">
+                                            <select name="status" style="padding:4px 6px; font-size:12px; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                                                <option value="COMPLETED" th:selected="${item.status.name() == 'COMPLETED'}">COMPLETED</option>
+                                                <option value="PENDING" th:selected="${item.status.name() == 'PENDING'}">PENDING</option>
+                                                <option value="FAILED" th:selected="${item.status.name() == 'FAILED'}">FAILED</option>
+                                                <option value="NOT_APPLICABLE" th:selected="${item.status.name() == 'NOT_APPLICABLE'}">N/A</option>
+                                            </select>
+                                            <input type="text" name="remarks" placeholder="Optional notes" style="padding:4px 6px; font-size:12px; border:1px solid var(--border); border-radius:var(--radius-sm); width:120px;">
+                                            <button type="submit" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px;">Save</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 4: INTRAOPERATIVE RECORD & WHO CHECKLIST -->
+                <div th:if="${activeTab == 'intraop'}" class="card" style="padding:24px;">
+                    <div style="border-bottom:1px solid var(--border); padding-bottom:14px; margin-bottom:20px;">
+                        <h2>Intraoperative Clinical Records &amp; WHO Safety Checklist</h2>
+                        <p style="font-size:13px; color:var(--text-muted);">World Health Organization Surgical Safety Checklist: Sign-In, Time-Out, and Sign-Out phases.</p>
+                    </div>
+
+                    <!-- WHO Sign-In -->
+                    <div style="margin-bottom:24px;">
+                        <h3 style="color:var(--primary-navy); margin-bottom:10px;">1. Sign-In (Before induction of anesthesia)</h3>
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%; border-collapse:collapse;" class="table">
+                                <tr th:each="item : ${signInItems}" style="border-bottom:1px solid var(--border);">
+                                    <td style="padding:8px 10px; font-weight:600;" th:text="${item.itemLabel}">Label</td>
+                                    <td style="padding:8px 10px;">
+                                        <span th:class="${item.status.name() == 'COMPLETED' ? 'badge badge-success' : 'badge badge-warning'}" th:text="${item.status}">Status</span>
+                                    </td>
+                                    <td style="padding:8px 10px; text-align:right;">
+                                        <form th:action="@{/ot/surgeries/{id}/checklist/{itemId}(id=${booking.id}, itemId=${item.id})}" method="post" style="display:inline-flex; gap:4px;">
+                                            <input type="hidden" name="phaseTab" value="intraop">
+                                            <select name="status" style="padding:4px; font-size:12px; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                                                <option value="COMPLETED" th:selected="${item.status.name() == 'COMPLETED'}">COMPLETED</option>
+                                                <option value="PENDING" th:selected="${item.status.name() == 'PENDING'}">PENDING</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px;">Update</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- WHO Time-Out -->
+                    <div style="margin-bottom:24px;">
+                        <h3 style="color:var(--primary-navy); margin-bottom:10px;">2. Time-Out (Before skin incision)</h3>
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%; border-collapse:collapse;" class="table">
+                                <tr th:each="item : ${timeOutItems}" style="border-bottom:1px solid var(--border);">
+                                    <td style="padding:8px 10px; font-weight:600;" th:text="${item.itemLabel}">Label</td>
+                                    <td style="padding:8px 10px;">
+                                        <span th:class="${item.status.name() == 'COMPLETED' ? 'badge badge-success' : 'badge badge-warning'}" th:text="${item.status}">Status</span>
+                                    </td>
+                                    <td style="padding:8px 10px; text-align:right;">
+                                        <form th:action="@{/ot/surgeries/{id}/checklist/{itemId}(id=${booking.id}, itemId=${item.id})}" method="post" style="display:inline-flex; gap:4px;">
+                                            <input type="hidden" name="phaseTab" value="intraop">
+                                            <select name="status" style="padding:4px; font-size:12px; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                                                <option value="COMPLETED" th:selected="${item.status.name() == 'COMPLETED'}">COMPLETED</option>
+                                                <option value="PENDING" th:selected="${item.status.name() == 'PENDING'}">PENDING</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px;">Update</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- WHO Sign-Out -->
+                    <div style="margin-bottom:24px;">
+                        <h3 style="color:var(--primary-navy); margin-bottom:10px;">3. Sign-Out (Before patient leaves operating room)</h3>
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%; border-collapse:collapse;" class="table">
+                                <tr th:each="item : ${signOutItems}" style="border-bottom:1px solid var(--border);">
+                                    <td style="padding:8px 10px; font-weight:600;" th:text="${item.itemLabel}">Label</td>
+                                    <td style="padding:8px 10px;">
+                                        <span th:class="${item.status.name() == 'COMPLETED' ? 'badge badge-success' : 'badge badge-warning'}" th:text="${item.status}">Status</span>
+                                    </td>
+                                    <td style="padding:8px 10px; text-align:right;">
+                                        <form th:action="@{/ot/surgeries/{id}/checklist/{itemId}(id=${booking.id}, itemId=${item.id})}" method="post" style="display:inline-flex; gap:4px;">
+                                            <input type="hidden" name="phaseTab" value="intraop">
+                                            <select name="status" style="padding:4px; font-size:12px; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                                                <option value="COMPLETED" th:selected="${item.status.name() == 'COMPLETED'}">COMPLETED</option>
+                                                <option value="PENDING" th:selected="${item.status.name() == 'PENDING'}">PENDING</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px;">Update</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Operative Notes Form -->
+                    <div sec:authorize="hasAnyRole('ADMIN', 'DOCTOR')" style="margin-top:28px; border-top:1px solid var(--border); padding-top:20px;">
+                        <h3>Document Operative Notes &amp; Findings</h3>
+                        <form th:action="@{/ot/surgeries/{id}/operative-notes(id=${booking.id})}" method="post" style="margin-top:14px; display:grid; gap:14px;">
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">Postoperative Clinical Diagnosis</label>
+                                <input type="text" name="postoperativeDiagnosis" th:value="${booking.postoperativeDiagnosis}" placeholder="e.g. Acute gangrenous appendicitis with localized peritonitis" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">Surgical Operative Notes &amp; Technique *</label>
+                                <textarea name="operativeNotes" required rows="5" placeholder="Document incision, findings, procedure steps, hemostasis, specimen sent to histology, and closure..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;" th:text="${booking.operativeNotes}"></textarea>
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">Anesthesia Notes &amp; Hemodynamics</label>
+                                <textarea name="anesthesiaNotes" rows="3" placeholder="Anesthetic agents, airway grade, fluids administered, blood loss, and stability..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;" th:text="${booking.anesthesiaNotes}"></textarea>
+                            </div>
+                            <div>
+                                <button type="submit" class="btn btn-primary" style="padding:9px 18px;">Save Authorized Operative Notes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- TAB 5: POSTOPERATIVE HANDOVER -->
+                <div th:if="${activeTab == 'postop'}" class="card" style="padding:24px;">
+                    <div style="border-bottom:1px solid var(--border); padding-bottom:14px; margin-bottom:20px;">
+                        <h2>Postoperative Handover &amp; Recovery Roster</h2>
+                        <p style="font-size:13px; color:var(--text-muted);">Transfer of clinical responsibility from OT team to Post-Anesthesia Care Unit (PACU) or Ward.</p>
+                    </div>
+
+                    <!-- Handover Verification Items -->
+                    <div style="margin-bottom:24px;">
+                        <h3 style="color:var(--primary-navy); margin-bottom:12px;">Handover Safety Checklist</h3>
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%; border-collapse:collapse;" class="table">
+                                <tr th:each="item : ${handoverItems}" style="border-bottom:1px solid var(--border);">
+                                    <td style="padding:8px 10px; font-weight:600;" th:text="${item.itemLabel}">Label</td>
+                                    <td style="padding:8px 10px;">
+                                        <span th:class="${item.status.name() == 'COMPLETED' ? 'badge badge-success' : 'badge badge-warning'}" th:text="${item.status}">Status</span>
+                                    </td>
+                                    <td style="padding:8px 10px; text-align:right;">
+                                        <form th:action="@{/ot/surgeries/{id}/checklist/{itemId}(id=${booking.id}, itemId=${item.id})}" method="post" style="display:inline-flex; gap:4px;">
+                                            <input type="hidden" name="phaseTab" value="postop">
+                                            <select name="status" style="padding:4px; font-size:12px; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                                                <option value="COMPLETED" th:selected="${item.status.name() == 'COMPLETED'}">COMPLETED</option>
+                                                <option value="PENDING" th:selected="${item.status.name() == 'PENDING'}">PENDING</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-outline btn-sm" style="padding:4px 8px; font-size:11px;">Update</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Handover Details Form -->
+                    <div style="background:#f8fafc; padding:20px; border-radius:var(--radius-sm); border:1px solid var(--border);">
+                        <h3>Record Clinical Handover &amp; Destination</h3>
+                        <form th:action="@{/ot/surgeries/{id}/handover(id=${booking.id})}" method="post" style="margin-top:14px; display:grid; gap:14px;">
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">Recovery Destination Unit / Bed *</label>
+                                <input type="text" name="recoveryDestination" required th:value="${booking.recoveryDestination}" placeholder="e.g. PACU Bed 03 / Surgical ICU Bed 02 / General Ward Bed G-104" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">Handover Clinical Notes</label>
+                                <textarea name="handoverNotes" rows="3" placeholder="Extubation status, Aldrete score, oxygen delivery, fluid balance, drain outputs, and urgent clinician notifications..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;"></textarea>
+                            </div>
+                            <div>
+                                <button type="submit" class="btn btn-primary" style="padding:9px 18px;">Sign Off Handover</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- TAB 6: CONSUMABLES & STOCK DEDUCTION -->
+                <div th:if="${activeTab == 'inventory'}" class="card" style="padding:24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+                        <div>
+                            <h2>OT Consumables &amp; Pharmacy Stock Integration</h2>
+                            <p style="font-size:13px; color:var(--text-muted);">Track medications, surgical packs, sutures, and supplies used during the operation.</p>
+                        </div>
+                        <form th:action="@{/ot/surgeries/{id}/consumables/deduct(id=${booking.id})}" method="post">
+                            <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Deduct stock from pharmacy inventory for all un-deducted items?')">
+                                ⚖️ Deduct Stock from Pharmacy
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Add Consumable Form -->
+                    <div style="background:#f8fafc; padding:16px; border-radius:var(--radius-sm); margin-bottom:20px; border:1px solid var(--border);">
+                        <h4 style="margin-bottom:10px;">➕ Record Consumable Usage</h4>
+                        <form th:action="@{/ot/surgeries/{id}/consumables(id=${booking.id})}" method="post" style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr 100px; gap:12px; align-items:end;">
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">Pharmacy Medicine (or custom below)</label>
+                                <select name="medicineId" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                                    <option value="">-- Or enter custom pack below --</option>
+                                    <option th:each="med : ${allMedicines}" th:value="${med.id}" th:text="${med.name + ' (' + med.dosageForm + ', Stock: ' + med.totalStock + ')'}"></option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">Custom Item / Suture Name</label>
+                                <input type="text" name="customItemName" placeholder="e.g. Vicryl 2-0 Suture Pack" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">Quantity *</label>
+                                <input type="number" name="quantity" min="1" value="1" required style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">Unit Cost ($)</label>
+                                <input type="number" step="0.01" name="unitPrice" placeholder="Auto / Custom" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                            </div>
+                            <div>
+                                <button type="submit" class="btn btn-outline btn-sm" style="width:100%; padding:9px;">Record</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Consumables Table -->
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:collapse;" class="table">
+                            <thead>
+                                <tr style="border-bottom:2px solid var(--border); text-align:left;">
+                                    <th style="padding:10px;">Item / Supply Name</th>
+                                    <th style="padding:10px;">Quantity</th>
+                                    <th style="padding:10px;">Unit Price</th>
+                                    <th style="padding:10px;">Total Cost</th>
+                                    <th style="padding:10px;">Pharmacy Inventory Status</th>
+                                    <th style="padding:10px;">Recorded By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="c : ${consumables}" style="border-bottom:1px solid var(--border);">
+                                    <td style="padding:12px 10px; font-weight:600;" th:text="${c.itemName}">Item Name</td>
+                                    <td style="padding:12px 10px;" th:text="${c.quantity}">1</td>
+                                    <td style="padding:12px 10px;" th:text="${'$' + c.unitPrice}">$10.00</td>
+                                    <td style="padding:12px 10px; font-weight:600;" th:text="${'$' + c.totalCost}">$10.00</td>
+                                    <td style="padding:12px 10px;">
+                                        <span th:if="${c.deducted}" class="badge" style="background:#dcfce7; color:#15803d;">DEDUCTED FROM STOCK</span>
+                                        <span th:if="${!c.deducted}" class="badge" style="background:#fef3c7; color:#b45309;">PENDING DEDUCTION</span>
+                                    </td>
+                                    <td style="padding:12px 10px; font-size:12px; color:var(--text-muted);" th:text="${c.recordedBy}">User</td>
+                                </tr>
+                                <tr th:if="${consumables == null or #lists.isEmpty(consumables)}">
+                                    <td colspan="6" style="text-align:center; padding:24px; color:var(--text-muted);">No surgical consumables recorded yet.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 7: BILLING & CHARGES -->
+                <div th:if="${activeTab == 'billing'}" class="card" style="padding:24px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+                        <div>
+                            <h2>Surgery Charges &amp; Invoice Integration</h2>
+                            <p style="font-size:13px; color:var(--text-muted);">Synchronized with CareFlow central billing and finance module.</p>
+                        </div>
+                        <form sec:authorize="hasAnyRole('ADMIN', 'BILLING')" th:action="@{/ot/surgeries/{id}/billing(id=${booking.id})}" method="post">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                💳 Generate / Update Invoice
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Breakdown Cards -->
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom:24px;">
+                        <article class="card" style="background:#f8fafc;">
+                            <span style="font-size:12px; color:var(--text-muted);">Estimated Total</span>
+                            <div style="font-size:24px; font-weight:700; color:var(--primary-navy); margin-top:4px;" th:text="${'$' + totalCharges}">$0.00</div>
+                        </article>
+                        <article class="card" style="background:#f8fafc;">
+                            <span style="font-size:12px; color:var(--text-muted);">Linked Invoice Number</span>
+                            <div style="font-size:18px; font-weight:700; color:var(--primary-blue); margin-top:4px;">
+                                <span th:if="${booking.invoice != null}" th:text="${booking.invoice.invoiceNumber}">INV-001</span>
+                                <span th:if="${booking.invoice == null}" style="color:var(--text-muted); font-size:14px;">Not generated yet</span>
+                            </div>
+                        </article>
+                        <article class="card" style="background:#f8fafc;">
+                            <span style="font-size:12px; color:var(--text-muted);">Invoice Payment Status</span>
+                            <div style="font-size:18px; font-weight:700; margin-top:4px;">
+                                <span th:if="${booking.invoice != null and booking.invoice.status.name() == 'PAID'}" class="badge badge-success">PAID</span>
+                                <span th:if="${booking.invoice != null and booking.invoice.status.name() == 'PENDING'}" class="badge badge-warning">PENDING PAYMENT</span>
+                                <span th:if="${booking.invoice == null}" style="color:var(--text-muted); font-size:14px;">—</span>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div th:if="${booking.invoice != null}" style="border:1px solid var(--border); border-radius:var(--radius-sm); padding:16px;">
+                        <h3>Invoice Details</h3>
+                        <p style="margin-top:6px;"><strong>Description:</strong> <span th:text="${booking.invoice.serviceDescription}">Description</span></p>
+                        <p style="margin-top:4px;"><strong>Total Invoiced:</strong> <span style="font-size:18px; font-weight:700;" th:text="${'$' + booking.invoice.totalAmount}">$0.00</span> (includes 5% hospital tax)</p>
+                        <p style="margin-top:4px;"><strong>Due Date:</strong> <span th:text="${booking.invoice.dueDate}">Date</span></p>
+                        <div style="margin-top:12px;">
+                            <a sec:authorize="hasAnyRole('ADMIN', 'BILLING')" th:href="@{/billing/dashboard}" class="btn btn-outline btn-sm">Go to Billing &amp; Payment Records →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 8: AUDIT HISTORY -->
+                <div th:if="${activeTab == 'audit'}" class="card" style="padding:24px;">
+                    <div style="border-bottom:1px solid var(--border); padding-bottom:14px; margin-bottom:20px;">
+                        <h2>Immutable Surgical Audit Trail</h2>
+                        <p style="font-size:13px; color:var(--text-muted);">Verifiable record of clinical workflow transitions, checklists, and modifications.</p>
+                    </div>
+
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:collapse;" class="table">
+                            <thead>
+                                <tr style="border-bottom:2px solid var(--border); text-align:left;">
+                                    <th style="padding:10px;">Timestamp</th>
+                                    <th style="padding:10px;">Transition / Action</th>
+                                    <th style="padding:10px;">Performed By</th>
+                                    <th style="padding:10px;">Clinical &amp; System Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="audit : ${auditHistory}" style="border-bottom:1px solid var(--border);">
+                                    <td style="padding:12px 10px; font-size:12px; color:var(--text-muted); white-space:nowrap;" th:text="${#temporals.format(audit.timestamp, 'MMM d, yyyy HH:mm:ss')}">Time</td>
+                                    <td style="padding:12px 10px;">
+                                        <span th:if="${audit.transitionFrom != null}" th:text="${audit.transitionFrom + ' → ' + audit.transitionTo}">FROM → TO</span>
+                                        <span th:if="${audit.transitionFrom == null}" class="badge" style="background:#e0f2fe; color:#0369a1;" th:text="${audit.transitionTo}">ACTION</span>
+                                    </td>
+                                    <td style="padding:12px 10px; font-weight:600;" th:text="${audit.performedBy}">Username</td>
+                                    <td style="padding:12px 10px; font-size:13px; color:var(--text-secondary);" th:text="${audit.actionDetails}">Details</td>
+                                </tr>
+                                <tr th:if="${auditHistory == null or #lists.isEmpty(auditHistory)}">
+                                    <td colspan="4" style="text-align:center; padding:24px; color:var(--text-muted);">No audit records found.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Complete Surgery Modal -->
+                <div id="completeSurgeryModal" style="display:none; position:fixed; z-index:100; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+                    <div style="background:white; max-width:560px; margin:60px auto; padding:24px; border-radius:var(--radius-md); text-align:left;">
+                        <h3>Complete Surgical Operation</h3>
+                        <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">Record end time, post-op diagnosis, operative notes, and handover destination.</p>
+                        <form th:action="@{/ot/surgeries/{id}/status(id=${booking.id})}" method="post" style="margin-top:14px; display:grid; gap:12px;">
+                            <input type="hidden" name="targetStatus" value="COMPLETED">
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">Postoperative Diagnosis *</label>
+                                <input type="text" name="postoperativeDiagnosis" required placeholder="Final diagnosis confirmed during surgery" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">Operative Notes Summary *</label>
+                                <textarea name="operativeNotes" required rows="3" placeholder="Surgical findings and key technique..." style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;"></textarea>
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">Post-op Recovery Destination *</label>
+                                <input type="text" name="recoveryDestination" required placeholder="e.g. PACU Bed 2 / Surgical ICU" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                            </div>
+                            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+                                <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('completeSurgeryModal').style.display='none'">Cancel</button>
+                                <button type="submit" class="btn btn-primary btn-sm">Confirm &amp; Complete Operation</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Reschedule Modal -->
+                <div id="rescheduleModal" style="display:none; position:fixed; z-index:100; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+                    <div style="background:white; max-width:480px; margin:80px auto; padding:24px; border-radius:var(--radius-md); text-align:left;">
+                        <h3>Reschedule Operation</h3>
+                        <form th:action="@{/ot/surgeries/{id}/reschedule(id=${booking.id})}" method="post" style="margin-top:14px; display:grid; gap:12px;">
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">New Planned Date *</label>
+                                <input type="date" name="newDate" required th:value="${booking.plannedDate}" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">New Planned Start Time *</label>
+                                <input type="time" name="newStartTime" required th:value="${booking.plannedStartTime}" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">Duration (Mins)</label>
+                                <input type="number" name="newDuration" th:value="${booking.expectedDurationMinutes}" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">Alternative Theatre (Optional)</label>
+                                <select name="newTheatreId" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                                    <option th:each="th : ${allTheatres}" th:value="${th.id}" th:text="${th.theatreCode + ' - ' + th.name}" th:selected="${th.id == booking.theatre.id}"></option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">Reason for Rescheduling *</label>
+                                <textarea name="reason" required rows="2" placeholder="Clinical reason, patient request, theatre emergency..." style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;"></textarea>
+                            </div>
+                            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+                                <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('rescheduleModal').style.display='none'">Cancel</button>
+                                <button type="submit" class="btn btn-primary btn-sm">Confirm Reschedule</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Cancel Modal -->
+                <div id="cancelModal" style="display:none; position:fixed; z-index:100; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+                    <div style="background:white; max-width:440px; margin:100px auto; padding:24px; border-radius:var(--radius-md); text-align:left;">
+                        <h3 style="color:var(--danger);">Cancel Surgery Booking</h3>
+                        <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">Cancelling will release the allocated theatre slot and create an audit log entry.</p>
+                        <form th:action="@{/ot/surgeries/{id}/cancel(id=${booking.id})}" method="post" style="margin-top:14px; display:grid; gap:12px;">
+                            <div>
+                                <label style="font-size:12px; font-weight:600;">Mandatory Cancellation Reason *</label>
+                                <textarea name="reason" required rows="3" placeholder="Provide clinical justification or administrative reason..." style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;"></textarea>
+                            </div>
+                            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+                                <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('cancelModal').style.display='none'">Back</button>
+                                <button type="submit" class="btn btn-sm" style="background:var(--danger); color:white;">Confirm Cancellation</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</div>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

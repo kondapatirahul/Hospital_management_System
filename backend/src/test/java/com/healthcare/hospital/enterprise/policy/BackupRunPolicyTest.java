@@ -53,7 +53,7 @@ class BackupRunPolicyTest {
     @Test void searchesAndDeduplicatesCaseInsensitively() {
         assertTrue(BackupRunPolicy.matchesSearch(List.of("Patient Record", "Ward"), "patient"));
         assertFalse(BackupRunPolicy.matchesSearch(List.of("Ward"), "patient"));
-        assertEquals(List.of("Alpha", "beta"), BackupRunPolicy.distinctSorted(List.of("beta", "Alpha", "alpha", null)));
+        assertEquals(List.of("Alpha", "beta"), BackupRunPolicy.distinctSorted(java.util.Arrays.asList("beta", "Alpha", "alpha", null)));
         assertTrue(BackupRunPolicy.isReferenceDuplicate(List.of("ABC-1"), "abc-1"));
     }
     @Test void createsUsefulSummariesAndAuditMetadata() {

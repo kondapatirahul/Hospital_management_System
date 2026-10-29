@@ -53,7 +53,7 @@ class RefundRequestPolicyTest {
     @Test void searchesAndDeduplicatesCaseInsensitively() {
         assertTrue(RefundRequestPolicy.matchesSearch(List.of("Patient Record", "Ward"), "patient"));
         assertFalse(RefundRequestPolicy.matchesSearch(List.of("Ward"), "patient"));
-        assertEquals(List.of("Alpha", "beta"), RefundRequestPolicy.distinctSorted(List.of("beta", "Alpha", "alpha", null)));
+        assertEquals(List.of("Alpha", "beta"), RefundRequestPolicy.distinctSorted(java.util.Arrays.asList("beta", "Alpha", "alpha", null)));
         assertTrue(RefundRequestPolicy.isReferenceDuplicate(List.of("ABC-1"), "abc-1"));
     }
     @Test void createsUsefulSummariesAndAuditMetadata() {

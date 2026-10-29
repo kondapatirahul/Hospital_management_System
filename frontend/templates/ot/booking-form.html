@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Schedule Surgery')}"></head>
+<body>
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('ot-booking')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Schedule Surgery', 'Book operation theatre slots, assign surgical team, and establish patient clinical pathway.')}"></header>
+        <main class="page-content">
+            <div class="dashboard-legacy" style="max-width:960px; margin:0 auto;">
+
+                <!-- Alerts -->
+                <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+                <div th:if="${successMessage}" class="alert alert-success" role="status" th:text="${successMessage}"></div>
+
+                <div class="card" style="padding:28px;">
+                    <div style="border-bottom:1px solid var(--border); padding-bottom:14px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <h2>Surgery Booking Request</h2>
+                            <p style="font-size:13px; color:var(--text-muted);">Ensure all mandatory clinical, patient, and theatre resource fields are specified.</p>
+                        </div>
+                        <a th:href="@{/ot/schedule}" class="btn btn-outline btn-sm">← Back to Schedule</a>
+                    </div>
+
+                    <form th:action="@{/ot/surgeries}" th:object="${bookingDto}" method="post" style="display:grid; gap:20px;">
+                        
+                        <!-- Row 1: Patient and Doctor -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                            <div>
+                                <label style="font-size:13px; font-weight:600; color:var(--primary-navy);">Patient *</label>
+                                <select th:field="*{patientId}" required style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:6px;">
+                                    <option value="">-- Select Patient --</option>
+                                    <option th:each="p : ${patients}" th:value="${p.id}"
+                                            th:text="${p.patientId + ' - ' + p.fullName + ' (' + p.gender + ', Blood: ' + (p.bloodGroup ?: 'Unknown') + ')'}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:13px; font-weight:600; color:var(--primary-navy);">Lead Surgeon *</label>
+                                <select th:field="*{leadSurgeonId}" required style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:6px;">
+                                    <option value="">-- Select Lead Surgeon --</option>
+                                    <option th:each="doc : ${doctors}" th:value="${doc.id}"
+                                            th:text="${'Dr. ' + doc.fullName + ' (' + doc.department.name + ' - ' + doc.qualification + ')'}">
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Row 2: Procedure and Category -->
+                        <div style="display:grid; grid-template-columns:2fr 1fr; gap:16px;">
+                            <div>
+                                <label style="font-size:13px; font-weight:600; color:var(--primary-navy);">Procedure / Operation Name *</label>
+                                <input type="text" th:field="*{procedureName}" required maxlength="200" placeholder="e.g. Laparoscopic Appendectomy / Total Knee Replacement" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:6px;">
+                            </div>
+                            <div>
+                                <label style="font-size:13px; font-weight:600; color:var(--primary-navy);">Surgical Specialty *</label>
+                                <select th:field="*{procedureCategory}" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:6px;">
+                                    <option value="General">General Surgery</option>
+                                    <option value="Cardiac">Cardiac &amp; Thoracic</option>
+                                    <option value="Orthopedic">Orthopedics &amp; Trauma</option>
+                                    <option value="Neurology">Neurosurgery</option>
+                                    <option value="Ophthalmic">Ophthalmology</option>
+                                    <option value="Gynecology">Obstetrics &amp; Gynecology</option>
+                                    <option value="Urology">Urology</option>
+                                    <option value="ENT">ENT Surgery</option>
+                                    <option value="Plastic">Plastic &amp; Reconstructive</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Row 3: Theatre, Date, Time, Duration -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:16px;">
+                            <div>
+                                <label style="font-size:13px; font-weight:600; color:var(--primary-navy);">Operation Theatre *</label>
+                                <select th:field="*{theatreId}" required style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:6px;">
+                                    <option value="">-- Select Theatre --</option>
+                                    <option th:each="th : ${theatres}" th:value="${th.id}"
+                                            th:text="${th.theatreCode + ' - ' + th.name}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:13px; font-weight:600; color:var(--primary-navy);">Planned Date *</label>
+                                <input type="date" th:field="*{plannedDate}" required style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:6px;">
+                            </div>
+                            <div>
+                                <label style="font-size:13px; font-weight:600; color:var(--primary-navy);">Planned Start Time *</label>
+                                <input type="time" th:field="*{plannedStartTime}" required style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:6px;">
+                            </div>
+                            <div>
+                                <label style="font-size:13px; font-weight:600; color:var(--primary-navy);">Duration (Minutes) *</label>
+                                <input type="number" th:field="*{expectedDurationMinutes}" required min="15" max="720" step="15" value="120" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:6px;">
+                            </div>
+                        </div>
+
+                        <!-- Row 4: Priority and Inpatient Ward / Bed Link -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                            <div>
+                                <label style="font-size:13px; font-weight:600; color:var(--primary-navy);">Surgical Priority *</label>
+                                <select th:field="*{priority}" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:6px;">
+                                    <option th:each="pr : ${priorities}" th:value="${pr}" th:text="${pr}"></option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:13px; font-weight:600; color:var(--primary-navy);">Pre/Post-op Ward Bed Link (Optional)</label>
+                                <select th:field="*{wardBedId}" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:6px;">
+                                    <option value="">-- No Specific Ward Bed --</option>
+                                    <option th:each="b : ${wardBeds}" th:value="${b.id}" th:text="${b.wardName + ' - Bed ' + b.bedNumber + ' (' + b.status + ')'}"></option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Row 5: Clinical Notes -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                            <div>
+                                <label style="font-size:13px; font-weight:600; color:var(--primary-navy);">Clinical Indication</label>
+                                <textarea th:field="*{clinicalIndication}" rows="3" placeholder="Symptoms, diagnostic reasoning, indication for surgical intervention..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:6px;"></textarea>
+                            </div>
+                            <div>
+                                <label style="font-size:13px; font-weight:600; color:var(--primary-navy);">Preoperative Diagnosis</label>
+                                <textarea th:field="*{preoperativeDiagnosis}" rows="3" placeholder="Primary clinical diagnosis established prior to incision..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:6px;"></textarea>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:10px;">
+                            <a th:href="@{/ot/schedule}" class="btn btn-outline">Cancel</a>
+                            <button type="submit" class="btn btn-primary" style="padding:10px 24px; font-weight:600;">Confirm &amp; Schedule Operation</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</div>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

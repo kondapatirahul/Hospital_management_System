@@ -443,3 +443,147 @@ CREATE INDEX idx_transactions_type ON stock_transactions(transaction_type);
 CREATE INDEX idx_prescriptions_dispense_status ON prescriptions(dispense_status);
 CREATE INDEX idx_dispensations_date ON prescription_dispensations(dispensation_date);
 CREATE INDEX idx_purchase_orders_supplier ON purchase_orders(supplier_id, order_date);
+
+
+-- ========================================================
+-- CareFlow Healthcare Management System - Module OT Schema
+-- Operation Theatre, Surgery Scheduling & Clinical Workflows
+-- ========================================================
+
+-- 15. Operation Theatres Table
+CREATE TABLE IF NOT EXISTS operation_theatres (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    theatre_code VARCHAR(30) NOT NULL UNIQUE,
+    name VARCHAR(120) NOT NULL,
+    location VARCHAR(150) NOT NULL,
+    theatre_type VARCHAR(50) NOT NULL DEFAULT 'GENERAL',
+    capacity INT NOT NULL DEFAULT 1,
+    equipment_details TEXT,
+    status VARCHAR(30) NOT NULL DEFAULT 'AVAILABLE',
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    notes TEXT,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    version BIGINT DEFAULT 0
+);
+
+-- 16. Theatre Maintenance Logs Table
+CREATE TABLE IF NOT EXISTS theatre_maintenance_logs (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    theatre_id BIGINT NOT NULL,
+    maintenance_type VARCHAR(50) NOT NULL,
+    start_time DATETIME NOT NULL,
+    end_time DATETIME,
+    performed_by VARCHAR(100),
+    details TEXT,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (theatre_id) REFERENCES operation_theatres(id) ON DELETE CASCADE
+);
+
+-- 17. Surgery Bookings Table
+CREATE TABLE IF NOT EXISTS surgery_bookings (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    booking_number VARCHAR(32) NOT NULL UNIQUE,
+    patient_id BIGINT NOT NULL,
+    theatre_id BIGINT NOT NULL,
+    lead_surgeon_id BIGINT NOT NULL,
+    procedure_name VARCHAR(200) NOT NULL,
+    procedure_category VARCHAR(80) DEFAULT 'General',
+    planned_date DATE NOT NULL,
+    planned_start_time TIME NOT NULL,
+    expected_duration_minutes INT NOT NULL DEFAULT 120,
+    priority VARCHAR(20) NOT NULL DEFAULT 'ROUTINE',
+    status VARCHAR(30) NOT NULL DEFAULT 'SCHEDULED',
+    actual_start_time DATETIME,
+    actual_end_time DATETIME,
+    appointment_id BIGINT,
+    ward_bed_id BIGINT,
+    clinical_indication TEXT,
+    preoperative_diagnosis TEXT,
+    postoperative_diagnosis TEXT,
+    operative_notes TEXT,
+    anesthesia_notes TEXT,
+    recovery_destination VARCHAR(150),
+    cancellation_reason TEXT,
+    postponed_reason TEXT,
+    booked_by VARCHAR(100),
+    invoice_id BIGINT,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    version BIGINT DEFAULT 0,
+    FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE RESTRICT,
+    FOREIGN KEY (theatre_id) REFERENCES operation_theatres(id) ON DELETE RESTRICT,
+    FOREIGN KEY (lead_surgeon_id) REFERENCES doctors(id) ON DELETE RESTRICT,
+    FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE SET NULL,
+    FOREIGN KEY (ward_bed_id) REFERENCES ward_beds(id) ON DELETE SET NULL,
+    FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE SET NULL
+);
+
+-- 18. Surgical Team Members Table
+CREATE TABLE IF NOT EXISTS surgical_team_members (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    surgery_booking_id BIGINT NOT NULL,
+    doctor_id BIGINT,
+    user_id BIGINT,
+    member_role VARCHAR(50) NOT NULL,
+    member_name VARCHAR(120) NOT NULL,
+    assigned_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    assigned_by VARCHAR(100),
+    FOREIGN KEY (surgery_booking_id) REFERENCES surgery_bookings(id) ON DELETE CASCADE,
+    FOREIGN KEY (doctor_id) REFERENCES doctors(id) ON DELETE SET NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- 19. Surgery Checklist Items Table
+CREATE TABLE IF NOT EXISTS surgery_checklist_items (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    surgery_booking_id BIGINT NOT NULL,
+    phase VARCHAR(30) NOT NULL,
+    item_code VARCHAR(60) NOT NULL,
+    item_label VARCHAR(255) NOT NULL,
+    is_mandatory BOOLEAN NOT NULL DEFAULT TRUE,
+    status VARCHAR(30) NOT NULL DEFAULT 'PENDING',
+    completed_by VARCHAR(100),
+    completed_at DATETIME,
+    remarks TEXT,
+    FOREIGN KEY (surgery_booking_id) REFERENCES surgery_bookings(id) ON DELETE CASCADE
+);
+
+-- 20. Surgery Consumables Usage Table
+CREATE TABLE IF NOT EXISTS surgery_consumable_usages (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    surgery_booking_id BIGINT NOT NULL,
+    medicine_id BIGINT,
+    batch_id BIGINT,
+    item_name VARCHAR(150) NOT NULL,
+    quantity INT NOT NULL DEFAULT 1,
+    unit_price DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    total_cost DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    is_deducted BOOLEAN NOT NULL DEFAULT FALSE,
+    recorded_by VARCHAR(100),
+    recorded_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (surgery_booking_id) REFERENCES surgery_bookings(id) ON DELETE CASCADE,
+    FOREIGN KEY (medicine_id) REFERENCES medicines(id) ON DELETE SET NULL,
+    FOREIGN KEY (batch_id) REFERENCES medicine_batches(id) ON DELETE SET NULL
+);
+
+-- 21. Surgery Audit Trails Table
+CREATE TABLE IF NOT EXISTS surgery_audit_trails (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    surgery_booking_id BIGINT NOT NULL,
+    transition_from VARCHAR(50),
+    transition_to VARCHAR(50) NOT NULL,
+    performed_by VARCHAR(100) NOT NULL,
+    timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    action_details TEXT,
+    FOREIGN KEY (surgery_booking_id) REFERENCES surgery_bookings(id) ON DELETE CASCADE
+);
+
+-- Indexes for Fast Search and Conflict Detection
+CREATE INDEX idx_ot_status ON operation_theatres(status);
+CREATE INDEX idx_surg_theatre_date ON surgery_bookings(theatre_id, planned_date);
+CREATE INDEX idx_surg_doctor_date ON surgery_bookings(lead_surgeon_id, planned_date);
+CREATE INDEX idx_surg_status ON surgery_bookings(status);
+CREATE INDEX idx_team_surgery ON surgical_team_members(surgery_booking_id);
+CREATE INDEX idx_chk_surgery_phase ON surgery_checklist_items(surgery_booking_id, phase);
+CREATE INDEX idx_surg_consumable_booking ON surgery_consumable_usages(surgery_booking_id);

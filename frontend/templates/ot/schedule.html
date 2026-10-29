@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: htmlHead('Operation Theatre Schedule')}"></head>
+<body>
+<div class="app-container">
+    <aside th:replace="~{fragments/layout :: sidebar('ot-schedule')}"></aside>
+    <div class="app-main">
+        <header th:replace="~{fragments/layout :: navbar('Operation Theatre Schedule', 'Real-time surgery scheduling, theatre allocations, and daily clinical roster.')}"></header>
+        <main class="page-content">
+            <div class="dashboard-legacy">
+
+                <!-- Alert Messages -->
+                <div th:if="${successMessage}" class="alert alert-success" role="status" th:text="${successMessage}"></div>
+                <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+
+                <!-- Top Metric Cards -->
+                <section style="display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:16px; margin-bottom:24px;">
+                    <article class="card" style="border-left: 4px solid var(--accent-teal);">
+                        <span style="font-size:12px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Theatres Available</span>
+                        <div style="font-size:24px; font-weight:700; color:var(--primary-navy); margin-top:4px;">
+                            <span th:text="${stats.availableTheatres}">0</span> / <span th:text="${stats.totalTheatres}">0</span>
+                        </div>
+                    </article>
+                    <article class="card" style="border-left: 4px solid var(--primary-blue);">
+                        <span style="font-size:12px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Surgeries Today</span>
+                        <div style="font-size:24px; font-weight:700; color:var(--primary-navy); margin-top:4px;" th:text="${stats.totalSurgeries}">0</div>
+                    </article>
+                    <article class="card" style="border-left: 4px solid var(--warning);">
+                        <span style="font-size:12px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">In Progress</span>
+                        <div style="font-size:24px; font-weight:700; color:var(--warning); margin-top:4px;" th:text="${stats.inProgressSurgeries}">0</div>
+                    </article>
+                    <article class="card" style="border-left: 4px solid var(--success);">
+                        <span style="font-size:12px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Completed</span>
+                        <div style="font-size:24px; font-weight:700; color:var(--success); margin-top:4px;" th:text="${stats.completedSurgeries}">0</div>
+                    </article>
+                    <article class="card" style="border-left: 4px solid var(--info);">
+                        <span style="font-size:12px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Avg Delay</span>
+                        <div style="font-size:24px; font-weight:700; color:var(--info); margin-top:4px;">
+                            <span th:text="${stats.averageDelayMinutes}">0</span> <small style="font-size:13px; font-weight:normal;">mins</small>
+                        </div>
+                    </article>
+                </section>
+
+                <!-- Actions and Date Navigation Bar -->
+                <div class="card" style="margin-bottom:20px; padding:16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                            <a th:href="@{/ot/schedule(date=${selectedDate.minusDays(1)}, view=${viewMode})}" class="btn btn-outline btn-sm">◀ Prev Day</a>
+                            <a th:href="@{/ot/schedule(date=${#temporals.createToday()}, view=${viewMode})}" class="btn btn-outline btn-sm">Today</a>
+                            <a th:href="@{/ot/schedule(date=${selectedDate.plusDays(1)}, view=${viewMode})}" class="btn btn-outline btn-sm">Next Day ▶</a>
+                            <form method="get" th:action="@{/ot/schedule}" style="display:inline-flex; align-items:center; gap:6px;">
+                                <input type="hidden" name="view" th:value="${viewMode}">
+                                <input type="date" name="date" th:value="${selectedDate}" onchange="this.form.submit()" style="padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                            </form>
+                            <span style="font-weight:600; font-size:16px; margin-left:8px;" th:text="${#temporals.format(selectedDate, 'EEEE, MMMM d, yyyy')}">Date</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div class="btn-group" style="display:inline-flex; border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden;">
+                                <a th:href="@{/ot/schedule(date=${selectedDate}, view='daily')}" class="btn btn-sm" th:style="${viewMode == 'daily' ? 'background:var(--primary-blue); color:white;' : 'background:white; color:var(--text-secondary);'}">Daily Agenda</a>
+                                <a th:href="@{/ot/schedule(date=${selectedDate}, view='weekly')}" class="btn btn-sm" th:style="${viewMode == 'weekly' ? 'background:var(--primary-blue); color:white;' : 'background:white; color:var(--text-secondary);'}">Weekly View</a>
+                            </div>
+                            <a sec:authorize="hasAnyRole('ADMIN', 'DOCTOR')" th:href="@{/ot/surgeries/new}" class="btn btn-primary btn-sm">➕ Schedule Surgery</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters Bar -->
+                <div class="card" style="margin-bottom:20px; padding:16px;">
+                    <form method="get" th:action="@{/ot/schedule}" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)) 80px; gap:12px; align-items:end;">
+                        <input type="hidden" name="date" th:value="${selectedDate}">
+                        <input type="hidden" name="view" th:value="${viewMode}">
+                        <div>
+                            <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Theatre Room</label>
+                            <select name="theatreId" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                                <option value="">All Theatres</option>
+                                <option th:each="th : ${theatres}" th:value="${th.id}" th:text="${th.theatreCode + ' - ' + th.name}" th:selected="${th.id == filterTheatreId}"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Lead Surgeon</label>
+                            <select name="surgeonId" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                                <option value="">All Surgeons</option>
+                                <option th:each="doc : ${doctors}" th:value="${doc.id}" th:text="${doc.fullName}" th:selected="${doc.id == filterSurgeonId}"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Surgery Status</label>
+                            <select name="status" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                                <option value="">All Statuses</option>
+                                <option th:each="st : ${statuses}" th:value="${st}" th:text="${st}" th:selected="${st == filterStatus}"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Search Query</label>
+                            <input type="text" name="search" th:value="${search}" placeholder="Patient, procedure, code..." style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-top:4px;">
+                        </div>
+                        <div>
+                            <button type="submit" class="btn btn-outline" style="width:100%; padding:8px;">Filter</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- DAILY SCHEDULE TABLE VIEW -->
+                <section th:if="${viewMode != 'weekly'}" class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                        <h2>Daily Surgical Schedule</h2>
+                        <span style="font-size:13px; color:var(--text-muted);" th:if="${surgeries != null}" th:text="${surgeries.size() + ' scheduled operations'}">0 scheduled</span>
+                    </div>
+
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:collapse;" class="table">
+                            <thead>
+                                <tr style="border-bottom:2px solid var(--border); text-align:left;">
+                                    <th style="padding:10px;">Time</th>
+                                    <th style="padding:10px;">Booking #</th>
+                                    <th style="padding:10px;">Theatre</th>
+                                    <th style="padding:10px;">Procedure</th>
+                                    <th style="padding:10px;">Patient</th>
+                                    <th style="padding:10px;">Lead Surgeon</th>
+                                    <th style="padding:10px;">Priority</th>
+                                    <th style="padding:10px;">Status</th>
+                                    <th style="padding:10px; text-align:right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="surg : ${surgeries}" style="border-bottom:1px solid var(--border);">
+                                    <td style="padding:12px 10px; white-space:nowrap;">
+                                        <strong th:text="${surg.plannedStartTime}">09:00</strong>
+                                        <div style="font-size:11px; color:var(--text-muted);" th:text="${surg.expectedDurationMinutes + ' mins'}">120 mins</div>
+                                    </td>
+                                    <td style="padding:12px 10px;">
+                                        <a th:href="@{/ot/surgeries/{id}(id=${surg.id})}" style="font-weight:600; color:var(--primary-blue);" th:text="${surg.bookingNumber}">SURG-0001</a>
+                                    </td>
+                                    <td style="padding:12px 10px;">
+                                        <span class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:600;" th:text="${surg.theatre.theatreCode}">OT-01</span>
+                                        <div style="font-size:11px; color:var(--text-muted);" th:text="${surg.theatre.name}">Main Suite</div>
+                                    </td>
+                                    <td style="padding:12px 10px;">
+                                        <strong th:text="${surg.procedureName}">Procedure Name</strong>
+                                        <div style="font-size:11px; color:var(--text-muted);" th:text="${surg.procedureCategory}">Category</div>
+                                    </td>
+                                    <td style="padding:12px 10px;">
+                                        <span th:text="${surg.patient.fullName}">Patient Name</span>
+                                        <div style="font-size:11px; color:var(--text-muted);">
+                                            <span th:text="${surg.patient.patientId}">PAT-0001</span>
+                                            <span th:if="${surg.patient.allergies != null and !surg.patient.allergies.isBlank()}" style="color:var(--danger); font-weight:bold;"> ⚠️ Allergies</span>
+                                        </div>
+                                    </td>
+                                    <td style="padding:12px 10px;">
+                                        <span th:text="${surg.leadSurgeon.fullName}">Dr. Surgeon</span>
+                                        <div style="font-size:11px; color:var(--text-muted);" th:text="${surg.leadSurgeon.department.name}">Dept</div>
+                                    </td>
+                                    <td style="padding:12px 10px;">
+                                        <span th:if="${surg.priority.name() == 'ROUTINE'}" class="badge" style="background:#f1f5f9; color:#475569;">ROUTINE</span>
+                                        <span th:if="${surg.priority.name() == 'URGENT'}" class="badge" style="background:#fef3c7; color:#b45309;">URGENT</span>
+                                        <span th:if="${surg.priority.name() == 'EMERGENCY'}" class="badge" style="background:#fee2e2; color:#b91c1c;">EMERGENCY</span>
+                                    </td>
+                                    <td style="padding:12px 10px;">
+                                        <span th:if="${surg.status.name() == 'SCHEDULED'}" class="badge" style="background:#e0f2fe; color:#0284c7;">SCHEDULED</span>
+                                        <span th:if="${surg.status.name() == 'PREPARATION'}" class="badge" style="background:#fef3c7; color:#d97706;">PREPARATION</span>
+                                        <span th:if="${surg.status.name() == 'IN_PROGRESS'}" class="badge" style="background:#fee2e2; color:#dc2626; animation:pulse 2s infinite;">IN PROGRESS</span>
+                                        <span th:if="${surg.status.name() == 'COMPLETED'}" class="badge" style="background:#dcfce7; color:#15803d;">COMPLETED</span>
+                                        <span th:if="${surg.status.name() == 'CANCELLED'}" class="badge" style="background:#f1f5f9; color:#94a3b8;">CANCELLED</span>
+                                        <span th:if="${surg.status.name() == 'POSTPONED'}" class="badge" style="background:#ffedd5; color:#c2410c;">POSTPONED</span>
+                                    </td>
+                                    <td style="padding:12px 10px; text-align:right; white-space:nowrap;">
+                                        <a th:href="@{/ot/surgeries/{id}(id=${surg.id})}" class="btn btn-outline btn-sm">Clinical Hub →</a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${surgeries == null or #lists.isEmpty(surgeries)}">
+                                    <td colspan="9" style="text-align:center; padding:36px; color:var(--text-muted);">
+                                        <div style="font-size:32px; margin-bottom:8px;">🩺</div>
+                                        <div style="font-weight:600;">No operations scheduled for this date and filter criteria.</div>
+                                        <div style="font-size:13px; margin-top:4px;">Use the button above to schedule a new surgical procedure.</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div th:if="${surgeryPage != null and surgeryPage.totalPages > 1}" style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+                        <span style="font-size:13px; color:var(--text-muted);" th:text="${'Page ' + (surgeryPage.number + 1) + ' of ' + surgeryPage.totalPages}">Page 1 of 1</span>
+                        <div style="display:inline-flex; gap:6px;">
+                            <a th:if="${surgeryPage.hasPrevious()}" th:href="@{/ot/schedule(date=${selectedDate}, view=${viewMode}, theatreId=${filterTheatreId}, surgeonId=${filterSurgeonId}, status=${filterStatus}, search=${search}, page=${surgeryPage.number - 1})}" class="btn btn-outline btn-sm">Previous</a>
+                            <a th:if="${surgeryPage.hasNext()}" th:href="@{/ot/schedule(date=${selectedDate}, view=${viewMode}, theatreId=${filterTheatreId}, surgeonId=${filterSurgeonId}, status=${filterStatus}, search=${search}, page=${surgeryPage.number + 1})}" class="btn btn-outline btn-sm">Next</a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- WEEKLY VIEW -->
+                <section th:if="${viewMode == 'weekly'}" class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                        <h2>Weekly Schedule Overview</h2>
+                        <span style="font-size:14px; font-weight:600; color:var(--primary-navy);" th:text="${#temporals.format(startOfWeek, 'MMM d') + ' - ' + #temporals.format(endOfWeek, 'MMM d, yyyy')}">Week</span>
+                    </div>
+
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:collapse;" class="table">
+                            <thead>
+                                <tr style="border-bottom:2px solid var(--border); text-align:left;">
+                                    <th style="padding:10px;">Date</th>
+                                    <th style="padding:10px;">Day</th>
+                                    <th style="padding:10px;">Scheduled Procedures</th>
+                                    <th style="padding:10px; text-align:right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="dayOffset : ${#numbers.sequence(0, 6)}" style="border-bottom:1px solid var(--border);">
+                                    <td style="padding:12px 10px; font-weight:600;" th:text="${#temporals.format(startOfWeek.plusDays(dayOffset), 'MMM d, yyyy')}">Date</td>
+                                    <td style="padding:12px 10px; font-weight:500;" th:text="${#temporals.format(startOfWeek.plusDays(dayOffset), 'EEEE')}">Day</td>
+                                    <td style="padding:12px 10px;">
+                                        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                                            <span th:each="surg : ${weeklySurgeries}" th:if="${surg.plannedDate.equals(startOfWeek.plusDays(dayOffset))}"
+                                                  style="display:inline-block; padding:4px 8px; border-radius:var(--radius-sm); font-size:12px; background:#f0f9ff; border:1px solid #bae6fd;">
+                                                <strong th:text="${surg.plannedStartTime}">09:00</strong> -
+                                                <a th:href="@{/ot/surgeries/{id}(id=${surg.id})}" style="color:var(--primary-blue);" th:text="${surg.procedureName}">Procedure</a>
+                                                (<span th:text="${surg.theatre.theatreCode}">OT</span>)
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td style="padding:12px 10px; text-align:right;">
+                                        <a th:href="@{/ot/schedule(date=${startOfWeek.plusDays(dayOffset)}, view='daily')}" class="btn btn-outline btn-sm">View Day</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+</div>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

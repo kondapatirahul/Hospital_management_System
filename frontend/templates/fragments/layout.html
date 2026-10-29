@@ -326,6 +326,28 @@
                 <li class="nav-item"><a th:href="@{/staff/wards}"><span class="nav-icon">🛏️</span><span>Ward & Bed Management</span></a></li>
             </ul>
         </div>
+        <div sec:authorize="hasAnyRole('ADMIN', 'DOCTOR', 'NURSE', 'STAFF', 'BILLING')">
+            <div class="nav-section-title">Operation Theatre</div>
+            <ul class="nav-list">
+                <li class="nav-item" th:classappend="${activeNav == 'ot-schedule' ? 'active' : ''}">
+                    <a th:href="@{/ot/schedule}"><span class="nav-icon">🗓️</span><span>OT Schedule</span></a>
+                </li>
+                <li class="nav-item" th:classappend="${activeNav == 'ot-theatres' ? 'active' : ''}">
+                    <a th:href="@{/ot/theatres}"><span class="nav-icon">🏥</span><span>Theatres &amp; Resources</span></a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'DOCTOR')" th:classappend="${activeNav == 'ot-booking' ? 'active' : ''}">
+                    <a th:href="@{/ot/surgeries/new}"><span class="nav-icon">➕</span><span>Schedule Surgery</span></a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'DOCTOR', 'NURSE', 'STAFF')" th:classappend="${activeNav == 'ot-inventory' ? 'active' : ''}">
+                    <a th:href="@{/ot/inventory}"><span class="nav-icon">📦</span><span>OT Consumables</span></a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'DOCTOR', 'BILLING')" th:classappend="${activeNav == 'ot-reports' ? 'active' : ''}">
+                    <a th:href="@{/ot/reports}"><span class="nav-icon">📈</span><span>OT Reports</span></a>
+                </li>
+            </ul>
+        </div>
+            </ul>
+        </div>
     </nav>
 
     <!-- Sidebar Bottom User Status -->

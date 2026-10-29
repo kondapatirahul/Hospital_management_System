@@ -53,7 +53,7 @@ class FinancialPeriodPolicyTest {
     @Test void searchesAndDeduplicatesCaseInsensitively() {
         assertTrue(FinancialPeriodPolicy.matchesSearch(List.of("Patient Record", "Ward"), "patient"));
         assertFalse(FinancialPeriodPolicy.matchesSearch(List.of("Ward"), "patient"));
-        assertEquals(List.of("Alpha", "beta"), FinancialPeriodPolicy.distinctSorted(List.of("beta", "Alpha", "alpha", null)));
+        assertEquals(List.of("Alpha", "beta"), FinancialPeriodPolicy.distinctSorted(java.util.Arrays.asList("beta", "Alpha", "alpha", null)));
         assertTrue(FinancialPeriodPolicy.isReferenceDuplicate(List.of("ABC-1"), "abc-1"));
     }
     @Test void createsUsefulSummariesAndAuditMetadata() {
