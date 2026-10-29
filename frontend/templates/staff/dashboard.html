@@ -1,7 +1,47 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Staff & Nursing - CareFlow</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
-<body><div class="app-container"><aside th:replace="~{fragments/layout :: sidebar('staff/dashboard')}"></aside><div class="app-main"><header th:replace="~{fragments/layout :: navbar('Staff & Nursing', 'Coordinate care tasks, shifts, attendance and ward readiness.')}"></header><main class="page-content"><div class="dashboard-legacy">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Staff & Nursing - CareFlow</title><link rel="stylesheet" th:href="@{/css/style.css}">  <link rel="stylesheet" th:href="@{/css/workflow-hub.css}">
+  <link rel="stylesheet" th:href="@{/css/careflow-operations.css}">
+  <script defer th:src="@{/js/careflow-operations.js}"></script>
+</head>
+<body><div class="app-container"><aside th:replace="~{fragments/layout :: sidebar('staff/dashboard')}"></aside><div class="app-main"><header th:replace="~{fragments/layout :: navbar('Staff & Nursing', 'Coordinate care tasks, shifts, attendance and ward readiness.')}"></header>
+<section th:replace="~{fragments/operations-panel :: operationsPanel('staff')}"></section>
+
+
+<div class="cf-launchpad-callout">
+  <div class="cf-launchpad-symbol" aria-hidden="true">↗</div>
+  <div class="cf-launchpad-copy"><strong>Open your workflow workspace</strong><span>All role-specific tools and common actions in one place.</span></div>
+  <a th:href="@{/workflows/staff}">View workflows <span aria-hidden="true">→</span></a>
+</div>
+
+<main class="page-content">
+<section class="cf-quick-panel" aria-label="Care team workspace">
+  <div class="cf-section-heading">
+    <div><span class="cf-eyebrow">WORKSPACE SHORTCUTS</span><h2>Care team workspace</h2><p>Open a workflow directly. Actions still use the existing server routes and permissions.</p></div>
+    <span class="cf-section-mark" aria-hidden="true">✦</span>
+  </div>
+  <div class="cf-dashboard-filter-row"><input class="cf-dashboard-filter" type="search" data-cf-shortcut-filter placeholder="Filter shortcuts…" aria-label="Filter dashboard shortcuts"><span class="cf-shortcut-count" aria-live="polite"></span></div>
+  <div class="cf-quick-grid">
+    <a class="cf-quick-action" th:href="@{/staff/tasks}">
+  <span class="cf-quick-action-icon" aria-hidden="true">✓</span>
+  <span class="cf-quick-action-copy"><strong>Care tasks</strong><small>Track assigned patient-care tasks</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/staff/wards}">
+  <span class="cf-quick-action-icon" aria-hidden="true">▤</span>
+  <span class="cf-quick-action-copy"><strong>Ward & beds</strong><small>Review ward and bed status</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/staff/shifts}">
+  <span class="cf-quick-action-icon" aria-hidden="true">◷</span>
+  <span class="cf-quick-action-copy"><strong>Duty roster</strong><small>Review shifts and handover coverage</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/staff/attendance}">
+  <span class="cf-quick-action-icon" aria-hidden="true">✓</span>
+  <span class="cf-quick-action-copy"><strong>Attendance</strong><small>Record or review attendance</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a>
+  </div>
+</section>
+<div class="dashboard-legacy">
 <header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><div><p>CAREFLOW / CARE TEAMS</p><h1>Staff & Nursing Dashboard</h1><p>Today's appointment list, queue operations and care-team overview.</p></div><a th:href="@{/logout}">Sign out</a><a th:href="@{/staff/tasks}" style="margin-left:16px">Care tasks →</a><a th:href="@{/staff/wards}" style="margin-left:16px">Ward & beds →</a><a th:href="@{/staff/attendance}" style="margin-left:16px">Attendance →</a><a th:href="@{/staff/shifts}" style="margin-left:16px">Duty roster →</a></header>
 <p th:if="${successMessage}" th:text="${successMessage}" role="status" class="alert alert-success"></p><p th:if="${errorMessage}" th:text="${errorMessage}" role="alert" class="alert alert-danger"></p>
 <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin:24px 0"><article class="card"><h3>Registered patients</h3><strong th:text="${patientCount}">0</strong></article><article class="card"><h3>Doctors</h3><strong th:text="${doctorCount}">0</strong></article><article class="card"><h3>Today's appointments</h3><strong th:text="${#lists.size(todayAppointments)}">0</strong></article><article class="card"><h3>Waiting</h3><strong th:text="${waitingCount}">0</strong></article><article class="card"><h3>In consultation</h3><strong th:text="${consultationCount}">0</strong></article><article class="card"><h3>Completed</h3><strong th:text="${completedCount}">0</strong></article></section>

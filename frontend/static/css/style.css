@@ -1012,3 +1012,85 @@ input,select,textarea{border:1px solid #d8e1ed!important;border-radius:10px!impo
 @media(max-width:900px){.app-sidebar{width:245px}.page-content{padding:18px 14px 28px}.top-navbar{padding-left:14px;padding-right:14px}.dashboard-grid{grid-template-columns:1fr!important}.dashboard-legacy>header{padding:18px}}
 @media(max-width:640px){.app-container{display:block}.app-sidebar{position:fixed;left:-280px;top:0;height:100dvh;width:270px;transition:left .22s ease;z-index:100}.app-sidebar.mobile-open{left:0}.page-content{padding:14px 10px 24px}.stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px}.stat-card{padding:14px;min-height:105px}.stat-info h3{font-size:1.5rem}.card-header{padding:14px}.card-body{padding:14px}.dashboard-legacy>header{gap:12px}.dashboard-legacy section[style*="grid"]{grid-template-columns:repeat(2,minmax(0,1fr))!important}.auth-card{margin:12px;max-width:calc(100% - 24px)}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+
+/* Batch 08: small interaction affordances shared by every role workspace */
+.cf-search-status{display:block;color:#718096;font-size:.75rem;margin-top:5px;min-height:1em}
+.cf-empty-search{text-align:center!important;padding:28px 16px!important;color:#64748b;background:#f8fafc;font-weight:600}
+.cf-sortable{cursor:pointer;user-select:none;position:relative;padding-right:24px!important}
+.cf-sortable::after{content:'↕';position:absolute;right:9px;color:#94a3b8;font-size:.8rem}
+.cf-sortable[data-sort-direction="asc"]::after{content:'↑';color:#087e8b}
+.cf-sortable[data-sort-direction="desc"]::after{content:'↓';color:#087e8b}
+.cf-password-toggle{margin-left:6px;border:1px solid #d8e1ed;background:#f8fbff;color:#1b4568;border-radius:8px;padding:8px 10px;cursor:pointer}
+.cf-invalid:invalid{border-color:#dc2626!important;box-shadow:0 0 0 3px rgba(220,38,38,.1)!important}
+.cf-inline-announcement{display:inline-block;margin-left:8px;color:#087e62;font-size:.8rem;font-weight:700}
+button:disabled,input[type="submit"]:disabled{cursor:wait!important;transform:none!important;opacity:.65}
+[hidden]{display:none!important}
+@media print{.app-sidebar,.top-navbar,.btn,.button,.filter-bar,[data-print-hide],form,button{display:none!important}.app-container,.app-main,.page-content{display:block!important;width:100%!important;max-width:none!important;padding:0!important;margin:0!important;background:#fff!important;box-shadow:none!important}.card,.stat-card,table{break-inside:avoid;box-shadow:none!important}.page-content{font-size:10pt!important}}
+
+
+/* CareFlow Batch 09 — role workspace visual system */
+.cf-quick-panel {
+  margin: 0 0 1.65rem;
+  padding: clamp(1rem, 2.4vw, 1.65rem);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 22px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 58%, #f0fdfa 100%);
+  box-shadow: 0 14px 34px rgba(15, 44, 89, .055);
+}
+.cf-section-heading {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 1rem; margin-bottom: 1.15rem;
+}
+.cf-section-heading h2 { margin: .25rem 0 .3rem; color: #14243b; font-size: clamp(1.1rem, 2vw, 1.45rem); letter-spacing: -.025em; }
+.cf-section-heading p { margin: 0; max-width: 58ch; color: #64748b; font-size: .9rem; line-height: 1.5; }
+.cf-eyebrow { color: #0f8a83; font-size: .68rem; font-weight: 800; letter-spacing: .14em; }
+.cf-section-mark {
+  display: grid; place-items: center; flex: 0 0 42px; height: 42px; border-radius: 14px;
+  color: #0f766e; background: #dff8f3; font-size: 1.2rem;
+}
+.cf-quick-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }
+.cf-quick-action {
+  display: flex; align-items: center; min-width: 0; gap: .8rem; padding: .9rem;
+  color: #1e293b !important; text-decoration: none !important;
+  background: rgba(255,255,255,.92); border: 1px solid #e5edf5; border-radius: 15px;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.cf-quick-action:hover { transform: translateY(-2px); border-color: #99d8d2; background: #fff; box-shadow: 0 9px 22px rgba(15, 118, 110, .09); }
+.cf-quick-action:focus-visible { outline: 3px solid #14b8a6; outline-offset: 3px; }
+.cf-quick-action-icon {
+  display: grid; place-items: center; flex: 0 0 40px; height: 40px; border-radius: 12px;
+  color: #0f766e; background: #e6f8f5; font-size: 1.15rem; font-weight: 800;
+}
+.cf-quick-action-copy { display: flex; flex: 1; flex-direction: column; min-width: 0; gap: .22rem; }
+.cf-quick-action-copy strong { color: #1e293b; font-size: .88rem; line-height: 1.25; }
+.cf-quick-action-copy small { color: #718096; font-size: .75rem; line-height: 1.35; }
+.cf-quick-action-arrow { color: #94a3b8; font-size: 1.1rem; transition: transform .18s ease; }
+.cf-quick-action:hover .cf-quick-action-arrow { color: #0f766e; transform: translate(2px, -2px); }
+.cf-dashboard-filter-row { display:flex; align-items:center; gap:.7rem; margin:0 0 1rem; }
+.cf-dashboard-filter { width:min(100%, 360px); padding:.7rem .85rem; border:1px solid #dbe5ef; border-radius:12px; background:#fff; color:#1e293b; }
+.cf-dashboard-filter:focus { outline:3px solid rgba(20,184,166,.18); border-color:#0d9488; }
+.cf-no-shortcuts { grid-column:1/-1; padding:1rem; color:#64748b; border:1px dashed #cbd5e1; border-radius:12px; text-align:center; }
+.dashboard-legacy { display: grid; gap: 1.2rem; }
+.dashboard-legacy > header { padding: clamp(1rem, 2.5vw, 1.5rem); border:1px solid #e2e8f0; border-radius:18px; background:linear-gradient(120deg,#fff,#f7fbff); }
+.dashboard-legacy > header h1 { color:#14243b; letter-spacing:-.035em; }
+.dashboard-legacy > section.card, .dashboard-legacy > article.card { border:1px solid #e2e8f0; border-radius:17px; box-shadow:0 8px 24px rgba(15,44,89,.045); }
+.dashboard-legacy table { min-width:680px; }
+.dashboard-legacy th { background:#f4f8fc; color:#475569; font-size:.76rem; letter-spacing:.035em; text-transform:uppercase; }
+.dashboard-legacy td, .dashboard-legacy th { padding:.8rem .9rem; border-bottom:1px solid #edf2f7; text-align:left; }
+.dashboard-legacy tbody tr:hover { background:#f8fbff; }
+.dashboard-legacy input, .dashboard-legacy select, .dashboard-legacy textarea { border:1px solid #d7e1eb; border-radius:9px; padding:.65rem .75rem; }
+.dashboard-legacy button, .dashboard-legacy .btn { border-radius:10px; transition:transform .15s ease, box-shadow .15s ease; }
+.dashboard-legacy button:hover, .dashboard-legacy .btn:hover { transform:translateY(-1px); box-shadow:0 5px 12px rgba(15,44,89,.1); }
+@media (max-width: 980px) { .cf-quick-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 600px) {
+  .cf-quick-grid { grid-template-columns: 1fr; }
+  .cf-quick-panel { border-radius:16px; padding:1rem; }
+  .cf-quick-action { padding:.8rem; }
+  .cf-section-mark { display:none; }
+  .dashboard-legacy > header { align-items:flex-start !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cf-quick-action, .cf-quick-action-arrow, .dashboard-legacy button, .dashboard-legacy .btn { transition:none; }
+  .cf-quick-action:hover, .dashboard-legacy button:hover, .dashboard-legacy .btn:hover { transform:none; }
+}

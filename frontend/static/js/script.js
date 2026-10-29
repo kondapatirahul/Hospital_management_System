@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initModalHandlers();
     initClientTableSearch();
     initMobileNav();
+    initDashboardShortcutFilter();
 });
 
 /**
@@ -139,38 +140,67 @@ function initModalHandlers() {
 function initClientTableSearch() {
     const searchInputs = document.querySelectorAll('[data-table-search]');
     searchInputs.forEach(input => {
-        input.addEventListener('keyup', function () {
-            const tableSelector = this.getAttribute('data-table-search');
-            const table = document.querySelector(tableSelector);
-            if (!table) return;
-
-            const filterValue = this.value.toLowerCase().trim();
-            const rows = table.querySelectorAll('tbody tr');
-
+        const tableSelector = input.getAttribute('data-table-search');
+        const table = document.querySelector(tableSelector);
+        if (!table || input.dataset.cfSearchBound === 'true') return;
+        input.dataset.cfSearchBound = 'true';
+        const tbody = table.tBodies && table.tBodies[0];
+        if (!tbody) return;
+        let status = input.parentElement.querySelector('[data-search-status]');
+        if (!status) {
+            status = document.createElement('small');
+            status.className = 'cf-search-status';
+            status.setAttribute('data-search-status', '');
+            status.setAttribute('aria-live', 'polite');
+            input.insertAdjacentElement('afterend', status);
+        }
+        const rows = Array.from(tbody.rows).filter(row => !row.hasAttribute('data-empty-state'));
+        const update = () => {
+            const query = input.value.toLocaleLowerCase().trim();
+            let visible = 0;
             rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                if (text.includes(filterValue)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+                const matches = row.textContent.toLocaleLowerCase().includes(query);
+                row.hidden = !matches;
+                if (matches) visible++;
             });
-        });
+            status.textContent = query ? `${visible} of ${rows.length} records shown` : `${rows.length} records`;
+            let empty = tbody.querySelector('[data-search-empty]');
+            if (!empty && rows.length) {
+                empty = document.createElement('tr');
+                empty.setAttribute('data-search-empty', '');
+                const cell = document.createElement('td');
+                cell.colSpan = Math.max(1, table.tHead?.rows[0]?.cells.length || rows[0]?.cells.length || 1);
+                cell.className = 'cf-empty-search';
+                cell.textContent = 'No matching records found. Try another search.';
+                empty.appendChild(cell);
+                tbody.appendChild(empty);
+            }
+            if (empty) empty.hidden = visible > 0;
+        };
+        input.addEventListener('input', update);
+        update();
     });
 }
 
-/**
- * Mobile sidebar toggle
- */
+/** Mobile sidebar: one handler, accessible state and outside-click dismissal. */
 function initMobileNav() {
     const toggleBtn = document.getElementById('mobileNavToggle');
     const sidebar = document.querySelector('.app-sidebar');
-
-    if (toggleBtn && sidebar) {
-        toggleBtn.addEventListener('click', function () {
-            sidebar.classList.toggle('mobile-open');
-        });
-    }
+    if (!toggleBtn || !sidebar || toggleBtn.dataset.cfNavBound === 'true') return;
+    toggleBtn.dataset.cfNavBound = 'true';
+    toggleBtn.setAttribute('aria-controls', sidebar.id || 'careflowSidebar');
+    if (!sidebar.id) sidebar.id = 'careflowSidebar';
+    const close = () => { sidebar.classList.remove('mobile-open'); toggleBtn.setAttribute('aria-expanded', 'false'); };
+    toggleBtn.setAttribute('aria-expanded', 'false');
+    toggleBtn.addEventListener('click', () => {
+        const opened = sidebar.classList.toggle('mobile-open');
+        toggleBtn.setAttribute('aria-expanded', String(opened));
+    });
+    document.addEventListener('click', event => {
+        if (window.matchMedia('(max-width: 640px)').matches && sidebar.classList.contains('mobile-open') && !sidebar.contains(event.target) && !toggleBtn.contains(event.target)) close();
+    });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') close(); });
+    window.addEventListener('resize', () => { if (window.matchMedia('(min-width: 641px)').matches) close(); });
 }
 
 /**
@@ -256,22 +286,262 @@ function addPrescriptionRow() {
 }
 
 
-/* CareFlow shared responsive navigation and small usability enhancements */
+
+
+/* ================================================================
+   CareFlow Batch 08 — workflow usability and resilient interactions
+   This layer enhances existing server-rendered pages without replacing
+   Spring MVC routes, Thymeleaf bindings, or database business logic.
+   ================================================================ */
 document.addEventListener('DOMContentLoaded', function () {
-  const toggle = document.getElementById('mobileNavToggle');
-  const sidebar = document.querySelector('.app-sidebar');
-  if (toggle && sidebar) {
-    if (window.matchMedia('(max-width: 640px)').matches) toggle.style.display = 'inline-flex';
-    toggle.addEventListener('click', function () { sidebar.classList.toggle('mobile-open'); });
-    document.addEventListener('click', function (event) {
-      if (window.matchMedia('(max-width: 640px)').matches && sidebar.classList.contains('mobile-open') && !sidebar.contains(event.target) && !toggle.contains(event.target)) sidebar.classList.remove('mobile-open');
-    });
-    window.addEventListener('resize', function () { if (window.matchMedia('(min-width: 641px)').matches) sidebar.classList.remove('mobile-open'); else toggle.style.display = 'inline-flex'; });
-  }
-  document.querySelectorAll('form').forEach(function (form) {
-    form.addEventListener('submit', function () {
-      const submit = form.querySelector('button[type="submit"],input[type="submit"]');
-      if (submit && !form.hasAttribute('data-allow-repeat')) { submit.dataset.originalText = submit.textContent; submit.disabled = true; submit.setAttribute('aria-busy','true'); submit.style.opacity = '.75'; }
-    });
-  });
+    cfInitConfirmations();
+    cfInitPasswordToggles();
+    cfInitSelectAll();
+    cfInitPrintActions();
+    cfInitCopyActions();
+    cfInitDateConstraints();
+    cfInitRequiredFieldFeedback();
+    cfInitUnsavedChanges();
+    cfInitTableSort();
+    cfInitNavActiveState();
 });
+
+function cfInitConfirmations() {
+    document.querySelectorAll('form[data-confirm]').forEach(form => {
+        if (form.dataset.cfConfirmBound) return;
+        form.dataset.cfConfirmBound = 'true';
+        form.addEventListener('submit', event => {
+            const message = form.dataset.confirm || 'Are you sure you want to continue?';
+            if (!window.confirm(message)) event.preventDefault();
+        });
+    });
+    document.querySelectorAll('[data-confirm-click]').forEach(control => {
+        if (control.dataset.cfConfirmBound) return;
+        control.dataset.cfConfirmBound = 'true';
+        control.addEventListener('click', event => {
+            if (!window.confirm(control.dataset.confirmClick || 'Are you sure?')) event.preventDefault();
+        });
+    });
+}
+
+function cfInitPasswordToggles() {
+    document.querySelectorAll('input[type="password"][data-password-toggle]').forEach(input => {
+        if (input.dataset.cfToggleBound) return;
+        input.dataset.cfToggleBound = 'true';
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'cf-password-toggle';
+        button.textContent = 'Show';
+        button.setAttribute('aria-label', 'Show password');
+        input.insertAdjacentElement('afterend', button);
+        button.addEventListener('click', () => {
+            const reveal = input.type === 'password';
+            input.type = reveal ? 'text' : 'password';
+            button.textContent = reveal ? 'Hide' : 'Show';
+            button.setAttribute('aria-label', reveal ? 'Hide password' : 'Show password');
+        });
+    });
+}
+
+function cfInitSelectAll() {
+    document.querySelectorAll('[data-select-all]').forEach(master => {
+        if (master.dataset.cfSelectBound) return;
+        master.dataset.cfSelectBound = 'true';
+        const selector = master.dataset.selectAll;
+        if (!selector) return;
+        const updateMaster = () => {
+            const children = Array.from(document.querySelectorAll(selector)).filter(el => !el.disabled);
+            master.checked = children.length > 0 && children.every(el => el.checked);
+            master.indeterminate = children.some(el => el.checked) && !master.checked;
+        };
+        master.addEventListener('change', () => document.querySelectorAll(selector).forEach(el => { if (!el.disabled) el.checked = master.checked; }));
+        document.querySelectorAll(selector).forEach(el => el.addEventListener('change', updateMaster));
+        updateMaster();
+    });
+}
+
+function cfInitPrintActions() {
+    document.querySelectorAll('[data-print-page]').forEach(control => {
+        if (control.dataset.cfPrintBound) return;
+        control.dataset.cfPrintBound = 'true';
+        control.addEventListener('click', event => { event.preventDefault(); window.print(); });
+    });
+}
+
+function cfInitCopyActions() {
+    document.querySelectorAll('[data-copy-target]').forEach(control => {
+        if (control.dataset.cfCopyBound) return;
+        control.dataset.cfCopyBound = 'true';
+        control.addEventListener('click', async () => {
+            const target = document.querySelector(control.dataset.copyTarget);
+            if (!target) return;
+            const value = 'value' in target ? target.value : target.textContent;
+            try {
+                if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(value);
+                else {
+                    const temporary = document.createElement('textarea');
+                    temporary.value = value; temporary.setAttribute('readonly', '');
+                    temporary.style.position = 'fixed'; temporary.style.opacity = '0';
+                    document.body.appendChild(temporary); temporary.select();
+                    const copied = document.execCommand('copy'); temporary.remove();
+                    if (!copied) throw new Error('Clipboard copy was blocked');
+                }
+                cfAnnounce(control, control.dataset.copySuccess || 'Copied');
+            } catch (error) {
+                cfAnnounce(control, 'Unable to copy automatically');
+            }
+        });
+    });
+}
+
+function cfInitDateConstraints() {
+    const today = new Date();
+    const localToday = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    document.querySelectorAll('input[type="date"][data-no-past]').forEach(input => {
+        if (!input.min || input.min < localToday) input.min = localToday;
+    });
+    document.querySelectorAll('input[type="number"][min]').forEach(input => {
+        input.addEventListener('change', () => {
+            if (input.value !== '' && Number(input.value) < Number(input.min)) input.value = input.min;
+            if (input.max && input.value !== '' && Number(input.value) > Number(input.max)) input.value = input.max;
+        });
+    });
+}
+
+function cfInitRequiredFieldFeedback() {
+    document.querySelectorAll('form').forEach(form => {
+        if (form.dataset.cfValidationBound) return;
+        form.dataset.cfValidationBound = 'true';
+        form.querySelectorAll('input,select,textarea').forEach(field => {
+            if (field.required) field.setAttribute('aria-required', 'true');
+            field.addEventListener('invalid', () => {
+                field.classList.add('cf-invalid');
+                const label = field.labels && field.labels[0] ? field.labels[0].textContent.trim() : field.name || 'This field';
+                field.setAttribute('title', `${label} needs attention`);
+            });
+            field.addEventListener('input', () => {
+                if (field.checkValidity()) {
+                    field.classList.remove('cf-invalid');
+                    field.removeAttribute('title');
+                }
+            });
+            field.addEventListener('change', () => { if (field.checkValidity()) field.classList.remove('cf-invalid'); });
+        });
+    });
+}
+
+function cfInitUnsavedChanges() {
+    document.querySelectorAll('form[data-warn-unsaved]').forEach(form => {
+        if (form.dataset.cfDirtyBound) return;
+        form.dataset.cfDirtyBound = 'true';
+        let dirty = false;
+        form.addEventListener('input', event => {
+            if (event.target.matches('input,select,textarea')) dirty = true;
+        });
+        form.addEventListener('change', event => {
+            if (event.target.matches('input,select,textarea')) dirty = true;
+        });
+        form.addEventListener('submit', () => { dirty = false; });
+        window.addEventListener('beforeunload', event => {
+            if (!dirty) return;
+            event.preventDefault();
+            event.returnValue = '';
+        });
+    });
+}
+
+function cfInitTableSort() {
+    document.querySelectorAll('table[data-sortable] thead th').forEach((header, columnIndex) => {
+        if (header.dataset.noSort !== undefined || header.dataset.cfSortBound) return;
+        const table = header.closest('table');
+        if (!table || !table.tBodies.length) return;
+        header.dataset.cfSortBound = 'true';
+        header.classList.add('cf-sortable');
+        header.tabIndex = 0;
+        header.setAttribute('role', 'button');
+        header.setAttribute('aria-label', `Sort by ${header.textContent.trim()}`);
+        const sort = () => {
+            const tbody = table.tBodies[0];
+            const rows = Array.from(tbody.rows).filter(row => !row.hasAttribute('data-search-empty'));
+            const current = header.dataset.sortDirection === 'asc' ? 'desc' : 'asc';
+            table.querySelectorAll('thead th').forEach(cell => { delete cell.dataset.sortDirection; cell.removeAttribute('aria-sort'); });
+            header.dataset.sortDirection = current;
+            header.setAttribute('aria-sort', current === 'asc' ? 'ascending' : 'descending');
+            const value = row => (row.cells[columnIndex]?.dataset.sortValue || row.cells[columnIndex]?.textContent || '').trim();
+            rows.sort((a, b) => {
+                const av = value(a), bv = value(b);
+                const an = Number(av.replace(/[^0-9.-]/g, '')), bn = Number(bv.replace(/[^0-9.-]/g, ''));
+                const bothNumeric = av !== '' && bv !== '' && Number.isFinite(an) && Number.isFinite(bn) && /[0-9]/.test(av) && /[0-9]/.test(bv);
+                const result = bothNumeric ? an - bn : av.localeCompare(bv, undefined, { numeric: true, sensitivity: 'base' });
+                return current === 'asc' ? result : -result;
+            });
+            rows.forEach(row => tbody.appendChild(row));
+        };
+        header.addEventListener('click', sort);
+        header.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); sort(); } });
+    });
+}
+
+function cfInitNavActiveState() {
+    const current = window.location.pathname.replace(/\/$/, '') || '/';
+    document.querySelectorAll('.app-sidebar .nav-item a[href]').forEach(link => {
+        try {
+            const url = new URL(link.href, window.location.origin);
+            const path = url.pathname.replace(/\/$/, '') || '/';
+            if (path === current) {
+                const item = link.closest('.nav-item');
+                if (item) item.classList.add('active');
+                link.setAttribute('aria-current', 'page');
+            }
+        } catch (_) { /* Ignore malformed third-party links. */ }
+    });
+}
+
+function cfAnnounce(control, message) {
+    let status = control.parentElement.querySelector('[data-cf-announcement]');
+    if (!status) {
+        status = document.createElement('span');
+        status.dataset.cfAnnouncement = '';
+        status.className = 'cf-inline-announcement';
+        status.setAttribute('role', 'status');
+        control.insertAdjacentElement('afterend', status);
+    }
+    status.textContent = message;
+}
+
+
+/**
+ * Filter dashboard shortcuts without navigating away. This is presentation-only;
+ * the target endpoints remain protected by Spring Security.
+ */
+function initDashboardShortcutFilter() {
+    document.querySelectorAll('[data-cf-shortcut-filter]').forEach(input => {
+        const panel = input.closest('.cf-quick-panel');
+        const grid = panel && panel.querySelector('.cf-quick-grid');
+        if (!grid || input.dataset.cfBound === 'true') return;
+        input.dataset.cfBound = 'true';
+        const cards = Array.from(grid.querySelectorAll('.cf-quick-action'));
+        const count = panel.querySelector('.cf-shortcut-count');
+        let empty = grid.querySelector('.cf-no-shortcuts');
+        if (!empty) {
+            empty = document.createElement('div');
+            empty.className = 'cf-no-shortcuts';
+            empty.textContent = 'No shortcuts match that search. Try another term.';
+            empty.hidden = true;
+            grid.appendChild(empty);
+        }
+        const update = () => {
+            const q = input.value.trim().toLocaleLowerCase();
+            let visible = 0;
+            cards.forEach(card => {
+                const match = card.textContent.toLocaleLowerCase().includes(q);
+                card.hidden = !match;
+                if (match) visible += 1;
+            });
+            empty.hidden = visible > 0;
+            if (count) count.textContent = q ? `${visible} of ${cards.length} shortcuts` : `${cards.length} shortcuts`;
+        };
+        input.addEventListener('input', update);
+        update();
+    });
+}

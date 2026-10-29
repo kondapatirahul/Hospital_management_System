@@ -55,17 +55,17 @@ public class PharmacyRecallController {
         return "redirect:/pharmacy/enterprise/pharmacyRecall";
     }
 
-    @PostMapping("/<built-in function id>/start")
+    @PostMapping("/{id}/start")
     public String start(@PathVariable Long id, Principal principal, RedirectAttributes flash) {
         return transition(() -> service.start(id, principal == null ? "system" : principal.getName()), flash, "Record started.");
     }
 
-    @PostMapping("/<built-in function id>/complete")
+    @PostMapping("/{id}/complete")
     public String complete(@PathVariable Long id, Principal principal, RedirectAttributes flash) {
         return transition(() -> service.complete(id, principal == null ? "system" : principal.getName()), flash, "Record completed.");
     }
 
-    @PostMapping("/<built-in function id>/cancel")
+    @PostMapping("/{id}/cancel")
     public String cancel(@PathVariable Long id, @RequestParam String reason, Principal principal, RedirectAttributes flash) {
         return transition(() -> service.cancel(id, principal == null ? "system" : principal.getName(), reason), flash, "Record cancelled.");
     }

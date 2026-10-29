@@ -24,7 +24,10 @@
 <div class="enterprise-wrap">
   <div class="enterprise-head">
     <div><p>CareFlow / Staff</p><h1>DischargeChecklist</h1><p>Discharge readiness checklist.</p></div>
-    <a class="enterprise-btn" th:href="@{/staff/enterprise/dischargeChecklist/new}">Create record</a>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <a class="enterprise-btn" th:href="@{/staff/enterprise/patient-outreach}">Patient outreach</a>
+      <a class="enterprise-btn" th:href="@{/staff/enterprise/dischargeChecklist/new}">Create record</a>
+    </div>
   </div>
   <p class="enterprise-msg" th:if="${successMessage}" th:text="${successMessage}"></p>
   <p class="enterprise-msg" th:if="${errorMessage}" th:text="${errorMessage}"></p>
@@ -52,6 +55,7 @@
           <form style="display:inline" method="post" th:action="@{/staff/enterprise/dischargeChecklist/{id}/start(id=${item.id})}"><button type="submit">Start</button></form>
           <form style="display:inline" method="post" th:action="@{/staff/enterprise/dischargeChecklist/{id}/complete(id=${item.id})}"><button type="submit">Complete</button></form>
           <form style="display:inline" method="post" th:action="@{/staff/enterprise/dischargeChecklist/{id}/cancel(id=${item.id})}"><input type="hidden" name="reason" value="Cancelled by operator"><button type="submit">Cancel</button></form>
+          <a class="enterprise-btn" th:if="${item.status == 'COMPLETED'}" th:href="@{/staff/enterprise/patient-outreach/new(checklistId=${item.id})}">Plan outreach</a>
         </td>
       </tr>
       <tr th:if="${#lists.isEmpty(records)}"><td colspan="8">No records found. Create the first record to begin this workflow.</td></tr>

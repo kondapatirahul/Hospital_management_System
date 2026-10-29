@@ -1,0 +1,60 @@
+<section th:fragment="operationsPanel(role)" class="cf-operations-panel">
+  <div class="cf-operations-panel-heading">
+    <div>
+      <span class="cf-operations-eyebrow">CAREFLOW WORKSPACE</span>
+      <h2>Quick actions</h2>
+      <p>Jump directly into the most-used tasks for your department.</p>
+    </div>
+    <span class="cf-operations-secure"><span></span> Role-based access</span>
+  </div>
+  <div class="cf-shortcut-grid" th:if="${role == 'patient'}">
+    <a class="cf-shortcut" th:href="@{/patient/appointments/book}"><span class="cf-shortcut-icon">＋</span><span><strong>Book appointment</strong><small>Find a consultation slot</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/patient/appointments}"><span class="cf-shortcut-icon">▦</span><span><strong>My appointments</strong><small>Review or reschedule visits</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/patient/medical-history}"><span class="cf-shortcut-icon">♡</span><span><strong>Medical history</strong><small>View recorded care history</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/patient/prescriptions}"><span class="cf-shortcut-icon">Rx</span><span><strong>Prescriptions</strong><small>Review medicines prescribed</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/patient/lab-reports}"><span class="cf-shortcut-icon">⚗</span><span><strong>Lab reports</strong><small>Open your lab results</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/patient/invoices}"><span class="cf-shortcut-icon">₹</span><span><strong>Invoices</strong><small>Check payment status</small></span><span class="cf-shortcut-arrow">→</span></a>
+  </div>
+  <div class="cf-shortcut-grid" th:if="${role == 'receptionist'}">
+    <a class="cf-shortcut" th:href="@{/receptionist/patients/new}"><span class="cf-shortcut-icon">＋</span><span><strong>Register patient</strong><small>Create a patient record</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/receptionist/patients}"><span class="cf-shortcut-icon">♙</span><span><strong>Patient directory</strong><small>Search registered patients</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/receptionist/appointments}"><span class="cf-shortcut-icon">▦</span><span><strong>Appointments</strong><small>Schedule and manage visits</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/receptionist/queue}"><span class="cf-shortcut-icon">≡</span><span><strong>Waiting queue</strong><small>Call or complete queue entries</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/receptionist/doctors}"><span class="cf-shortcut-icon">✚</span><span><strong>Doctor availability</strong><small>Review the provider list</small></span><span class="cf-shortcut-arrow">→</span></a>
+  </div>
+  <div class="cf-shortcut-grid" th:if="${role == 'doctor'}">
+    <a class="cf-shortcut" th:href="@{/doctor/appointments}"><span class="cf-shortcut-icon">▦</span><span><strong>Appointments</strong><small>Review today's clinic</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/doctor/patients}"><span class="cf-shortcut-icon">♙</span><span><strong>Patients</strong><small>Open authorized records</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/doctor/consultations}"><span class="cf-shortcut-icon">✎</span><span><strong>Consultations</strong><small>Record clinical notes</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/doctor/prescriptions}"><span class="cf-shortcut-icon">Rx</span><span><strong>Prescriptions</strong><small>Issue patient prescriptions</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/doctor/availability}"><span class="cf-shortcut-icon">◷</span><span><strong>Availability</strong><small>Manage consultation slots</small></span><span class="cf-shortcut-arrow">→</span></a>
+  </div>
+  <div class="cf-shortcut-grid" th:if="${role == 'pharmacy'}">
+    <a class="cf-shortcut" th:href="@{/pharmacy/medicines}"><span class="cf-shortcut-icon">Rx</span><span><strong>Medicine catalogue</strong><small>Search medicine records</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/pharmacy/batches}"><span class="cf-shortcut-icon">▤</span><span><strong>Inventory batches</strong><small>Track stock and expiry</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/pharmacy/prescriptions}"><span class="cf-shortcut-icon">☷</span><span><strong>Prescription queue</strong><small>Review items to dispense</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/pharmacy/stock/in}"><span class="cf-shortcut-icon">＋</span><span><strong>Receive stock</strong><small>Record incoming stock</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/pharmacy/alerts/expiry}"><span class="cf-shortcut-icon">!</span><span><strong>Expiry alerts</strong><small>Check batches nearing expiry</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/pharmacy/reports}"><span class="cf-shortcut-icon">↗</span><span><strong>Reports</strong><small>Review inventory activity</small></span><span class="cf-shortcut-arrow">→</span></a>
+  </div>
+  <div class="cf-shortcut-grid" th:if="${role == 'laboratory'}">
+    <a class="cf-shortcut" th:href="@{/laboratory/dashboard}"><span class="cf-shortcut-icon">⚗</span><span><strong>Lab reports</strong><small>Review status and results</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/laboratory/samples}"><span class="cf-shortcut-icon">▤</span><span><strong>Sample tracking</strong><small>Track laboratory samples</small></span><span class="cf-shortcut-arrow">→</span></a>
+  </div>
+  <div class="cf-shortcut-grid" th:if="${role == 'billing'}">
+    <a class="cf-shortcut" th:href="@{/billing/dashboard}"><span class="cf-shortcut-icon">₹</span><span><strong>Billing overview</strong><small>Review invoice status</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/billing/payments}"><span class="cf-shortcut-icon">▣</span><span><strong>Payments</strong><small>Review payment records</small></span><span class="cf-shortcut-arrow">→</span></a>
+  </div>
+  <div class="cf-shortcut-grid" th:if="${role == 'admin'}">
+    <a class="cf-shortcut" th:href="@{/admin/dashboard}"><span class="cf-shortcut-icon">⌂</span><span><strong>Administration</strong><small>Open system overview</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/admin/audit}"><span class="cf-shortcut-icon">≡</span><span><strong>Audit trail</strong><small>Review administrative events</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/admin/settings}"><span class="cf-shortcut-icon">⚙</span><span><strong>Settings</strong><small>Manage application settings</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/reports}"><span class="cf-shortcut-icon">↗</span><span><strong>Hospital reports</strong><small>Open reporting workspace</small></span><span class="cf-shortcut-arrow">→</span></a>
+  </div>
+  <div class="cf-shortcut-grid" th:if="${role == 'staff'}">
+    <a class="cf-shortcut" th:href="@{/staff/wards}"><span class="cf-shortcut-icon">▦</span><span><strong>Ward & bed status</strong><small>Review ward availability</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/staff/tasks}"><span class="cf-shortcut-icon">✓</span><span><strong>Care tasks</strong><small>Track assigned work</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/staff/shifts}"><span class="cf-shortcut-icon">◷</span><span><strong>Shift roster</strong><small>Review assignments</small></span><span class="cf-shortcut-arrow">→</span></a>
+    <a class="cf-shortcut" th:href="@{/staff/attendance}"><span class="cf-shortcut-icon">♙</span><span><strong>Attendance</strong><small>Review attendance records</small></span><span class="cf-shortcut-arrow">→</span></a>
+  </div>
+</section>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <title>
+   Create Shift Handover | CareFlow
+  </title>
+  <link rel="stylesheet" th:href="@{/css/careflow-safety.css}"/>
+ </head>
+ <body class="cf-safety-page">
+  <header class="cf-topbar">
+   <a class="cf-brand" th:href="@{/}">
+    <span class="cf-brand-mark">
+     C
+    </span>
+    <span>
+     CareFlow
+     <small>
+      CLINICAL OPERATIONS
+     </small>
+    </span>
+   </a>
+   <nav>
+    <a th:href="@{/staff/handovers}">
+     Handover register
+    </a>
+    <a th:href="@{/safety/incidents}">
+     Safety incidents
+    </a>
+   </nav>
+   <div class="cf-user-pill">
+    <span class="cf-online-dot">
+    </span>
+    Secure workspace
+   </div>
+  </header>
+  <main class="cf-shell cf-form-shell">
+   <a class="cf-back-link" th:href="@{/staff/handovers}">
+    ← Back to handovers
+   </a>
+   <section class="cf-page-heading">
+    <div>
+     <div class="cf-eyebrow">
+      SHIFT TRANSITION / NEW HANDOVER
+     </div>
+     <h1>
+      Prepare handover
+     </h1>
+     <p>
+      Make outstanding work, risks and critical checks explicit for the incoming team.
+     </p>
+    </div>
+   </section>
+   <div class="cf-alert cf-alert-error" role="alert" th:if="${errorMessage}" th:text="${errorMessage}">
+   </div>
+   <form class="cf-form-layout" data-validated-form="" method="post" th:action="@{/staff/handovers}" th:object="${form}">
+    <div class="cf-form-main">
+     <section class="cf-panel cf-form-panel">
+      <div class="cf-form-section-heading">
+       <span class="cf-section-number">
+        01
+       </span>
+       <div>
+        <h2>
+         Shift and ownership
+        </h2>
+        <p>
+         Set the handover context and the person expected to receive it.
+        </p>
+       </div>
+      </div>
+      <div class="cf-form-grid">
+       <label class="cf-field">
+        <span>
+         Department
+         <b>
+          *
+         </b>
+        </span>
+        <select required="" th:field="*{department}">
+         <option value="">
+          Choose department
+         </option>
+         <option th:each="d : ${departments}" th:text="${d}" th:value="${d}">
+         </option>
+        </select>
+       </label>
+       <label class="cf-field">
+        <span>
+         Shift
+         <b>
+          *
+         </b>
+        </span>
+        <select required="" th:field="*{shiftName}">
+         <option value="">
+          Choose shift
+         </option>
+         <option th:each="s : ${shifts}" th:text="${s}" th:value="${s}">
+         </option>
+        </select>
+       </label>
+       <label class="cf-field">
+        <span>
+         Shift date and time
+         <b>
+          *
+         </b>
+        </span>
+        <input name="shiftDate" required="" th:value="${form.shiftDate == null ? '' : #temporals.format(form.shiftDate,'yyyy-MM-dd''T''HH:mm')}" type="datetime-local"/>
+       </label>
+       <label class="cf-field">
+        <span>
+         Outgoing staff
+         <b>
+          *
+         </b>
+        </span>
+        <input maxlength="100" placeholder="Name or staff username" required="" th:field="*{outgoingStaff}"/>
+       </label>
+       <label class="cf-field">
+        <span>
+         Incoming staff
+         <b>
+          *
+         </b>
+        </span>
+        <input maxlength="100" placeholder="Name or staff username" required="" th:field="*{incomingStaff}"/>
+       </label>
+       <label class="cf-check-card cf-field-wide">
+        <input th:field="*{urgent}" type="checkbox"/>
+        <span>
+         <strong>
+          Flag as urgent
+         </strong>
+         <small>
+          Use for outstanding risks requiring priority attention at shift start.
+         </small>
+        </span>
+       </label>
+       <label class="cf-field cf-field-wide">
+        <span>
+         Shift summary
+         <b>
+          *
+         </b>
+        </span>
+        <textarea maxlength="3000" placeholder="Overall shift status, important changes and key context." required="" rows="4" th:field="*{summary}"></textarea>
+        <div class="cf-field-meta">
+         <small>
+          Keep this concise, factual and relevant.
+         </small>
+         <small data-count-for="summary">
+          0 / 3000
+         </small>
+        </div>
+       </label>
+      </div>
+     </section>
+     <section class="cf-panel cf-form-panel">
+      <div class="cf-form-section-heading">
+       <span class="cf-section-number">
+        02
+       </span>
+       <div>
+        <h2>
+         Continuity and risks
+        </h2>
+        <p>
+         Separate unfinished tasks, patient watch items and equipment concerns.
+        </p>
+       </div>
+      </div>
+      <div class="cf-form-grid">
+       <label class="cf-field cf-field-wide">
+        <span>
+         Outstanding tasks
+        </span>
+        <textarea maxlength="3000" placeholder="Task, owner, due time and next step" rows="3" th:field="*{outstandingTasks}"></textarea>
+       </label>
+       <label class="cf-field cf-field-wide">
+        <span>
+         Patient watchlist
+        </span>
+        <textarea maxlength="3000" placeholder="Use authorized identifiers and minimum necessary detail" rows="3" th:field="*{patientWatchlist}"></textarea>
+       </label>
+       <label class="cf-field cf-field-wide">
+        <span>
+         Equipment or supply issues
+        </span>
+        <textarea maxlength="2000" placeholder="Out-of-service equipment, shortages or open work orders" rows="2" th:field="*{equipmentOrSupplyIssues}"></textarea>
+       </label>
+       <label class="cf-field cf-field-wide">
+        <span>
+         Escalations and pending calls
+        </span>
+        <textarea maxlength="2000" placeholder="Who has been contacted and what response is pending" rows="2" th:field="*{escalationNotes}"></textarea>
+       </label>
+      </div>
+     </section>
+     <section class="cf-panel cf-form-panel">
+      <div class="cf-form-section-heading">
+       <span class="cf-section-number">
+        03
+       </span>
+       <div>
+        <h2>
+         Shift safety checklist
+        </h2>
+        <p>
+         Check each item according to your department's policy.
+        </p>
+       </div>
+      </div>
+      <div class="cf-checklist-grid">
+       <label class="cf-check-card">
+        <input th:field="*{medicationCountVerified}" type="checkbox"/>
+        <span>
+         <strong>
+          Medication count reviewed
+         </strong>
+         <small>
+          Complete only if required and actually verified.
+         </small>
+        </span>
+       </label>
+       <label class="cf-check-card">
+        <input th:field="*{controlledItemsVerified}" type="checkbox"/>
+        <span>
+         <strong>
+          Controlled items verified
+         </strong>
+         <small>
+          Follow controlled-medicine policy.
+         </small>
+        </span>
+       </label>
+       <label class="cf-check-card">
+        <input th:field="*{patientBoardReviewed}" type="checkbox"/>
+        <span>
+         <strong>
+          Patient board reviewed
+         </strong>
+         <small>
+          Confirm relevant patient and bed status.
+         </small>
+        </span>
+       </label>
+       <label class="cf-check-card">
+        <input th:field="*{safetyChecksComplete}" type="checkbox"/>
+        <span>
+         <strong>
+          Safety checks complete
+         </strong>
+         <small>
+          Complete the required environment checks.
+         </small>
+        </span>
+       </label>
+      </div>
+      <div class="cf-note-callout">
+       <strong>
+        Checklist integrity
+       </strong>
+       <p>
+        Leave any item unchecked if it has not been verified. This form records a handover and does not replace mandatory clinical documentation.
+       </p>
+      </div>
+     </section>
+     <div class="cf-form-actions">
+      <a class="cf-btn cf-btn-quiet" th:href="@{/staff/handovers}">
+       Cancel
+      </a>
+      <button class="cf-btn cf-btn-primary" type="submit">
+       Save handover draft
+       <span>
+        →
+       </span>
+      </button>
+     </div>
+    </div>
+    <aside class="cf-form-aside">
+     <section class="cf-panel cf-aside-panel">
+      <div class="cf-aside-icon">
+       ↔
+      </div>
+      <h3>
+       Handover flow
+      </h3>
+      <ol class="cf-step-list">
+       <li>
+        <span>
+         1
+        </span>
+        <div>
+         <strong>
+          Save draft
+         </strong>
+         <p>
+          Review the handover record before sharing.
+         </p>
+        </div>
+       </li>
+       <li>
+        <span>
+         2
+        </span>
+        <div>
+         <strong>
+          Submit to incoming staff
+         </strong>
+         <p>
+          The handover becomes available for acknowledgement.
+         </p>
+        </div>
+       </li>
+       <li>
+        <span>
+         3
+        </span>
+        <div>
+         <strong>
+          Confirm receipt
+         </strong>
+         <p>
+          The incoming staff member acknowledges or returns it.
+         </p>
+        </div>
+       </li>
+      </ol>
+     </section>
+     <section class="cf-panel cf-aside-panel">
+      <h3>
+       Make it actionable
+      </h3>
+      <ul class="cf-tip-list">
+       <li>
+        State the next action and owner.
+       </li>
+       <li>
+        Identify time-sensitive items.
+       </li>
+       <li>
+        Keep patient information minimal.
+       </li>
+       <li>
+        Escalate urgent risks directly.
+       </li>
+      </ul>
+     </section>
+    </aside>
+   </form>
+  </main>
+  <script th:src="@{/js/careflow-safety.js}">
+  </script>
+ </body>
+</html>
+

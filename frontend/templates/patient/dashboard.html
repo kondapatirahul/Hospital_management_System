@@ -8,8 +8,53 @@
 
     <div class="app-main">
         <header th:replace="~{fragments/layout :: navbar('Patient Portal Dashboard', 'Overview of upcoming visits, active prescriptions, and medical records')}"></header>
+<section th:replace="~{fragments/operations-panel :: operationsPanel('patient')}"></section>
+
+
+<div class="cf-launchpad-callout">
+  <div class="cf-launchpad-symbol" aria-hidden="true">↗</div>
+  <div class="cf-launchpad-copy"><strong>Open your workflow workspace</strong><span>All role-specific tools and common actions in one place.</span></div>
+  <a th:href="@{/workflows/patient}">View workflows <span aria-hidden="true">→</span></a>
+</div>
+
+
 
         <main class="page-content">
+<section class="cf-quick-panel" aria-label="Patient quick actions">
+  <div class="cf-section-heading">
+    <div><span class="cf-eyebrow">WORKSPACE SHORTCUTS</span><h2>Patient quick actions</h2><p>Open a workflow directly. Actions still use the existing server routes and permissions.</p></div>
+    <span class="cf-section-mark" aria-hidden="true">✦</span>
+  </div>
+  <div class="cf-dashboard-filter-row"><input class="cf-dashboard-filter" type="search" data-cf-shortcut-filter placeholder="Filter shortcuts…" aria-label="Filter dashboard shortcuts"><span class="cf-shortcut-count" aria-live="polite"></span></div>
+  <div class="cf-quick-grid">
+    <a class="cf-quick-action" th:href="@{/patient/appointments/book}">
+  <span class="cf-quick-action-icon" aria-hidden="true">＋</span>
+  <span class="cf-quick-action-copy"><strong>Book appointment</strong><small>Schedule a visit with your care team</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/patient/appointments}">
+  <span class="cf-quick-action-icon" aria-hidden="true">▦</span>
+  <span class="cf-quick-action-copy"><strong>My appointments</strong><small>Review upcoming and previous visits</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/patient/medical-history}">
+  <span class="cf-quick-action-icon" aria-hidden="true">▤</span>
+  <span class="cf-quick-action-copy"><strong>Medical history</strong><small>View your recorded clinical history</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/patient/prescriptions}">
+  <span class="cf-quick-action-icon" aria-hidden="true">✚</span>
+  <span class="cf-quick-action-copy"><strong>Prescriptions</strong><small>Check current medicines and instructions</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/patient/lab-reports}">
+  <span class="cf-quick-action-icon" aria-hidden="true">⚗</span>
+  <span class="cf-quick-action-copy"><strong>Lab reports</strong><small>Review available investigation reports</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/patient/invoices}">
+  <span class="cf-quick-action-icon" aria-hidden="true">▧</span>
+  <span class="cf-quick-action-copy"><strong>Invoices & payments</strong><small>Review bills and payment status</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a>
+  </div>
+</section>
+
             <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
 
             <!-- Welcome Greeting Banner -->

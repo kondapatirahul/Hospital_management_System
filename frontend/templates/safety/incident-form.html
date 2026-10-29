@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <title>
+   Report Safety Incident | CareFlow
+  </title>
+  <link rel="stylesheet" th:href="@{/css/careflow-safety.css}"/>
+ </head>
+ <body class="cf-safety-page">
+  <header class="cf-topbar">
+   <a class="cf-brand" th:href="@{/}">
+    <span class="cf-brand-mark">
+     C
+    </span>
+    <span>
+     CareFlow
+     <small>
+      QUALITY &amp; SAFETY
+     </small>
+    </span>
+   </a>
+   <nav>
+    <a th:href="@{/safety/incidents}">
+     Incident register
+    </a>
+    <a th:href="@{/staff/handovers}">
+     Shift handovers
+    </a>
+   </nav>
+   <div class="cf-user-pill">
+    <span class="cf-online-dot">
+    </span>
+    Secure workspace
+   </div>
+  </header>
+  <main class="cf-shell cf-form-shell">
+   <a class="cf-back-link" th:href="@{/safety/incidents}">
+    ← Back to incident register
+   </a>
+   <section class="cf-page-heading">
+    <div>
+     <div class="cf-eyebrow">
+      QUALITY MANAGEMENT / NEW RECORD
+     </div>
+     <h1>
+      Report an incident
+     </h1>
+     <p>
+      Document what happened, what was done immediately, and who needs to follow up.
+     </p>
+    </div>
+    <span class="cf-private-note">
+     <span>
+      ▣
+     </span>
+     Confidential by default
+    </span>
+   </section>
+   <div class="cf-alert cf-alert-error" role="alert" th:if="${errorMessage}" th:text="${errorMessage}">
+   </div>
+   <form class="cf-form-layout" data-validated-form="" method="post" th:action="@{/safety/incidents}" th:object="${form}">
+    <div class="cf-form-main">
+     <section class="cf-panel cf-form-panel">
+      <div class="cf-form-section-heading">
+       <span class="cf-section-number">
+        01
+       </span>
+       <div>
+        <h2>
+         Event details
+        </h2>
+        <p>
+         Use factual, clear language. Avoid assumptions about cause.
+        </p>
+       </div>
+      </div>
+      <div class="cf-form-grid">
+       <label class="cf-field cf-field-wide">
+        <span>
+         Incident title
+         <b>
+          *
+         </b>
+        </span>
+        <input maxlength="140" placeholder="e.g. Medication dose discrepancy identified" required="" th:field="*{title}"/>
+        <small>
+         Short, descriptive title for the register.
+        </small>
+        <em class="cf-error" th:errors="*{title}" th:if="${#fields.hasErrors('title')}">
+        </em>
+       </label>
+       <label class="cf-field">
+        <span>
+         Incident category
+         <b>
+          *
+         </b>
+        </span>
+        <select required="" th:field="*{category}">
+         <option value="">
+          Choose category
+         </option>
+         <option th:each="category : ${categories}" th:text="${#strings.replace(category,'_',' ')}" th:value="${category}">
+         </option>
+        </select>
+       </label>
+       <label class="cf-field">
+        <span>
+         Severity
+         <b>
+          *
+         </b>
+        </span>
+        <select required="" th:field="*{severity}">
+         <option value="LOW">
+          Low — no harm / minimal impact
+         </option>
+         <option value="MODERATE">
+          Moderate — review required
+         </option>
+         <option value="HIGH">
+          High — significant risk or harm
+         </option>
+         <option value="CRITICAL">
+          Critical — urgent escalation
+         </option>
+        </select>
+        <small>
+         Follow the hospital's approved severity matrix.
+        </small>
+       </label>
+       <label class="cf-field">
+        <span>
+         Department
+         <b>
+          *
+         </b>
+        </span>
+        <select required="" th:field="*{department}">
+         <option value="">
+          Choose department
+         </option>
+         <option th:each="department : ${departments}" th:text="${department}" th:value="${department}">
+         </option>
+        </select>
+       </label>
+       <label class="cf-field">
+        <span>
+         Location
+        </span>
+        <input maxlength="100" placeholder="Ward, room or service area" th:field="*{location}"/>
+       </label>
+       <label class="cf-field">
+        <span>
+         When did it occur?
+         <b>
+          *
+         </b>
+        </span>
+        <input name="occurredAt" required="" th:value="${form.occurredAt == null ? '' : #temporals.format(form.occurredAt,'yyyy-MM-dd''T''HH:mm')}" type="datetime-local"/>
+       </label>
+       <label class="cf-field">
+        <span>
+         Patient reference (if required)
+        </span>
+        <input maxlength="30" placeholder="Use approved patient reference only" th:field="*{patientReference}"/>
+       </label>
+       <label class="cf-field">
+        <span>
+         Assign follow-up to
+        </span>
+        <input maxlength="100" placeholder="Staff username or work email" th:field="*{assignedTo}"/>
+       </label>
+       <label class="cf-field cf-field-wide">
+        <span>
+         What happened?
+         <b>
+          *
+         </b>
+        </span>
+        <textarea maxlength="3000" placeholder="Describe the event in chronological, objective terms." required="" rows="5" th:field="*{description}"></textarea>
+        <div class="cf-field-meta">
+         <small>
+          Include the observed facts and immediate impact.
+         </small>
+         <small data-count-for="description">
+          0 / 3000
+         </small>
+        </div>
+       </label>
+       <label class="cf-field cf-field-wide">
+        <span>
+         Immediate action taken
+        </span>
+        <textarea maxlength="3000" placeholder="Patient safety steps, notifications, containment or support already provided." rows="3" th:field="*{immediateAction}"></textarea>
+        <div class="cf-field-meta">
+         <small>
+          Record what has already happened, not future actions.
+         </small>
+         <small data-count-for="immediateAction">
+          0 / 3000
+         </small>
+        </div>
+       </label>
+      </div>
+     </section>
+     <section class="cf-panel cf-form-panel">
+      <div class="cf-form-section-heading">
+       <span class="cf-section-number">
+        02
+       </span>
+       <div>
+        <h2>
+         Follow-up and privacy
+        </h2>
+        <p>
+         Help the right team find this record and protect sensitive details.
+        </p>
+       </div>
+      </div>
+      <label class="cf-check-card">
+       <input th:field="*{confidential}" type="checkbox"/>
+       <span>
+        <strong>
+         Mark as confidential
+        </strong>
+        <small>
+         Recommended for records containing patient or staff safety information. Access remains subject to application roles and hospital policy.
+        </small>
+       </span>
+      </label>
+      <div class="cf-note-callout">
+       <strong>
+        Before submitting
+       </strong>
+       <p>
+        If there is an immediate threat to a patient or staff member, contact the appropriate emergency or clinical escalation team now. This form is not an emergency alerting service.
+       </p>
+      </div>
+     </section>
+     <div class="cf-form-actions">
+      <a class="cf-btn cf-btn-quiet" th:href="@{/safety/incidents}">
+       Cancel
+      </a>
+      <button class="cf-btn cf-btn-primary" type="submit">
+       Submit incident report
+       <span>
+        →
+       </span>
+      </button>
+     </div>
+    </div>
+    <aside class="cf-form-aside">
+     <section class="cf-panel cf-aside-panel">
+      <div class="cf-aside-icon">
+       ✦
+      </div>
+      <h3>
+       What happens next?
+      </h3>
+      <ol class="cf-step-list">
+       <li>
+        <span>
+         1
+        </span>
+        <div>
+         <strong>
+          Record created
+         </strong>
+         <p>
+          A reference number is generated for follow-up.
+         </p>
+        </div>
+       </li>
+       <li>
+        <span>
+         2
+        </span>
+        <div>
+         <strong>
+          Safety review
+         </strong>
+         <p>
+          An authorized reviewer acknowledges and triages the event.
+         </p>
+        </div>
+       </li>
+       <li>
+        <span>
+         3
+        </span>
+        <div>
+         <strong>
+          Corrective action
+         </strong>
+         <p>
+          Cause, actions and prevention steps are documented.
+         </p>
+        </div>
+       </li>
+       <li>
+        <span>
+         4
+        </span>
+        <div>
+         <strong>
+          Closure
+         </strong>
+         <p>
+          Resolution is recorded before administrative closure.
+         </p>
+        </div>
+       </li>
+      </ol>
+     </section>
+     <section class="cf-panel cf-aside-panel">
+      <h3>
+       Good reporting practice
+      </h3>
+      <ul class="cf-tip-list">
+       <li>
+        Use neutral, factual wording.
+       </li>
+       <li>
+        Include the time and service area.
+       </li>
+       <li>
+        Document immediate containment.
+       </li>
+       <li>
+        Report near misses, too.
+       </li>
+       <li>
+        Do not include unnecessary personal details.
+       </li>
+      </ul>
+     </section>
+    </aside>
+   </form>
+  </main>
+  <script th:src="@{/js/careflow-safety.js}">
+  </script>
+ </body>
+</html>
+

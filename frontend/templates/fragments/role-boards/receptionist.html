@@ -1,0 +1,38 @@
+<section th:fragment="receptionist" class="cf-role-board" aria-label="Front desk operations">
+<div class="cf-role-board__heading"><div><span class="cf-eyebrow">DEPARTMENT OPERATIONS</span>
+<h2>Front desk operations</h2><p>Patient registration, appointment coordination, and live queue control.</p></div>
+<div class="cf-role-board__heading-actions"><span class="cf-secure-chip">● Role protected</span><button type="button" class="cf-outline-button" data-board-print>Print view</button></div></div>
+<div class="cf-role-kpis">
+<a class="cf-role-kpi" href="/receptionist/patients" data-kpi-card><span class="cf-role-kpi__icon" aria-hidden="true">◷</span><span class="cf-role-kpi__label">Patient directory</span><strong class="cf-role-kpi__value">Search patient records</strong><span class="cf-role-kpi__link">Open module <span aria-hidden="true">→</span></span></a>
+<a class="cf-role-kpi" href="/receptionist/appointments" data-kpi-card><span class="cf-role-kpi__icon" aria-hidden="true">▦</span><span class="cf-role-kpi__label">Appointments</span><strong class="cf-role-kpi__value">Daily schedule</strong><span class="cf-role-kpi__link">Open module <span aria-hidden="true">→</span></span></a>
+<a class="cf-role-kpi" href="/receptionist/queue" data-kpi-card><span class="cf-role-kpi__icon" aria-hidden="true">✚</span><span class="cf-role-kpi__label">Waiting queue</span><strong class="cf-role-kpi__value">Check-ins and queue status</strong><span class="cf-role-kpi__link">Open module <span aria-hidden="true">→</span></span></a>
+<a class="cf-role-kpi" href="/receptionist/doctors" data-kpi-card><span class="cf-role-kpi__icon" aria-hidden="true">↗</span><span class="cf-role-kpi__label">Doctor directory</span><strong class="cf-role-kpi__value">Provider availability</strong><span class="cf-role-kpi__link">Open module <span aria-hidden="true">→</span></span></a>
+</div>
+<div class="cf-role-board__grid">
+<section class="cf-role-card cf-role-card--wide"><div class="cf-role-card__heading"><div><span class="cf-eyebrow">QUICK ACCESS</span><h3>Common actions</h3><p>Open the real application workflow to view or change records.</p></div><span class="cf-card-count">4 shortcuts</span></div><div class="cf-role-actions">
+<a class="cf-role-action" href="/receptionist/patients/new" data-action-card><span class="cf-role-action__icon" aria-hidden="true">＋</span><span class="cf-role-action__copy"><strong>Register a patient</strong><small>Create a patient profile at reception</small></span><span class="cf-role-action__arrow" aria-hidden="true">↗</span></a>
+<a class="cf-role-action" href="/receptionist/appointments/new" data-action-card><span class="cf-role-action__icon" aria-hidden="true">▤</span><span class="cf-role-action__copy"><strong>Schedule a visit</strong><small>Create or update an appointment</small></span><span class="cf-role-action__arrow" aria-hidden="true">↗</span></a>
+<a class="cf-role-action" href="/receptionist/queue" data-action-card><span class="cf-role-action__icon" aria-hidden="true">✓</span><span class="cf-role-action__copy"><strong>Open the queue</strong><small>Call, skip, or complete queue entries</small></span><span class="cf-role-action__arrow" aria-hidden="true">↗</span></a>
+<a class="cf-role-action" href="/receptionist/patients" data-action-card><span class="cf-role-action__icon" aria-hidden="true">↗</span><span class="cf-role-action__copy"><strong>Search patients</strong><small>Find existing patient records</small></span><span class="cf-role-action__arrow" aria-hidden="true">↗</span></a>
+</div></section>
+<section class="cf-role-card"><div class="cf-role-card__heading"><div><span class="cf-eyebrow">WORKFLOW GUIDE</span><h3>Operational checklist</h3><p>Use these checkpoints to avoid missed steps.</p></div></div><div class="cf-role-checklist">
+<label class="cf-role-check" data-check-item><input type="checkbox" data-check-key="receptionist-0"><span class="cf-role-check__box" aria-hidden="true"></span><span><strong>Verify identity</strong><small>Confirm patient identity and contact details before creating records.</small></span></label>
+<label class="cf-role-check" data-check-item><input type="checkbox" data-check-key="receptionist-1"><span class="cf-role-check__box" aria-hidden="true"></span><span><strong>Schedule accurately</strong><small>Check provider, date, and available slot before confirming.</small></span></label>
+<label class="cf-role-check" data-check-item><input type="checkbox" data-check-key="receptionist-2"><span class="cf-role-check__box" aria-hidden="true"></span><span><strong>Move the queue</strong><small>Use check-in and queue actions to keep the waiting list current.</small></span></label>
+</div><div class="cf-check-progress"><div class="cf-check-progress__meta"><span>Checklist progress</span><strong data-check-progress>0%</strong></div><div class="cf-progress"><span data-check-progress-bar style="width:0%"></span></div></div></section>
+<section class="cf-role-card"><div class="cf-role-card__heading"><div><span class="cf-eyebrow">WORKSPACE TOOLS</span><h3>Find a workflow</h3><p>Filter this department shortcuts by task.</p></div></div>
+<label class="cf-role-search-label" for="roleSearch-receptionist">Search shortcuts</label>
+<input class="cf-role-search" id="roleSearch-receptionist" type="search" placeholder="Try appointment, report, payment..." data-role-search>
+<div class="cf-role-search-results" data-role-search-results aria-live="polite"></div>
+<div class="cf-role-tip"><span aria-hidden="true">i</span><p><strong>Data safety reminder</strong>Use the linked workflow for record changes. This overview does not change patient or financial records itself.</p></div></section></div>
+<div class="cf-role-board__footer"><span><i class="cf-live-dot"></i> CareFlow workspace</span><span>Use the module screen to submit and save changes.</span></div></section>
+<section class="cf-role-board__secondary" aria-label="Additional operational guidance"><div class="cf-role-secondary-heading"><div><span class="cf-eyebrow">GOOD PRACTICE</span><h3>Keep the workflow complete</h3></div><p>Use these prompts during normal work. They are reminders, not substitutes for clinical or financial policy.</p></div><div class="cf-role-practice-grid">
+<article class="cf-practice-item"><span class="cf-practice-number">01</span><div><strong>Verify the record</strong><p>Check the patient or business record before editing.</p></div></article>
+<article class="cf-practice-item"><span class="cf-practice-number">02</span><div><strong>Use the authorized action</strong><p>Submit changes from the module's own form.</p></div></article>
+<article class="cf-practice-item"><span class="cf-practice-number">03</span><div><strong>Review the outcome</strong><p>Confirm the page shows the saved status after submission.</p></div></article>
+<article class="cf-practice-item"><span class="cf-practice-number">04</span><div><strong>Protect private information</strong><p>Only open records needed for your assigned duties.</p></div></article>
+<article class="cf-practice-item"><span class="cf-practice-number">05</span><div><strong>Avoid duplicate submissions</strong><p>Wait for the response before repeating a save action.</p></div></article>
+<article class="cf-practice-item"><span class="cf-practice-number">06</span><div><strong>Escalate uncertainty</strong><p>Ask the appropriate supervisor if the record is ambiguous.</p></div></article>
+</div></section>
+<script type="application/json" class="cf-role-metadata">{"role":"receptionist","shortcutCount":4,"metricCount":4}</script>
+</section>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <title>
+   Safety Analytics | CareFlow
+  </title>
+  <link rel="stylesheet" th:href="@{/css/careflow-safety.css}"/>
+ </head>
+ <body class="cf-safety-page">
+  <header class="cf-topbar">
+   <a class="cf-brand" th:href="@{/}">
+    <span class="cf-brand-mark">
+     C
+    </span>
+    <span>
+     CareFlow
+     <small>
+      QUALITY &amp; SAFETY
+     </small>
+    </span>
+   </a>
+   <nav>
+    <a th:href="@{/safety/incidents}">
+     Incident register
+    </a>
+    <a class="active" th:href="@{/safety/analytics}">
+     Analytics
+    </a>
+    <a th:href="@{/staff/handovers}">
+     Shift handovers
+    </a>
+   </nav>
+   <div class="cf-user-pill">
+    <span class="cf-online-dot">
+    </span>
+    Restricted quality view
+   </div>
+  </header>
+  <main class="cf-shell">
+   <section class="cf-page-heading">
+    <div>
+     <div class="cf-eyebrow">
+      QUALITY IMPROVEMENT / TREND REVIEW
+     </div>
+     <h1>
+      Safety analytics
+     </h1>
+     <p>
+      Use reported events to identify where follow-up and prevention efforts may be needed.
+     </p>
+    </div>
+    <div class="cf-report-stamp">
+     <span>
+      REPORT GENERATED
+     </span>
+     <strong th:text="${#temporals.format(reportDate,'dd MMM yyyy')}">
+      29 Oct 2026
+     </strong>
+    </div>
+   </section>
+   <div class="cf-analytics-notice">
+    <strong>
+     Interpretation note
+    </strong>
+    <p>
+     Counts are based on records currently in CareFlow. Reporting volume is not a direct measure of safety performance: an increase can reflect better reporting. Review each pattern with the clinical safety team before drawing conclusions.
+    </p>
+   </div>
+   <section class="cf-metric-grid cf-analytics-metrics">
+    <article class="cf-metric">
+     <span class="cf-metric-label">
+      Total reported
+     </span>
+     <strong th:text="${metrics.total}">
+      0
+     </strong>
+     <small>
+      All recorded incidents
+     </small>
+    </article>
+    <article class="cf-metric cf-metric-risk">
+     <span class="cf-metric-label">
+      Critical severity
+     </span>
+     <strong th:text="${metrics.critical}">
+      0
+     </strong>
+     <small>
+      Across all workflow states
+     </small>
+    </article>
+    <article class="cf-metric">
+     <span class="cf-metric-label">
+      Closure rate
+     </span>
+     <strong>
+      <span th:text="${closureRate}">
+       0
+      </span>
+      <small>
+       %
+      </small>
+     </strong>
+     <small>
+      Resolved or closed / total
+     </small>
+    </article>
+    <article class="cf-metric">
+     <span class="cf-metric-label">
+      Average resolution
+     </span>
+     <strong>
+      <span th:text="${averageResolutionHours}">
+       —
+      </span>
+      <small th:if="${averageResolutionHours != '—'}">
+       h
+      </small>
+     </strong>
+     <small>
+      For records with a resolution time
+     </small>
+    </article>
+   </section>
+   <div class="cf-analytics-grid">
+    <section class="cf-panel cf-analytics-panel">
+     <div class="cf-panel-heading">
+      <div>
+       <h2>
+        Reports by month
+       </h2>
+       <p>
+        Six-month view of submitted incident reports.
+       </p>
+      </div>
+      <span class="cf-chart-tag">
+       6 MONTHS
+      </span>
+     </div>
+     <div aria-label="Monthly incident report counts" class="cf-bar-chart" role="img">
+      <div class="cf-bar-row" th:each="row : ${monthRows}">
+       <span class="cf-bar-label" th:text="${row.label}">
+        May
+       </span>
+       <div class="cf-bar-track">
+        <span class="cf-bar-fill cf-bar-teal" th:style="${'width:' + (metrics.total == 0 ? 0 : (row.count * 100 / metrics.total)) + '%'}">
+        </span>
+       </div>
+       <strong th:text="${row.count}">
+        0
+       </strong>
+      </div>
+     </div>
+     <p class="cf-chart-footnote">
+      Bars are scaled to the current total count. This view is descriptive, not a performance target.
+     </p>
+    </section>
+    <section class="cf-panel cf-analytics-panel">
+     <div class="cf-panel-heading">
+      <div>
+       <h2>
+        Open incidents by severity
+       </h2>
+       <p>
+        Records not yet resolved or closed.
+       </p>
+      </div>
+      <span class="cf-chart-tag">
+       OPEN WORK
+      </span>
+     </div>
+     <div class="cf-severity-list">
+      <div class="cf-severity-row" th:each="row : ${openBySeverity}">
+       <div class="cf-severity-heading">
+        <span class="cf-status" th:classappend="${' severity-' + #strings.toLowerCase(row.label)}" th:text="${row.label}">
+         HIGH
+        </span>
+        <strong th:text="${row.count}">
+         0
+        </strong>
+       </div>
+       <div class="cf-severity-track">
+        <span th:classappend="${' cf-severity-' + #strings.toLowerCase(row.label)}" th:style="${'width:' + (metrics.open == 0 ? 0 : (row.count * 100 / metrics.open)) + '%'}">
+        </span>
+       </div>
+      </div>
+     </div>
+     <p class="cf-chart-footnote">
+      Critical or high-severity events should follow local escalation rules regardless of this summary.
+     </p>
+    </section>
+    <section class="cf-panel cf-analytics-panel">
+     <div class="cf-panel-heading">
+      <div>
+       <h2>
+        Reports by department
+       </h2>
+       <p>
+        Departments with more reports may need a closer review of context and reporting practice.
+       </p>
+      </div>
+     </div>
+     <div class="cf-ranked-list">
+      <div class="cf-ranked-row" th:each="row,stat : ${departmentRows}">
+       <span class="cf-ranked-number" th:text="${stat.count &lt; 9 ? '0' + (stat.count + 1) : stat.count + 1}">
+        01
+       </span>
+       <span class="cf-ranked-label" th:text="${row.label}">
+        Emergency
+       </span>
+       <div class="cf-ranked-track">
+        <span th:style="${'width:' + (metrics.total == 0 ? 0 : (row.count * 100 / metrics.total)) + '%'}">
+        </span>
+       </div>
+       <strong th:text="${row.count}">
+        0
+       </strong>
+      </div>
+      <div class="cf-empty-mini" th:if="${#lists.isEmpty(departmentRows)}">
+       No department data yet.
+      </div>
+     </div>
+    </section>
+    <section class="cf-panel cf-analytics-panel">
+     <div class="cf-panel-heading">
+      <div>
+       <h2>
+        Reported event categories
+       </h2>
+       <p>
+        Use category patterns to select prevention topics for review.
+       </p>
+      </div>
+     </div>
+     <div class="cf-ranked-list">
+      <div class="cf-ranked-row" th:each="row,stat : ${categoryRows}">
+       <span class="cf-ranked-number" th:text="${stat.count &lt; 9 ? '0' + (stat.count + 1) : stat.count + 1}">
+        01
+       </span>
+       <span class="cf-ranked-label" th:text="${#strings.replace(row.label,'_',' ')}">
+        Medication
+       </span>
+       <div class="cf-ranked-track">
+        <span th:style="${'width:' + (metrics.total == 0 ? 0 : (row.count * 100 / metrics.total)) + '%'}">
+        </span>
+       </div>
+       <strong th:text="${row.count}">
+        0
+       </strong>
+      </div>
+      <div class="cf-empty-mini" th:if="${#lists.isEmpty(categoryRows)}">
+       No category data yet.
+      </div>
+     </div>
+    </section>
+   </div>
+   <section class="cf-panel">
+    <div class="cf-panel-heading">
+     <div>
+      <h2>
+       Recent records for review
+      </h2>
+      <p>
+       Open a record to review context, owner and response status.
+      </p>
+     </div>
+     <a class="cf-btn cf-btn-quiet" th:href="@{/safety/incidents}">
+      Open register →
+     </a>
+    </div>
+    <div class="cf-table-wrap">
+     <table class="cf-table">
+      <thead>
+       <tr>
+        <th>
+         Reference / Event
+        </th>
+        <th>
+         Department
+        </th>
+        <th>
+         Severity
+        </th>
+        <th>
+         Status
+        </th>
+        <th>
+         Reported
+        </th>
+        <th>
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr th:each="incident : ${recentRecords}">
+        <td>
+         <a class="cf-record-title" th:href="@{/safety/incidents/{id}(id=${incident.id})}" th:text="${incident.referenceCode}">
+          SAFE
+         </a>
+         <span class="cf-record-subtitle" th:text="${incident.title}">
+          Event
+         </span>
+        </td>
+        <td th:text="${incident.department}">
+         Emergency
+        </td>
+        <td>
+         <span class="cf-status" th:classappend="${' severity-' + #strings.toLowerCase(incident.severity)}" th:text="${incident.severity}">
+          LOW
+         </span>
+        </td>
+        <td>
+         <span class="cf-status" th:classappend="${' status-' + #strings.toLowerCase(incident.status)}" th:text="${#strings.replace(incident.status,'_',' ')}">
+          REPORTED
+         </span>
+        </td>
+        <td th:text="${#temporals.format(incident.reportedAt,'dd MMM yyyy')}">
+         Date
+        </td>
+        <td>
+         <a aria-label="Open incident" class="cf-icon-link" th:href="@{/safety/incidents/{id}(id=${incident.id})}">
+          ↗
+         </a>
+        </td>
+       </tr>
+       <tr th:if="${#lists.isEmpty(recentRecords)}">
+        <td colspan="6">
+         <div class="cf-empty-state">
+          <strong>
+           No incident records yet
+          </strong>
+          <p>
+           Reports will appear here once events have been submitted.
+          </p>
+          <a class="cf-btn cf-btn-primary" th:href="@{/safety/incidents/new}">
+           Report first incident
+          </a>
+         </div>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+   </section>
+   <section class="cf-info-strip">
+    <div class="cf-info-icon">
+     i
+    </div>
+    <div>
+     <strong>
+      Turn patterns into learning
+     </strong>
+     <p>
+      Review incident themes, severity and corrective actions together. Keep discussions confidential and focus on systems, conditions and prevention—not unsupported assumptions about individuals.
+     </p>
+    </div>
+   </section>
+  </main>
+  <script th:src="@{/js/careflow-safety.js}">
+  </script>
+ </body>
+</html>
+

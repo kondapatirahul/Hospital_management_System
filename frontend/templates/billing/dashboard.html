@@ -1,8 +1,41 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: htmlHead('Billing Dashboard')}"></head>
-<body><div class="app-container"><aside th:replace="~{fragments/layout :: sidebar('billing/dashboard')}"></aside><div class="app-main"><header th:replace="~{fragments/layout :: navbar('Billing & Finance', 'Invoices, payment records, outstanding balances and revenue visibility.')}"></header><main class="page-content"><div class="dashboard-legacy">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><div><p>CAREFLOW / FINANCE</p><h1>Billing & Finance</h1><p>Review invoices, outstanding balances and recorded payments.</p></div><a th:href="@{/logout}">Sign out</a><a th:href="@{/billing/payments}" style="margin-left:16px">Payments & receipts →</a></header>
+<body><div class="app-container"><aside th:replace="~{fragments/layout :: sidebar('billing/dashboard')}"></aside><div class="app-main"><header th:replace="~{fragments/layout :: navbar('Billing & Finance', 'Invoices, payment records, outstanding balances and revenue visibility.')}"></header>
+<section th:replace="~{fragments/operations-panel :: operationsPanel('billing')}"></section>
+
+
+<div class="cf-launchpad-callout">
+  <div class="cf-launchpad-symbol" aria-hidden="true">↗</div>
+  <div class="cf-launchpad-copy"><strong>Open your workflow workspace</strong><span>All role-specific tools and common actions in one place.</span></div>
+  <a th:href="@{/workflows/billing}">View workflows <span aria-hidden="true">→</span></a>
+</div>
+
+<main class="page-content">
+<section class="cf-quick-panel" aria-label="Billing workspace">
+  <div class="cf-section-heading">
+    <div><span class="cf-eyebrow">WORKSPACE SHORTCUTS</span><h2>Billing workspace</h2><p>Open a workflow directly. Actions still use the existing server routes and permissions.</p></div>
+    <span class="cf-section-mark" aria-hidden="true">✦</span>
+  </div>
+  <div class="cf-dashboard-filter-row"><input class="cf-dashboard-filter" type="search" data-cf-shortcut-filter placeholder="Filter shortcuts…" aria-label="Filter dashboard shortcuts"><span class="cf-shortcut-count" aria-live="polite"></span></div>
+  <div class="cf-quick-grid">
+    <a class="cf-quick-action" th:href="@{/billing/dashboard}">
+  <span class="cf-quick-action-icon" aria-hidden="true">▧</span>
+  <span class="cf-quick-action-copy"><strong>Invoices</strong><small>Review outstanding and paid invoices</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/billing/enterprise/paymentReconciliation}">
+  <span class="cf-quick-action-icon" aria-hidden="true">▤</span>
+  <span class="cf-quick-action-copy"><strong>Payments</strong><small>Review recorded payment transactions</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/reports}">
+  <span class="cf-quick-action-icon" aria-hidden="true">▥</span>
+  <span class="cf-quick-action-copy"><strong>Reports</strong><small>Review revenue and operational summaries</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a>
+  </div>
+</section>
+<div class="dashboard-legacy">
+<header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><div><p>CAREFLOW / FINANCE</p><h1>Billing & Finance</h1><p>Review invoices, outstanding balances and recorded payments.</p></div><a th:href="@{/logout}">Sign out</a><a th:href="@{/billing/enterprise/paymentReconciliation}" style="margin-left:16px">Payments & receipts →</a></header>
 <p th:if="${successMessage}" th:text="${successMessage}" role="status"></p><p th:if="${errorMessage}" th:text="${errorMessage}" role="alert"></p>
 <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin:24px 0"><article class="card"><h3>Collected</h3><strong th:text="${paidTotal}">0.00</strong></article><article class="card"><h3>Outstanding</h3><strong th:text="${outstandingTotal}">0.00</strong></article><article class="card"><h3>Pending invoices</h3><strong th:text="${pendingCount}">0</strong></article></section>
 <section class="card"><h2>Invoices</h2><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Invoice</th><th>Patient</th><th>Invoice date</th><th>Due date</th><th>Description</th><th>Total</th><th>Status</th><th>Action</th></tr></thead><tbody><tr th:each="invoice : ${invoices}"><td th:text="${invoice.invoiceNumber}">INV</td><td><span th:text="${invoice.patient.fullName}">Patient</span><br><small th:text="${invoice.patient.patientId}">PAT-ID</small></td><td th:text="${invoice.invoiceDate}">Date</td><td th:text="${invoice.dueDate}">Due</td><td th:text="${invoice.serviceDescription}">Service</td><td th:text="${invoice.totalAmount}">0.00</td><td th:text="${invoice.status}">PENDING</td><td><form th:if="${invoice.status.name() != 'PAID' and invoice.status.name() != 'CANCELLED'}" th:action="@{/billing/invoices/{id}/pay(id=${invoice.id})}" method="post"><select name="paymentMethod"><option>Cash</option><option>UPI</option><option>Credit Card</option><option>Insurance</option><option>Bank Transfer</option></select><button type="submit">Record payment</button></form><span th:if="${invoice.status.name() == 'PAID'}">Paid</span></td></tr><tr th:if="${#lists.isEmpty(invoices)}"><td colspan="8">No invoices found.</td></tr></tbody></table></div></section>

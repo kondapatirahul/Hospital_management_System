@@ -1,12 +1,56 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Administration - CareFlow</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
-<body><div class="app-container"><aside th:replace="~{fragments/layout :: sidebar('admin/dashboard')}"></aside><div class="app-main"><header th:replace="~{fragments/layout :: navbar('Administration & Governance', 'Hospital-wide oversight, accounts, departments, settings and auditability.')}"></header><main class="page-content"><div class="dashboard-legacy">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Administration - CareFlow</title><link rel="stylesheet" th:href="@{/css/style.css}">  <link rel="stylesheet" th:href="@{/css/workflow-hub.css}">
+  <link rel="stylesheet" th:href="@{/css/careflow-operations.css}">
+  <script defer th:src="@{/js/careflow-operations.js}"></script>
+</head>
+<body><div class="app-container"><aside th:replace="~{fragments/layout :: sidebar('admin/dashboard')}"></aside><div class="app-main"><header th:replace="~{fragments/layout :: navbar('Administration & Governance', 'Hospital-wide oversight, accounts, departments, settings and auditability.')}"></header>
+<section th:replace="~{fragments/operations-panel :: operationsPanel('admin')}"></section>
+
+
+<div class="cf-launchpad-callout">
+  <div class="cf-launchpad-symbol" aria-hidden="true">↗</div>
+  <div class="cf-launchpad-copy"><strong>Open your workflow workspace</strong><span>All role-specific tools and common actions in one place.</span></div>
+  <a th:href="@{/workflows/admin}">View workflows <span aria-hidden="true">→</span></a>
+</div>
+
+<main class="page-content">
+<section class="cf-quick-panel" aria-label="Administration shortcuts">
+  <div class="cf-section-heading">
+    <div><span class="cf-eyebrow">WORKSPACE SHORTCUTS</span><h2>Administration shortcuts</h2><p>Open a workflow directly. Actions still use the existing server routes and permissions.</p></div>
+    <span class="cf-section-mark" aria-hidden="true">✦</span>
+  </div>
+  <div class="cf-dashboard-filter-row"><input class="cf-dashboard-filter" type="search" data-cf-shortcut-filter placeholder="Filter shortcuts…" aria-label="Filter dashboard shortcuts"><span class="cf-shortcut-count" aria-live="polite"></span></div>
+  <div class="cf-quick-grid">
+    <a class="cf-quick-action" th:href="@{/admin/dashboard}">
+  <span class="cf-quick-action-icon" aria-hidden="true">♙</span>
+  <span class="cf-quick-action-copy"><strong>User & account access</strong><small>Review user accounts and account status</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/admin/dashboard#departments}">
+  <span class="cf-quick-action-icon" aria-hidden="true">▦</span>
+  <span class="cf-quick-action-copy"><strong>Departments</strong><small>Jump to department management</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/admin/audit}">
+  <span class="cf-quick-action-icon" aria-hidden="true">◆</span>
+  <span class="cf-quick-action-copy"><strong>Audit trail</strong><small>Review administrative audit events</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/admin/settings}">
+  <span class="cf-quick-action-icon" aria-hidden="true">⚙</span>
+  <span class="cf-quick-action-copy"><strong>System settings</strong><small>Manage available system settings</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/reports}">
+  <span class="cf-quick-action-icon" aria-hidden="true">▥</span>
+  <span class="cf-quick-action-copy"><strong>Reports & analytics</strong><small>Open hospital reporting</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a>
+  </div>
+</section>
+<div class="dashboard-legacy">
 <header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><div><p>CAREFLOW / SYSTEM</p><h1>Administration Dashboard</h1><p>Operational overview, account access and department setup.</p></div><a th:href="@{/reports}">Reports & analytics</a> · <a th:href="@{/admin/audit}">Audit trail</a> · <a th:href="@{/admin/settings}">System settings</a> · <a th:href="@{/logout}">Sign out</a></header>
 <p th:if="${successMessage}" th:text="${successMessage}" role="status" class="alert alert-success"></p><p th:if="${errorMessage}" th:text="${errorMessage}" role="alert" class="alert alert-danger"></p>
 <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin:24px 0">
 <article class="card"><h3>Users</h3><strong th:text="${userCount}">0</strong><p><small>Enabled: <span th:text="${enabledUserCount}">0</span> · Disabled: <span th:text="${disabledUserCount}">0</span></small></p></article>
 <article class="card"><h3>Patients</h3><strong th:text="${patientCount}">0</strong></article><article class="card"><h3>Doctors</h3><strong th:text="${doctorCount}">0</strong></article><article class="card"><h3>Appointments</h3><strong th:text="${appointmentCount}">0</strong></article><article class="card"><h3>Departments</h3><strong th:text="${departmentCount}">0</strong></article><article class="card"><h3>Lab reports</h3><strong th:text="${labReportCount}">0</strong></article><article class="card"><h3>Invoices</h3><strong th:text="${invoiceCount}">0</strong></article></section>
-<section class="card" style="margin-bottom:24px"><h2>Department management</h2><form th:action="@{/admin/departments}" method="post" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;align-items:end;margin:16px 0"><label>Department name<input name="name" required maxlength="100" placeholder="e.g. Cardiology" style="display:block;width:100%;padding:10px;margin-top:6px"></label><label>Description<input name="description" maxlength="255" placeholder="Optional description" style="display:block;width:100%;padding:10px;margin-top:6px"></label><button type="submit" class="btn btn-primary">Add department</button></form><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Name</th><th>Description</th></tr></thead><tbody><tr th:each="department : ${departments}"><td th:text="${department.name}">Department</td><td th:text="${department.description} ?: '—'">Description</td></tr><tr th:if="${#lists.isEmpty(departments)}"><td colspan="2">No departments configured.</td></tr></tbody></table></div></section>
+<section id="departments" class="card" style="margin-bottom:24px"><h2>Department management</h2><form th:action="@{/admin/departments}" method="post" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;align-items:end;margin:16px 0"><label>Department name<input name="name" required maxlength="100" placeholder="e.g. Cardiology" style="display:block;width:100%;padding:10px;margin-top:6px"></label><label>Description<input name="description" maxlength="255" placeholder="Optional description" style="display:block;width:100%;padding:10px;margin-top:6px"></label><button type="submit" class="btn btn-primary">Add department</button></form><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Name</th><th>Description</th></tr></thead><tbody><tr th:each="department : ${departments}"><td th:text="${department.name}">Department</td><td th:text="${department.description} ?: '—'">Description</td></tr><tr th:if="${#lists.isEmpty(departments)}"><td colspan="2">No departments configured.</td></tr></tbody></table></div></section>
 <section class="card"><h2>Account access management</h2><p>Enable or disable accounts. Role assignment remains restricted until a dedicated audited role-change workflow is implemented.</p><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Account</th><th>Full name</th><th>Role</th><th>Status</th><th>Created</th><th>Action</th></tr></thead><tbody><tr th:each="account : ${users}"><td th:text="${account.username}">email</td><td th:text="${account.fullName}">Name</td><td th:text="${account.role}">ROLE</td><td th:text="${account.enabled ? 'Enabled' : 'Disabled'}">Enabled</td><td th:text="${account.createdAt}">Date</td><td><form th:action="@{/admin/users/{id}/toggle(id=${account.id})}" method="post"><button type="submit" th:text="${account.enabled ? 'Disable' : 'Enable'}">Toggle</button></form></td></tr><tr th:if="${#lists.isEmpty(users)}"><td colspan="6">No user accounts found.</td></tr></tbody></table></div></section>
 </div></main></div></div><script th:src="@{/js/script.js}"></script></body></html>

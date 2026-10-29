@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <title>
+   Safety Incident Register | CareFlow
+  </title>
+  <link rel="stylesheet" th:href="@{/css/careflow-safety.css}"/>
+ </head>
+ <body class="cf-safety-page">
+  <header class="cf-topbar">
+   <a class="cf-brand" th:href="@{/}">
+    <span class="cf-brand-mark">
+     C
+    </span>
+    <span>
+     CareFlow
+     <small>
+      QUALITY &amp; SAFETY
+     </small>
+    </span>
+   </a>
+   <nav>
+    <a th:href="@{/workflows/admin}">
+     Workspace
+    </a>
+    <a class="active" th:href="@{/safety/incidents}">
+     Incidents
+    </a>
+    <a th:href="@{/staff/handovers}">
+     Shift handovers
+    </a>
+   </nav>
+   <div class="cf-user-pill">
+    <span class="cf-online-dot">
+    </span>
+    Secure workspace
+   </div>
+  </header>
+  <main class="cf-shell">
+   <section class="cf-page-heading">
+    <div>
+     <div class="cf-eyebrow">
+      PATIENT SAFETY / GOVERNANCE
+     </div>
+     <h1>
+      Incident register
+     </h1>
+     <p>
+      Report, triage and review safety events with a traceable response workflow.
+     </p>
+    </div>
+    <a class="cf-btn cf-btn-primary" th:href="@{/safety/incidents/new}">
+     <span>
+      ＋
+     </span>
+     Report incident
+    </a>
+   </section>
+   <div class="cf-alert cf-alert-success" role="status" th:if="${successMessage}" th:text="${successMessage}">
+   </div>
+   <div class="cf-alert cf-alert-error" role="alert" th:if="${errorMessage}" th:text="${errorMessage}">
+   </div>
+   <section class="cf-metric-grid">
+    <article class="cf-metric">
+     <span class="cf-metric-label">
+      All incidents
+     </span>
+     <strong th:text="${metrics.total}">
+      0
+     </strong>
+     <small>
+      Recorded in register
+     </small>
+    </article>
+    <article class="cf-metric">
+     <span class="cf-metric-label">
+      Open work
+     </span>
+     <strong th:text="${metrics.open}">
+      0
+     </strong>
+     <small>
+      Awaiting closure
+     </small>
+    </article>
+    <article class="cf-metric cf-metric-risk">
+     <span class="cf-metric-label">
+      Critical severity
+     </span>
+     <strong th:text="${metrics.critical}">
+      0
+     </strong>
+     <small>
+      Review immediately
+     </small>
+    </article>
+    <article class="cf-metric">
+     <span class="cf-metric-label">
+      Reported today
+     </span>
+     <strong th:text="${metrics.today}">
+      0
+     </strong>
+     <small>
+      Since midnight
+     </small>
+    </article>
+   </section>
+   <section class="cf-panel cf-filter-panel">
+    <div class="cf-panel-heading">
+     <div>
+      <h2>
+       Find an incident
+      </h2>
+      <p>
+       Use filters to narrow the register before reviewing records.
+      </p>
+     </div>
+     <button class="cf-btn cf-btn-quiet" data-reset-filters="" type="button">
+      Reset filters
+     </button>
+    </div>
+    <form class="cf-filter-form" data-filter-form="" method="get" th:action="@{/safety/incidents}">
+     <label class="cf-field">
+      <span>
+       Search
+      </span>
+      <input data-live-search="" name="q" placeholder="Reference, title or category" th:value="${filterQuery}" type="search"/>
+     </label>
+     <label class="cf-field">
+      <span>
+       Status
+      </span>
+      <select name="status" th:value="${filterStatus}">
+       <option value="">
+        All statuses
+       </option>
+       <option th:selected="${filterStatus == 'REPORTED'}" value="REPORTED">
+        Reported
+       </option>
+       <option th:selected="${filterStatus == 'ACKNOWLEDGED'}" value="ACKNOWLEDGED">
+        Acknowledged
+       </option>
+       <option th:selected="${filterStatus == 'INVESTIGATING'}" value="INVESTIGATING">
+        Investigating
+       </option>
+       <option th:selected="${filterStatus == 'ACTION_REQUIRED'}" value="ACTION_REQUIRED">
+        Action required
+       </option>
+       <option th:selected="${filterStatus == 'RESOLVED'}" value="RESOLVED">
+        Resolved
+       </option>
+       <option th:selected="${filterStatus == 'CLOSED'}" value="CLOSED">
+        Closed
+       </option>
+      </select>
+     </label>
+     <label class="cf-field">
+      <span>
+       Severity
+      </span>
+      <select name="severity">
+       <option value="">
+        All severities
+       </option>
+       <option th:selected="${filterSeverity == 'LOW'}" value="LOW">
+        Low
+       </option>
+       <option th:selected="${filterSeverity == 'MODERATE'}" value="MODERATE">
+        Moderate
+       </option>
+       <option th:selected="${filterSeverity == 'HIGH'}" value="HIGH">
+        High
+       </option>
+       <option th:selected="${filterSeverity == 'CRITICAL'}" value="CRITICAL">
+        Critical
+       </option>
+      </select>
+     </label>
+     <label class="cf-field">
+      <span>
+       Department
+      </span>
+      <select name="department">
+       <option value="">
+        All departments
+       </option>
+       <option th:each="departmentName : ${departments}" th:selected="${filterDepartment == departmentName}" th:text="${departmentName}" th:value="${departmentName}">
+       </option>
+      </select>
+     </label>
+     <div class="cf-filter-actions">
+      <button class="cf-btn cf-btn-dark" type="submit">
+       Apply filters
+      </button>
+      <a class="cf-btn cf-btn-quiet" th:href="@{/safety/incidents}">
+       Clear
+      </a>
+     </div>
+    </form>
+   </section>
+   <section class="cf-panel">
+    <div class="cf-panel-heading">
+     <div>
+      <h2>
+       Reported events
+      </h2>
+      <p>
+       <span th:text="${#lists.size(incidents)}">
+        0
+       </span>
+       records match the current view.
+      </p>
+     </div>
+     <div class="cf-inline-actions">
+      <button class="cf-btn cf-btn-quiet" data-export-visible="" type="button">
+       Export visible CSV
+      </button>
+      <a class="cf-btn cf-btn-quiet" th:href="@{/safety/incidents/export.csv(status=${filterStatus},severity=${filterSeverity},department=${filterDepartment},q=${filterQuery})}">
+       Download register
+      </a>
+     </div>
+    </div>
+    <div class="cf-table-wrap">
+     <table class="cf-table" data-incident-table="">
+      <thead>
+       <tr>
+        <th>
+         Reference / Event
+        </th>
+        <th>
+         Department
+        </th>
+        <th>
+         Severity
+        </th>
+        <th>
+         Status
+        </th>
+        <th>
+         Reported
+        </th>
+        <th>
+         Owner
+        </th>
+        <th>
+         <span class="sr-only">
+          Actions
+         </span>
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr th:attr="data-status=${incident.status},data-severity=${incident.severity}" th:each="incident : ${incidents}">
+        <td>
+         <a class="cf-record-title" th:href="@{/safety/incidents/{id}(id=${incident.id})}" th:text="${incident.referenceCode}">
+          SAFE-0001
+         </a>
+         <span class="cf-record-subtitle" th:text="${incident.title}">
+          Event title
+         </span>
+         <span class="cf-record-category" th:text="${#strings.replace(incident.category,'_',' ')}">
+          CATEGORY
+         </span>
+        </td>
+        <td>
+         <span th:text="${incident.department}">
+          Emergency
+         </span>
+         <small class="cf-table-subtext" th:text="${incident.location}">
+          Location
+         </small>
+        </td>
+        <td>
+         <span class="cf-status" th:classappend="${' severity-' + #strings.toLowerCase(incident.severity)}" th:text="${incident.severity}">
+          LOW
+         </span>
+        </td>
+        <td>
+         <span class="cf-status" th:classappend="${' status-' + #strings.toLowerCase(incident.status)}" th:text="${#strings.replace(incident.status,'_',' ')}">
+          REPORTED
+         </span>
+        </td>
+        <td>
+         <span th:text="${#temporals.format(incident.reportedAt,'dd MMM yyyy')}">
+          29 Oct 2026
+         </span>
+         <small class="cf-table-subtext" th:text="${#temporals.format(incident.reportedAt,'HH:mm')}">
+          09:15
+         </small>
+        </td>
+        <td th:text="${incident.assignedTo == null ? 'Unassigned' : incident.assignedTo}">
+         Unassigned
+        </td>
+        <td>
+         <a aria-label="Open incident" class="cf-icon-link" th:href="@{/safety/incidents/{id}(id=${incident.id})}">
+          ↗
+         </a>
+        </td>
+       </tr>
+       <tr th:if="${#lists.isEmpty(incidents)}">
+        <td colspan="7">
+         <div class="cf-empty-state">
+          <span class="cf-empty-icon">
+           ✓
+          </span>
+          <strong>
+           No incidents found
+          </strong>
+          <p>
+           No records match these filters. Clear filters or report a new event.
+          </p>
+          <a class="cf-btn cf-btn-primary" th:href="@{/safety/incidents/new}">
+           Report an incident
+          </a>
+         </div>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+    <footer class="cf-table-footer">
+     <span>
+      Confidential operational record · Access is role restricted
+     </span>
+     <span>
+      Use patient identifiers only when necessary.
+     </span>
+    </footer>
+   </section>
+   <section class="cf-info-strip">
+    <div class="cf-info-icon">
+     i
+    </div>
+    <div>
+     <strong>
+      Safety first, blame-free reporting
+     </strong>
+     <p>
+      Capture near misses as well as incidents. Use the immediate-action field to record steps already taken to protect patients and staff. Follow local escalation policy for urgent risks.
+     </p>
+    </div>
+   </section>
+  </main>
+  <script th:src="@{/js/careflow-safety.js}">
+  </script>
+ </body>
+</html>
+

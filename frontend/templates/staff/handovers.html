@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <title>
+   Shift Handovers | CareFlow
+  </title>
+  <link rel="stylesheet" th:href="@{/css/careflow-safety.css}"/>
+ </head>
+ <body class="cf-safety-page">
+  <header class="cf-topbar">
+   <a class="cf-brand" th:href="@{/}">
+    <span class="cf-brand-mark">
+     C
+    </span>
+    <span>
+     CareFlow
+     <small>
+      CLINICAL OPERATIONS
+     </small>
+    </span>
+   </a>
+   <nav>
+    <a th:href="@{/workflows/staff}">
+     Staff workspace
+    </a>
+    <a th:href="@{/safety/incidents}">
+     Safety incidents
+    </a>
+    <a class="active" th:href="@{/staff/handovers}">
+     Shift handovers
+    </a>
+   </nav>
+   <div class="cf-user-pill">
+    <span class="cf-online-dot">
+    </span>
+    Secure workspace
+   </div>
+  </header>
+  <main class="cf-shell">
+   <section class="cf-page-heading">
+    <div>
+     <div class="cf-eyebrow">
+      STAFF OPERATIONS / CONTINUITY OF CARE
+     </div>
+     <h1>
+      Shift handovers
+     </h1>
+     <p>
+      Structured shift transitions, pending tasks and receiver acknowledgement in one place.
+     </p>
+    </div>
+    <a class="cf-btn cf-btn-primary" th:href="@{/staff/handovers/new}">
+     <span>
+      ＋
+     </span>
+     Create handover
+    </a>
+   </section>
+   <div class="cf-alert cf-alert-success" role="status" th:if="${successMessage}" th:text="${successMessage}">
+   </div>
+   <div class="cf-alert cf-alert-error" role="alert" th:if="${errorMessage}" th:text="${errorMessage}">
+   </div>
+   <section class="cf-metric-grid cf-handover-metrics">
+    <article class="cf-metric">
+     <span class="cf-metric-label">
+      All handovers
+     </span>
+     <strong th:text="${metrics.total}">
+      0
+     </strong>
+     <small>
+      Across departments
+     </small>
+    </article>
+    <article class="cf-metric cf-metric-warn">
+     <span class="cf-metric-label">
+      Awaiting receipt
+     </span>
+     <strong th:text="${metrics.awaiting}">
+      0
+     </strong>
+     <small>
+      Incoming staff action
+     </small>
+    </article>
+    <article class="cf-metric">
+     <span class="cf-metric-label">
+      Acknowledged
+     </span>
+     <strong th:text="${metrics.acknowledged}">
+      0
+     </strong>
+     <small>
+      Receipt confirmed
+     </small>
+    </article>
+    <article class="cf-metric cf-metric-risk">
+     <span class="cf-metric-label">
+      Urgent and open
+     </span>
+     <strong th:text="${metrics.urgent}">
+      0
+     </strong>
+     <small>
+      Prioritize follow-up
+     </small>
+    </article>
+   </section>
+   <section class="cf-panel">
+    <div class="cf-panel-heading">
+     <div>
+      <h2>
+       Handover register
+      </h2>
+      <p>
+       Filter by workflow state, service area or staff reference.
+      </p>
+     </div>
+    </div>
+    <form class="cf-filter-form" data-filter-form="" method="get" th:action="@{/staff/handovers}">
+     <label class="cf-field">
+      <span>
+       Search
+      </span>
+      <input name="q" placeholder="Reference or staff name" th:value="${filterQuery}" type="search"/>
+     </label>
+     <label class="cf-field">
+      <span>
+       Status
+      </span>
+      <select name="status">
+       <option value="">
+        All states
+       </option>
+       <option th:selected="${filterStatus == 'DRAFT'}" value="DRAFT">
+        Draft
+       </option>
+       <option th:selected="${filterStatus == 'SUBMITTED'}" value="SUBMITTED">
+        Submitted
+       </option>
+       <option th:selected="${filterStatus == 'ACKNOWLEDGED'}" value="ACKNOWLEDGED">
+        Acknowledged
+       </option>
+       <option th:selected="${filterStatus == 'RETURNED'}" value="RETURNED">
+        Returned
+       </option>
+      </select>
+     </label>
+     <label class="cf-field">
+      <span>
+       Department
+      </span>
+      <select name="department">
+       <option value="">
+        All departments
+       </option>
+       <option th:each="d : ${departments}" th:selected="${filterDepartment == d}" th:text="${d}" th:value="${d}">
+       </option>
+      </select>
+     </label>
+     <div class="cf-filter-actions">
+      <button class="cf-btn cf-btn-dark" type="submit">
+       Apply filters
+      </button>
+      <a class="cf-btn cf-btn-quiet" th:href="@{/staff/handovers}">
+       Clear
+      </a>
+     </div>
+    </form>
+    <div class="cf-table-wrap">
+     <table class="cf-table">
+      <thead>
+       <tr>
+        <th>
+         Reference / Shift
+        </th>
+        <th>
+         Department
+        </th>
+        <th>
+         Outgoing → Incoming
+        </th>
+        <th>
+         Shift time
+        </th>
+        <th>
+         State
+        </th>
+        <th>
+         Priority
+        </th>
+        <th>
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr th:each="h : ${handovers}">
+        <td>
+         <a class="cf-record-title" th:href="@{/staff/handovers/{id}(id=${h.id})}" th:text="${h.referenceCode}">
+          HAND-0001
+         </a>
+         <span class="cf-record-subtitle" th:text="${h.shiftName}">
+          Night
+         </span>
+        </td>
+        <td th:text="${h.department}">
+         Emergency
+        </td>
+        <td>
+         <span th:text="${h.outgoingStaff}">
+          Outgoing
+         </span>
+         <span class="cf-arrow-text">
+          →
+         </span>
+         <span th:text="${h.incomingStaff}">
+          Incoming
+         </span>
+        </td>
+        <td>
+         <span th:text="${#temporals.format(h.shiftDate,'dd MMM yyyy')}">
+          Date
+         </span>
+         <small class="cf-table-subtext" th:text="${#temporals.format(h.shiftDate,'HH:mm')}">
+          Time
+         </small>
+        </td>
+        <td>
+         <span class="cf-status" th:classappend="${' status-' + #strings.toLowerCase(h.status)}" th:text="${h.status}">
+          DRAFT
+         </span>
+        </td>
+        <td>
+         <span class="cf-status severity-high" th:if="${h.urgent}">
+          URGENT
+         </span>
+         <span class="cf-muted" th:unless="${h.urgent}">
+          Standard
+         </span>
+        </td>
+        <td>
+         <a aria-label="Open handover" class="cf-icon-link" th:href="@{/staff/handovers/{id}(id=${h.id})}">
+          ↗
+         </a>
+        </td>
+       </tr>
+       <tr th:if="${#lists.isEmpty(handovers)}">
+        <td colspan="7">
+         <div class="cf-empty-state">
+          <span class="cf-empty-icon">
+           ↔
+          </span>
+          <strong>
+           No handovers found
+          </strong>
+          <p>
+           Create a structured handover to begin the shift transition.
+          </p>
+          <a class="cf-btn cf-btn-primary" th:href="@{/staff/handovers/new}">
+           Create handover
+          </a>
+         </div>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+    <footer class="cf-table-footer">
+     <span>
+      Handover acknowledgement confirms receipt, not clinical approval.
+     </span>
+     <span>
+      Follow local escalation and medication-count procedures.
+     </span>
+    </footer>
+   </section>
+  </main>
+  <script th:src="@{/js/careflow-safety.js}">
+  </script>
+ </body>
+</html>
+
