@@ -1,38 +1,144 @@
 <section th:fragment="admin" class="cf-role-board" aria-label="Hospital administration">
-<div class="cf-role-board__heading"><div><span class="cf-eyebrow">DEPARTMENT OPERATIONS</span>
-<h2>Hospital administration</h2><p>System oversight, user access, configuration, and audit review.</p></div>
-<div class="cf-role-board__heading-actions"><span class="cf-secure-chip">● Role protected</span><button type="button" class="cf-outline-button" data-board-print>Print view</button></div></div>
-<div class="cf-role-kpis">
-<a class="cf-role-kpi" href="/admin/dashboard" data-kpi-card><span class="cf-role-kpi__icon" aria-hidden="true">◷</span><span class="cf-role-kpi__label">System dashboard</span><strong class="cf-role-kpi__value">Operational overview</strong><span class="cf-role-kpi__link">Open module <span aria-hidden="true">→</span></span></a>
-<a class="cf-role-kpi" href="/admin/audit" data-kpi-card><span class="cf-role-kpi__icon" aria-hidden="true">▦</span><span class="cf-role-kpi__label">Audit trail</span><strong class="cf-role-kpi__value">Administrative events</strong><span class="cf-role-kpi__link">Open module <span aria-hidden="true">→</span></span></a>
-<a class="cf-role-kpi" href="/admin/settings" data-kpi-card><span class="cf-role-kpi__icon" aria-hidden="true">✚</span><span class="cf-role-kpi__label">Settings</span><strong class="cf-role-kpi__value">System configuration</strong><span class="cf-role-kpi__link">Open module <span aria-hidden="true">→</span></span></a>
-<a class="cf-role-kpi" href="/reports" data-kpi-card><span class="cf-role-kpi__icon" aria-hidden="true">↗</span><span class="cf-role-kpi__label">Reports</span><strong class="cf-role-kpi__value">Hospital reporting</strong><span class="cf-role-kpi__link">Open module <span aria-hidden="true">→</span></span></a>
-</div>
-<div class="cf-role-board__grid">
-<section class="cf-role-card cf-role-card--wide"><div class="cf-role-card__heading"><div><span class="cf-eyebrow">QUICK ACCESS</span><h3>Common actions</h3><p>Open the real application workflow to view or change records.</p></div><span class="cf-card-count">4 shortcuts</span></div><div class="cf-role-actions">
-<a class="cf-role-action" href="/admin/dashboard" data-action-card><span class="cf-role-action__icon" aria-hidden="true">＋</span><span class="cf-role-action__copy"><strong>Review access</strong><small>Inspect account and role assignments</small></span><span class="cf-role-action__arrow" aria-hidden="true">↗</span></a>
-<a class="cf-role-action" href="/admin/audit" data-action-card><span class="cf-role-action__icon" aria-hidden="true">▤</span><span class="cf-role-action__copy"><strong>Inspect audit events</strong><small>Review recorded administrative changes</small></span><span class="cf-role-action__arrow" aria-hidden="true">↗</span></a>
-<a class="cf-role-action" href="/admin/settings" data-action-card><span class="cf-role-action__icon" aria-hidden="true">✓</span><span class="cf-role-action__copy"><strong>Manage settings</strong><small>Open application configuration</small></span><span class="cf-role-action__arrow" aria-hidden="true">↗</span></a>
-<a class="cf-role-action" href="/reports" data-action-card><span class="cf-role-action__icon" aria-hidden="true">↗</span><span class="cf-role-action__copy"><strong>Open reports</strong><small>Review hospital-wide reporting</small></span><span class="cf-role-action__arrow" aria-hidden="true">↗</span></a>
-</div></section>
-<section class="cf-role-card"><div class="cf-role-card__heading"><div><span class="cf-eyebrow">WORKFLOW GUIDE</span><h3>Operational checklist</h3><p>Use these checkpoints to avoid missed steps.</p></div></div><div class="cf-role-checklist">
-<label class="cf-role-check" data-check-item><input type="checkbox" data-check-key="admin-0"><span class="cf-role-check__box" aria-hidden="true"></span><span><strong>Apply least privilege</strong><small>Grant only the access required for the user's job.</small></span></label>
-<label class="cf-role-check" data-check-item><input type="checkbox" data-check-key="admin-1"><span class="cf-role-check__box" aria-hidden="true"></span><span><strong>Review changes</strong><small>Check the audit trail after sensitive administrative operations.</small></span></label>
-<label class="cf-role-check" data-check-item><input type="checkbox" data-check-key="admin-2"><span class="cf-role-check__box" aria-hidden="true"></span><span><strong>Protect continuity</strong><small>Use the deployment's approved backup and recovery procedures.</small></span></label>
-</div><div class="cf-check-progress"><div class="cf-check-progress__meta"><span>Checklist progress</span><strong data-check-progress>0%</strong></div><div class="cf-progress"><span data-check-progress-bar style="width:0%"></span></div></div></section>
-<section class="cf-role-card"><div class="cf-role-card__heading"><div><span class="cf-eyebrow">WORKSPACE TOOLS</span><h3>Find a workflow</h3><p>Filter this department shortcuts by task.</p></div></div>
-<label class="cf-role-search-label" for="roleSearch-admin">Search shortcuts</label>
-<input class="cf-role-search" id="roleSearch-admin" type="search" placeholder="Try appointment, report, payment..." data-role-search>
-<div class="cf-role-search-results" data-role-search-results aria-live="polite"></div>
-<div class="cf-role-tip"><span aria-hidden="true">i</span><p><strong>Data safety reminder</strong>Use the linked workflow for record changes. This overview does not change patient or financial records itself.</p></div></section></div>
-<div class="cf-role-board__footer"><span><i class="cf-live-dot"></i> CareFlow workspace</span><span>Use the module screen to submit and save changes.</span></div></section>
-<section class="cf-role-board__secondary" aria-label="Additional operational guidance"><div class="cf-role-secondary-heading"><div><span class="cf-eyebrow">GOOD PRACTICE</span><h3>Keep the workflow complete</h3></div><p>Use these prompts during normal work. They are reminders, not substitutes for clinical or financial policy.</p></div><div class="cf-role-practice-grid">
-<article class="cf-practice-item"><span class="cf-practice-number">01</span><div><strong>Verify the record</strong><p>Check the patient or business record before editing.</p></div></article>
-<article class="cf-practice-item"><span class="cf-practice-number">02</span><div><strong>Use the authorized action</strong><p>Submit changes from the module's own form.</p></div></article>
-<article class="cf-practice-item"><span class="cf-practice-number">03</span><div><strong>Review the outcome</strong><p>Confirm the page shows the saved status after submission.</p></div></article>
-<article class="cf-practice-item"><span class="cf-practice-number">04</span><div><strong>Protect private information</strong><p>Only open records needed for your assigned duties.</p></div></article>
-<article class="cf-practice-item"><span class="cf-practice-number">05</span><div><strong>Avoid duplicate submissions</strong><p>Wait for the response before repeating a save action.</p></div></article>
-<article class="cf-practice-item"><span class="cf-practice-number">06</span><div><strong>Escalate uncertainty</strong><p>Ask the appropriate supervisor if the record is ambiguous.</p></div></article>
-</div></section>
+    <div class="cf-role-board__heading">
+        <div><span class="cf-eyebrow">DEPARTMENT OPERATIONS</span>
+            <h2>Hospital administration</h2>
+            <p>System oversight, user access, configuration, and audit review.</p>
+        </div>
+        <div class="cf-role-board__heading-actions"><span class="cf-secure-chip">● Role protected</span><button
+                type="button" class="cf-outline-button" data-board-print>Print view</button></div>
+    </div>
+    <div class="cf-role-kpis">
+        <a class="cf-role-kpi" href="/admin/dashboard" data-kpi-card><span class="cf-role-kpi__icon"
+                aria-hidden="true">◷</span><span class="cf-role-kpi__label">System dashboard</span><strong
+                class="cf-role-kpi__value">Operational overview</strong><span class="cf-role-kpi__link">Open module
+                <span aria-hidden="true">→</span></span></a>
+        <a class="cf-role-kpi" href="/admin/audit" data-kpi-card><span class="cf-role-kpi__icon"
+                aria-hidden="true">▦</span><span class="cf-role-kpi__label">Audit trail</span><strong
+                class="cf-role-kpi__value">Administrative events</strong><span class="cf-role-kpi__link">Open module
+                <span aria-hidden="true">→</span></span></a>
+        <a class="cf-role-kpi" href="/admin/settings" data-kpi-card><span class="cf-role-kpi__icon"
+                aria-hidden="true">✚</span><span class="cf-role-kpi__label">Settings</span><strong
+                class="cf-role-kpi__value">System configuration</strong><span class="cf-role-kpi__link">Open module
+                <span aria-hidden="true">→</span></span></a>
+        <a class="cf-role-kpi" href="/reports" data-kpi-card><span class="cf-role-kpi__icon"
+                aria-hidden="true">↗</span><span class="cf-role-kpi__label">Reports</span><strong
+                class="cf-role-kpi__value">Hospital reporting</strong><span class="cf-role-kpi__link">Open module <span
+                    aria-hidden="true">→</span></span></a>
+    </div>
+    <div class="cf-role-board__grid">
+        <section class="cf-role-card cf-role-card--wide">
+            <div class="cf-role-card__heading">
+                <div><span class="cf-eyebrow">QUICK ACCESS</span>
+                    <h3>Common actions</h3>
+                    <p>Open the real application workflow to view or change records.</p>
+                </div><span class="cf-card-count">4 shortcuts</span>
+            </div>
+            <div class="cf-role-actions">
+                <a class="cf-role-action" href="/admin/dashboard" data-action-card><span class="cf-role-action__icon"
+                        aria-hidden="true">＋</span><span class="cf-role-action__copy"><strong>Review
+                            access</strong><small>Inspect account and role assignments</small></span><span
+                        class="cf-role-action__arrow" aria-hidden="true">↗</span></a>
+                <a class="cf-role-action" href="/admin/audit" data-action-card><span class="cf-role-action__icon"
+                        aria-hidden="true">▤</span><span class="cf-role-action__copy"><strong>Inspect audit
+                            events</strong><small>Review recorded administrative changes</small></span><span
+                        class="cf-role-action__arrow" aria-hidden="true">↗</span></a>
+                <a class="cf-role-action" href="/admin/settings" data-action-card><span class="cf-role-action__icon"
+                        aria-hidden="true">✓</span><span class="cf-role-action__copy"><strong>Manage
+                            settings</strong><small>Open application configuration</small></span><span
+                        class="cf-role-action__arrow" aria-hidden="true">↗</span></a>
+                <a class="cf-role-action" href="/reports" data-action-card><span class="cf-role-action__icon"
+                        aria-hidden="true">↗</span><span class="cf-role-action__copy"><strong>Open
+                            reports</strong><small>Review hospital-wide reporting</small></span><span
+                        class="cf-role-action__arrow" aria-hidden="true">↗</span></a>
+            </div>
+        </section>
+        <section class="cf-role-card">
+            <div class="cf-role-card__heading">
+                <div><span class="cf-eyebrow">WORKFLOW GUIDE</span>
+                    <h3>Operational checklist</h3>
+                    <p>Use these checkpoints to avoid missed steps.</p>
+                </div>
+            </div>
+            <div class="cf-role-checklist">
+                <label class="cf-role-check" data-check-item><input type="checkbox" data-check-key="admin-0"><span
+                        class="cf-role-check__box" aria-hidden="true"></span><span><strong>Apply least
+                            privilege</strong><small>Grant only the access required for the user's
+                            job.</small></span></label>
+                <label class="cf-role-check" data-check-item><input type="checkbox" data-check-key="admin-1"><span
+                        class="cf-role-check__box" aria-hidden="true"></span><span><strong>Review
+                            changes</strong><small>Check the audit trail after sensitive administrative
+                            operations.</small></span></label>
+                <label class="cf-role-check" data-check-item><input type="checkbox" data-check-key="admin-2"><span
+                        class="cf-role-check__box" aria-hidden="true"></span><span><strong>Protect
+                            continuity</strong><small>Use the deployment's approved backup and recovery
+                            procedures.</small></span></label>
+            </div>
+            <div class="cf-check-progress">
+                <div class="cf-check-progress__meta"><span>Checklist progress</span><strong
+                        data-check-progress>0%</strong></div>
+                <div class="cf-progress"><span data-check-progress-bar style="width:0%"></span></div>
+            </div>
+        </section>
+        <section class="cf-role-card">
+            <div class="cf-role-card__heading">
+                <div><span class="cf-eyebrow">WORKSPACE TOOLS</span>
+                    <h3>Find a workflow</h3>
+                    <p>Filter this department shortcuts by task.</p>
+                </div>
+            </div>
+            <label class="cf-role-search-label" for="roleSearch-admin">Search shortcuts</label>
+            <input class="cf-role-search" id="roleSearch-admin" type="search"
+                placeholder="Try appointment, report, payment..." data-role-search>
+            <div class="cf-role-search-results" data-role-search-results aria-live="polite"></div>
+            <div class="cf-role-tip"><span aria-hidden="true">i</span>
+                <p><strong>Data safety reminder</strong>Use the linked workflow for record changes. This overview does
+                    not change patient or financial records itself.</p>
+            </div>
+        </section>
+    </div>
+    <div class="cf-role-board__footer"><span><i class="cf-live-dot"></i> CareFlow workspace</span><span>Use the module
+            screen to submit and save changes.</span></div>
+</section>
+<section class="cf-role-board__secondary" aria-label="Additional operational guidance">
+    <div class="cf-role-secondary-heading">
+        <div><span class="cf-eyebrow">GOOD PRACTICE</span>
+            <h3>Keep the workflow complete</h3>
+        </div>
+        <p>Use these prompts during normal work. They are reminders, not substitutes for clinical or financial policy.
+        </p>
+    </div>
+    <div class="cf-role-practice-grid">
+        <article class="cf-practice-item"><span class="cf-practice-number">01</span>
+            <div><strong>Verify the record</strong>
+                <p>Check the patient or business record before editing.</p>
+            </div>
+        </article>
+        <article class="cf-practice-item"><span class="cf-practice-number">02</span>
+            <div><strong>Use the authorized action</strong>
+                <p>Submit changes from the module's own form.</p>
+            </div>
+        </article>
+        <article class="cf-practice-item"><span class="cf-practice-number">03</span>
+            <div><strong>Review the outcome</strong>
+                <p>Confirm the page shows the saved status after submission.</p>
+            </div>
+        </article>
+        <article class="cf-practice-item"><span class="cf-practice-number">04</span>
+            <div><strong>Protect private information</strong>
+                <p>Only open records needed for your assigned duties.</p>
+            </div>
+        </article>
+        <article class="cf-practice-item"><span class="cf-practice-number">05</span>
+            <div><strong>Avoid duplicate submissions</strong>
+                <p>Wait for the response before repeating a save action.</p>
+            </div>
+        </article>
+        <article class="cf-practice-item"><span class="cf-practice-number">06</span>
+            <div><strong>Escalate uncertainty</strong>
+                <p>Ask the appropriate supervisor if the record is ambiguous.</p>
+            </div>
+        </article>
+    </div>
+</section>
 <script type="application/json" class="cf-role-metadata">{"role":"admin","shortcutCount":4,"metricCount":4}</script>
 </section>
