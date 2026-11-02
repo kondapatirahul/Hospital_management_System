@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: htmlHead('Receptionist Desk Dashboard')}"></head>
+<head th:replace="~{fragments/layout :: htmlHead('Receptionist Desk Dashboard')}">  <link rel="stylesheet" th:href="@{/css/dashboard-table-tools.css}">
+  <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
+  <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
+</head>
 <body>
 
 <div class="app-container">
@@ -11,15 +14,7 @@
 <section th:replace="~{fragments/operations-panel :: operationsPanel('receptionist')}"></section>
 
 
-<div class="cf-launchpad-callout">
-  <div class="cf-launchpad-symbol" aria-hidden="true">↗</div>
-  <div class="cf-launchpad-copy"><strong>Open your workflow workspace</strong><span>All role-specific tools and common actions in one place.</span></div>
-  <a th:href="@{/workflows/receptionist}">View workflows <span aria-hidden="true">→</span></a>
-</div>
-
-
-
-        <main class="page-content">
+        <main class="page-content cf-dashboard-page">
 <section class="cf-quick-panel" aria-label="Front desk quick actions">
   <div class="cf-section-heading">
     <div><span class="cf-eyebrow">WORKSPACE SHORTCUTS</span><h2>Front desk quick actions</h2><p>Open a workflow directly. Actions still use the existing server routes and permissions.</p></div>
@@ -135,7 +130,7 @@
                         </div>
 
                         <div th:unless="${#lists.isEmpty(todayQueue)}" class="table-responsive">
-                            <table class="custom-table">
+                            <table class="custom-table" data-cf-table-tools>
                                 <thead>
                                     <tr>
                                         <th>Queue #</th>
@@ -226,7 +221,7 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="custom-table">
+                        <table class="custom-table" data-cf-table-tools>
                             <thead>
                                 <tr>
                                     <th>Time</th>
@@ -281,5 +276,5 @@
 </div>
 
 <script th:src="@{/js/script.js}"></script>
-</body>
+<script defer th:src="@{/js/dashboard-table-tools.js}"></script></body>
 </html>

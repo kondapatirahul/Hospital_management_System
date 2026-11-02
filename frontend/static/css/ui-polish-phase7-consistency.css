@@ -1,0 +1,45 @@
+/* CareFlow UI Overhaul Phase 7 — remaining-module consistency and accessibility. */
+:root{--cf7-ink:#172b4d;--cf7-muted:#64748b;--cf7-line:#dfe7f1;--cf7-panel:#fff;--cf7-wash:#f6f9fd;--cf7-focus:#2563eb}
+/* Shared page rhythm: scoped to known application shells to avoid touching embedded widgets. */
+main.container, .enterprise-wrap, .cf-safety-page main, main.page-content{color:var(--cf7-ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+main.container>header, .enterprise-head, .cf-safety-page .page-heading{row-gap:12px}
+main.container>header nav, .enterprise-head nav{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+main.container>header nav a, .enterprise-head nav a{color:#2457a6;text-decoration:none;font-weight:600}
+main.container>header nav a:hover, .enterprise-head nav a:hover{text-decoration:underline;text-underline-offset:3px}
+main.container h1,.enterprise-wrap h1{color:var(--cf7-ink);letter-spacing:-.03em}
+main.container h2,.enterprise-wrap h2{letter-spacing:-.018em}
+main.container .card,.enterprise-card,.enterprise-wrap section,.cf-safety-page .cf-panel{box-shadow:0 5px 20px rgba(20,43,77,.045)}
+main.container .card h2,.main.container .card h3,.enterprise-wrap section h2{margin-top:0}
+main.container .card, .enterprise-wrap section{min-width:0}
+/* Forms: align labels and controls, preserve checkboxes/radios and native form semantics. */
+main.container form label,.enterprise-wrap form label{min-width:0;line-height:1.45}
+main.container input:not([type=checkbox]):not([type=radio]):not([type=hidden]),main.container select,main.container textarea,.enterprise-wrap input:not([type=checkbox]):not([type=radio]):not([type=hidden]),.enterprise-wrap select,.enterprise-wrap textarea{min-height:40px}
+main.container textarea,.enterprise-wrap textarea{resize:vertical}
+main.container input[type=checkbox],main.container input[type=radio],.enterprise-wrap input[type=checkbox],.enterprise-wrap input[type=radio]{accent-color:var(--cf7-focus)}
+main.container button,.enterprise-wrap button,.enterprise-wrap .enterprise-btn{font-weight:650;transition:filter .15s ease,transform .15s ease}
+main.container button:hover,.enterprise-wrap button:hover,.enterprise-wrap .enterprise-btn:hover{filter:brightness(.96)}
+main.container button:active,.enterprise-wrap button:active{transform:translateY(1px)}
+main.container :is(a,button,input,select,textarea,[tabindex]):focus-visible,.enterprise-wrap :is(a,button,input,select,textarea,[tabindex]):focus-visible{outline:3px solid #60a5fa;outline-offset:2px}
+/* Keep wide clinical/finance tables inside their section, not the viewport. */
+main.container table,.enterprise-wrap table{font-variant-numeric:tabular-nums}
+main.container td,.enterprise-wrap td{overflow-wrap:anywhere}
+main.container table a,.enterprise-wrap table a{font-weight:600;text-decoration-thickness:1px;text-underline-offset:3px}
+main.container .table-responsive,main.container [style*="overflow-x:auto"],.enterprise-wrap [style*="overflow-x:auto"]{max-width:100%;overscroll-behavior-x:contain}
+main.container .alert,.enterprise-msg{overflow-wrap:anywhere}
+/* Auth screens should stay readable on compact laptop and mobile viewports. */
+.auth-page{min-height:100vh;padding:clamp(12px,3vw,32px);box-sizing:border-box}
+.auth-card{width:min(100%,520px);box-sizing:border-box;margin-inline:auto}
+.auth-card input:not([type=checkbox]):not([type=radio]),.auth-card select,.auth-card textarea{box-sizing:border-box;max-width:100%;width:100%}
+.auth-card .demo-btn-group{grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr))!important}
+/* Quality and safety workspace */
+.cf-safety-page .cf-topbar{gap:12px;flex-wrap:wrap}
+.cf-safety-page .cf-topbar nav{display:flex;flex-wrap:wrap;gap:8px}
+.cf-safety-page :is(input,select,textarea,button){max-width:100%;box-sizing:border-box}
+.cf-safety-page table{width:100%;min-width:660px}
+.cf-safety-page :is(.table-wrap,.table-responsive,[style*="overflow-x:auto"]){max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+/* Reports page: visual grouping for KPIs and exports without changing data bindings. */
+body:has(main.container) main.container>section[style*="grid-template-columns"]{align-items:stretch}
+body:has(main.container) main.container>section[style*="grid-template-columns"]>.card{display:flex;flex-direction:column;justify-content:center;gap:6px}
+body:has(main.container) main.container>section[style*="grid-template-columns"] strong{font-size:clamp(1.35rem,2.3vw,2rem);letter-spacing:-.035em;color:#1d4ed8}
+@media(max-width:720px){main.container>header{align-items:flex-start!important}main.container>header nav{width:100%}.enterprise-wrap{padding-inline:14px!important;margin-block:16px!important}.enterprise-head{align-items:flex-start}.auth-page{display:flex;align-items:flex-start;justify-content:center}.cf-safety-page .cf-topbar nav{width:100%}}
+@media(prefers-reduced-motion:reduce){main.container *, .enterprise-wrap *, .cf-safety-page *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}

@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head th:replace="~{fragments/layout :: htmlHead('Pharmacy Dashboard')}"></head>
+<head th:replace="~{fragments/layout :: htmlHead('Pharmacy Dashboard')}">  <link rel="stylesheet" th:href="@{/css/dashboard-table-tools.css}">
+  <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
+  <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
+</head>
 <body><div style="max-width:1250px;margin:8px auto;padding:0 24px;text-align:right"><a href="/reports">Reports & analytics →</a></div>
 
 <div class="app-container">
@@ -11,15 +14,7 @@
 <section th:replace="~{fragments/operations-panel :: operationsPanel('pharmacy')}"></section>
 
 
-<div class="cf-launchpad-callout">
-  <div class="cf-launchpad-symbol" aria-hidden="true">↗</div>
-  <div class="cf-launchpad-copy"><strong>Open your workflow workspace</strong><span>All role-specific tools and common actions in one place.</span></div>
-  <a th:href="@{/workflows/pharmacy}">View workflows <span aria-hidden="true">→</span></a>
-</div>
-
-
-
-        <main class="page-content">
+        <main class="page-content cf-dashboard-page">
 <section class="cf-quick-panel" aria-label="Pharmacy operations">
   <div class="cf-section-heading">
     <div><span class="cf-eyebrow">WORKSPACE SHORTCUTS</span><h2>Pharmacy operations</h2><p>Open a workflow directly. Actions still use the existing server routes and permissions.</p></div>
@@ -172,7 +167,7 @@
                     </div>
                     <div class="card-body" style="padding:0;">
                         <div class="table-responsive">
-                            <table class="data-table">
+                            <table class="data-table" data-cf-table-tools data-cf-export="true" data-cf-export-name="careflow-pharmacy-activity.csv">
                                 <thead>
                                     <tr>
                                         <th>Tx Number</th>
@@ -211,7 +206,7 @@
                     </div>
                     <div class="card-body" style="padding:0;">
                         <div class="table-responsive">
-                            <table class="data-table">
+                            <table class="data-table" data-cf-table-tools>
                                 <thead>
                                     <tr>
                                         <th>Patient</th>
@@ -271,5 +266,5 @@
 
 <script th:src="@{/js/script.js}"></script>
 <script th:src="@{/js/pharmacy.js}"></script>
-</body>
+<script defer th:src="@{/js/dashboard-table-tools.js}"></script></body>
 </html>

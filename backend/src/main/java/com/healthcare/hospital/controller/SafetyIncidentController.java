@@ -141,8 +141,7 @@ public class SafetyIncidentController {
         return "redirect:/safety/incidents/" + id;
     }
     private static String actor(Principal principal) { return principal == null ? "authenticated-user" : principal.getName(); }
-    
-private static String cell(String raw) {
+    private static String cell(String raw) {
     if (raw == null) {
         return "\"\"";
     }
@@ -156,6 +155,6 @@ private static String cell(String raw) {
     }
 
     return "\"" + safe + "\"";
-}
+    }
 
 }

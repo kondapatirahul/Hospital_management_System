@@ -28,8 +28,8 @@ public class QualityCaseApiController {
     private final QualityAnalyticsService analytics;
 
     public QualityCaseApiController(QualityReviewService service, QualityAnalyticsService analytics) {
-        this.service=service;
-        this.analytics=analytics;
+        this.service = service;
+        this.analytics = analytics;
     }
 
     @GetMapping

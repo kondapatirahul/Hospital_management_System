@@ -73,3 +73,14 @@ This batch has not been compiled or tested in this packaging environment. Run `m
 ## Batch 10 Workflow Hub
 
 See `BATCH10_WORKFLOW_HUB.md` for the role-specific workspace routes, UI changes, and verification steps. The eight routes are protected by role-based method security.
+
+## Phase 3 — Clinical Workflow Safeguards
+
+See `docs/releases/PHASE_3_CLINICAL_WORKFLOWS.md` for scope, LOC accounting, verification, and rollback instructions. Run the static check with `python tools/phase3_clinical_workflow_check.py` and validate JavaScript syntax with `node --check frontend/static/js/clinical-workflow-tools.js`.
+
+## Phase 5 Enterprise Integration Hub
+Open `/enterprise/phase5` for the Phase 5 workspaces. See `docs/PHASE_5_ENTERPRISE_INTEGRATION.md` for scope and verification notes.
+
+
+## Phase 6 release audit
+Run `python tools/phase6_release_audit.py` for static checks and LOC inventory. This does not replace Maven, MySQL, or browser integration testing. See `docs/PHASE_6_RELEASE_AUDIT.md`.

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title th:text="${pageTitle}">
+   Create record
+  </title>
+  <link rel="stylesheet" th:href="@{/css/phase5-workspaces.css}"/>
+   <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
+  <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
+</head>
+ <body>
+  <main class="wrap narrow">
+   <a th:href="@{${basePath}}">
+    ← Back to workspace
+   </a>
+   <h1 th:text="${pageTitle}">
+    Create record
+   </h1>
+   <div class="notice error" th:if="${errorMessage}" th:text="${errorMessage}">
+   </div>
+   <form class="record-form" method="post" th:action="@{${basePath}}" th:object="${record}">
+    <label>
+     Title
+     <input maxlength="180" required="" th:field="*{title}"/>
+    </label>
+    <label>
+     Description
+     <textarea maxlength="4000" rows="4" th:field="*{description}"></textarea>
+    </label>
+    <div class="two">
+     <label>
+      Reference code
+      <input maxlength="100" th:field="*{referenceCode}"/>
+     </label>
+     <label>
+      Status
+      <input maxlength="80" th:field="*{status}"/>
+     </label>
+    </div>
+    <div class="two">
+     <label>
+      Owner
+      <input maxlength="160" th:field="*{owner}"/>
+     </label>
+     <label>
+      Department
+      <input maxlength="160" th:field="*{department}"/>
+     </label>
+    </div>
+    <div class="two">
+     <label>
+      Category
+      <input maxlength="160" th:field="*{category}"/>
+     </label>
+     <label>
+      Priority
+      <select th:field="*{priority}">
+       <option>
+        LOW
+       </option>
+       <option>
+        NORMAL
+       </option>
+       <option>
+        HIGH
+       </option>
+       <option>
+        URGENT
+       </option>
+      </select>
+     </label>
+    </div>
+    <label>
+     Due date
+     <input th:field="*{dueDate}" type="date"/>
+    </label>
+    <label>
+     Evidence reference
+     <input maxlength="1000" th:field="*{evidenceReference}"/>
+    </label>
+    <button class="primary">
+     Save record
+    </button>
+   </form>
+  </main>
+ </body>
+</html>

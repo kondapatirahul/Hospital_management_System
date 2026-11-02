@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Sample Tracking - CareFlow</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Sample Tracking - CareFlow</title><link rel="stylesheet" th:href="@{/css/style.css}"><link rel="stylesheet" th:href="@{/css/ui-polish-phase1.css}"><link rel="stylesheet" th:href="@{/css/ui-polish-phase3-modules.css}">  <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
+<link rel="stylesheet" th:href="@{/css/ui-polish-phase6-clinical-finance.css}">  <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
+</head>
 <body><main class="container" style="max-width:1250px;margin:32px auto;padding:24px">
 <header><a th:href="@{/laboratory/dashboard}">← Laboratory dashboard</a><h1>Sample Tracking</h1><p>Register specimens and enforce the sample lifecycle.</p></header>
 <p th:if="${successMessage}" th:text="${successMessage}" role="status"></p><p th:if="${errorMessage}" th:text="${errorMessage}" role="alert"></p>
