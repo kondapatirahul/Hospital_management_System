@@ -11,11 +11,18 @@
     <link rel="stylesheet" th:href="@{/css/pharmacy.css}">
     <link rel="stylesheet" th:href="@{/css/careflow-operations.css}">
     <link rel="stylesheet" th:href="@{/css/clinical-workflow-tools.css}">
+    <link rel="stylesheet" th:href="@{/css/dashboard-table-tools.css}">
+    <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
+    <link rel="stylesheet" th:href="@{/css/ui-polish-phase5-targeted.css}">
+    <link rel="stylesheet" th:href="@{/css/ui-polish-phase6-clinical-finance.css}">
+    <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-control-center.css}">
+    <link rel="stylesheet" th:href="@{/css/doctor-command-center-increment06.css}">
+    <link rel="stylesheet" th:href="@{/css/lab-command-center-increment07.css}">
+    <link rel="stylesheet" th:href="@{/css/reception-command-increment08.css}">
+    <link rel="stylesheet" th:href="@{/css/staff-command-increment09.css}">
     <script defer th:src="@{/js/careflow-operations.js}"></script>
     <script defer th:src="@{/js/clinical-workflow-tools.js}"></script>
-  <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
-<link rel="stylesheet" th:href="@{/css/ui-polish-phase6-clinical-finance.css}">
-  <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
 </head>
 <body>
 
@@ -355,8 +362,6 @@
                 <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'DOCTOR', 'BILLING')" th:classappend="${activeNav == 'ot-reports' ? 'active' : ''}">
                     <a th:href="@{/ot/reports}"><span class="nav-icon">📈</span><span>OT Reports</span></a>
                 </li>
-            </ul>
-        </div>
             </ul>
         </div>
     </nav>

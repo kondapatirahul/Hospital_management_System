@@ -1,6 +1,6 @@
 /* CareFlow UI Overhaul — Phase 2: cohesive dashboard presentation */
 .cf-dashboard-page{width:min(100% - 40px,1440px);max-width:1440px;margin:26px auto 56px;padding:0;display:grid;gap:24px;min-width:0}
-.app-main{min-width:0;width:100%}
+.app-main{min-width:0}
 .app-main>header:not(.navbar){max-width:1440px;margin:24px auto 18px;padding:0 clamp(16px,3vw,36px);box-sizing:border-box}
 .cf-dashboard-page>header{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin:0!important;padding:22px 24px!important;border:1px solid #e2e8f0;border-radius:20px;background:linear-gradient(135deg,#fff 0%,#f5faff 100%);box-shadow:0 10px 28px rgba(15,35,65,.045)}
 .cf-dashboard-page>header h1{margin:4px 0 8px;font-size:clamp(1.65rem,2.5vw,2.25rem);line-height:1.15;letter-spacing:-.035em;color:#15243b}
@@ -26,6 +26,7 @@
 .cf-dashboard-page .stat-info{min-width:0}.cf-dashboard-page .stat-info p{margin:0 0 8px;color:#65758a;font-size:.82rem;font-weight:700}.cf-dashboard-page .stat-info h3{margin:0;color:#15243b;font-size:1.8rem;line-height:1.1;overflow-wrap:anywhere}.cf-dashboard-page .stat-subtitle{margin-top:7px;color:#8793a3;font-size:.75rem;line-height:1.4}
 .cf-dashboard-page .stat-icon{flex:0 0 auto;display:grid;place-items:center;width:43px;height:43px;border-radius:13px;font-size:1.15rem}
 .cf-dashboard-page .dashboard-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr);align-items:start;gap:20px;min-width:0}
+.cf-dashboard-page .dashboard-grid.grid-even,.cf-dashboard-page .dashboard-grid.equal-cols{grid-template-columns:repeat(2,minmax(0,1fr))}
 .cf-dashboard-page .card{min-width:0;border:1px solid #e2e8f0;border-radius:18px;background:#fff;box-shadow:0 8px 24px rgba(15,35,65,.045);overflow:hidden}
 .cf-dashboard-page .card-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:17px 20px;border-bottom:1px solid #edf1f6;background:#fff}
 .cf-dashboard-page .card-body{min-width:0}.cf-dashboard-page .card-title{font-weight:750;color:#1c2c43}.cf-dashboard-page .custom-table{width:100%;border-collapse:separate;border-spacing:0;min-width:650px}.cf-dashboard-page .custom-table th{padding:13px 15px;background:#f5f8fc;color:#607087;text-align:left;font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid #e2e8f0;white-space:nowrap}.cf-dashboard-page .custom-table td{padding:14px 15px;border-bottom:1px solid #edf1f6;vertical-align:middle;font-size:.86rem;color:#334155}.cf-dashboard-page .custom-table tbody tr:last-child td{border-bottom:0}.cf-dashboard-page .custom-table tbody tr:hover{background:#fafcff}
@@ -35,6 +36,6 @@
 .cf-dashboard-page .btn-primary,.cf-dashboard-page .btn-teal{border:1px solid transparent;padding:10px 15px;background:linear-gradient(135deg,#087db7,#2159b5);color:#fff}
 .cf-dashboard-page .badge{display:inline-flex;align-items:center;max-width:100%;border-radius:999px;padding:5px 9px;font-size:.72rem;font-weight:750;white-space:normal}
 .cf-dashboard-page .empty-state,.cf-dashboard-page td[colspan]{color:#6b7b8e}
-@media(max-width:1100px){.cf-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.cf-dashboard-page .stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.cf-dashboard-page .dashboard-grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:1100px){.cf-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.cf-dashboard-page .stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.cf-dashboard-page .dashboard-grid,.cf-dashboard-page .dashboard-grid.grid-even,.cf-dashboard-page .dashboard-grid.equal-cols{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:680px){.cf-dashboard-page{width:calc(100% - 24px);margin:16px auto 32px;gap:16px}.cf-dashboard-page>header{padding:18px!important;align-items:flex-start}.cf-dashboard-page>header>div:last-child{display:flex;flex-wrap:wrap;gap:8px}.cf-quick-panel{padding:16px;border-radius:16px}.cf-quick-grid{grid-template-columns:minmax(0,1fr)}.cf-quick-action{min-height:72px}.cf-dashboard-page .stat-grid{grid-template-columns:minmax(0,1fr)}.cf-dashboard-page .stat-card{padding:15px}.cf-dashboard-page .card-header{padding:14px 15px}.cf-dashboard-page .custom-table{min-width:620px}}
 @media(prefers-reduced-motion:reduce){.cf-quick-action{transition:none}.cf-quick-action:hover{transform:none}}

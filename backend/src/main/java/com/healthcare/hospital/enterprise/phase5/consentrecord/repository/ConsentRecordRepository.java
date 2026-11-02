@@ -2,9 +2,11 @@ package com.healthcare.hospital.enterprise.phase5.consentrecord.repository;
 
 import com.healthcare.hospital.enterprise.phase5.consentrecord.entity.ConsentRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.*;
 
+@Repository("phase5ConsentRecordRepository")
 public interface ConsentRecordRepository extends JpaRepository<ConsentRecord, Long> {
     List<ConsentRecord> findTop100ByOrderByCreatedAtDesc();
     List<ConsentRecord> findByStatusIgnoreCaseOrderByCreatedAtDesc(String status);

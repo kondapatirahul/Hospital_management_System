@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head th:replace="~{fragments/layout :: htmlHead('Pharmacy Dashboard')}">  <link rel="stylesheet" th:href="@{/css/dashboard-table-tools.css}">
-  <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
-  <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
-</head>
-<body><div style="max-width:1250px;margin:8px auto;padding:0 24px;text-align:right"><a href="/reports">Reports & analytics →</a></div>
-
+<head th:replace="~{fragments/layout :: htmlHead('Pharmacy Operations Dashboard')}"></head>
+<body>
 <div class="app-container">
     <aside th:replace="~{fragments/layout :: sidebar('pharmacy-dashboard')}"></aside>
 
     <div class="app-main">
         <header th:replace="~{fragments/layout :: navbar('Pharmacy Operations Dashboard', 'Central dispensing, batch-level inventory, FEFO tracking, and procurement overview')}"></header>
+        <div class="pharmacy-dashboard-links"><a th:href="@{/reports}">Reports & analytics →</a></div>
 <section th:replace="~{fragments/operations-panel :: operationsPanel('pharmacy')}"></section>
 
 
@@ -158,7 +155,7 @@
             </div>
 
             <!-- Two Column Section: Recent Activity & Quick Operations -->
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+            <div class="dashboard-grid grid-even" style="margin-bottom: 24px;">
                 <!-- Recent Stock Transactions -->
                 <div class="card">
                     <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">

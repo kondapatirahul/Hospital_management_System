@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /** Persisted staff credential compliance workflow record. Status transitions are enforced by its service. */
-@Entity
+@Entity(name = "Phase4StaffCredential")
 @Table(name = "cf4_staffcredential", indexes = {@Index(name="idx_cf4_staffcredential_status", columnList="status"), @Index(name="idx_cf4_staffcredential_reference", columnList="referenceCode")})
 public class StaffCredential {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;

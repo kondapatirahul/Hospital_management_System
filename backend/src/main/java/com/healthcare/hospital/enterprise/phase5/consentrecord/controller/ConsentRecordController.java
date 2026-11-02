@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 
-@Controller
+@Controller("phase5ConsentRecordController")
 @RequestMapping("/enterprise/phase5/consentrecord")
 public class ConsentRecordController {
     private final ConsentRecordService service;

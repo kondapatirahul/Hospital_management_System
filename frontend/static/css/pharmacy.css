@@ -2,6 +2,12 @@
    CareFlow HMS - M3 Pharmacy Dashboard & Dispensing Styles
    ======================================================== */
 
+.pharmacy-dashboard-links {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px clamp(16px, 3vw, 36px) 0;
+}
+
 .pharmacy-badge-expired {
   background-color: #fee2e2;
   color: #b91c1c;

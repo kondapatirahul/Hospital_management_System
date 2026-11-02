@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 
-@Controller
+@Controller("phase5AccessReviewController")
 @RequestMapping("/enterprise/phase5/accessreview")
 public class AccessReviewController {
     private final AccessReviewService service;

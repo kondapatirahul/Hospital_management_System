@@ -1,11 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head th:replace="~{fragments/layout :: htmlHead('Patient Dashboard')}">  <link rel="stylesheet" th:href="@{/css/dashboard-table-tools.css}">
-  <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
-  <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
-</head>
+<head th:replace="~{fragments/layout :: htmlHead('Patient Portal Dashboard')}"></head>
 <body>
-<link rel="stylesheet" th:href="@{/css/ui-polish-phase5-targeted.css}">
 
 <div class="app-container">
     <aside th:replace="~{fragments/layout :: sidebar('dashboard')}"></aside>

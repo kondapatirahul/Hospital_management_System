@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /** Persisted purchase approvals workflow record. Status transitions are enforced by its service. */
-@Entity
+@Entity(name = "Phase4PurchaseApproval")
 @Table(name = "cf4_purchaseapproval", indexes = {@Index(name="idx_cf4_purchaseapproval_status", columnList="status"), @Index(name="idx_cf4_purchaseapproval_reference", columnList="referenceCode")})
 public class PurchaseApproval {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;

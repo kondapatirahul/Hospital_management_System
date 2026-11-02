@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.security.Principal;
 import java.time.LocalDate;
-@Controller
+@Controller("phase4PurchaseApprovalController")
 @RequestMapping("/enterprise/phase4/purchaseapproval")
 public class PurchaseApprovalController {
  private final PurchaseApprovalService service;

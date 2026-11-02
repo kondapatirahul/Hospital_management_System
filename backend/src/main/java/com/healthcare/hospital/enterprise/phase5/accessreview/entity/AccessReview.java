@@ -5,7 +5,7 @@ import jakarta.validation.constraints.*;
 import java.time.*;
 
 /** Persisted periodic least-privilege review and attestation record with optimistic locking and revision tracking. */
-@Entity
+@Entity(name = "Phase5AccessReview")
 @Table(name="cf5_accessreview", indexes={@Index(name="idx_cf5_accessreview_status", columnList="status"), @Index(name="idx_cf5_accessreview_due", columnList="dueDate"), @Index(name="idx_cf5_accessreview_ref", columnList="referenceCode")})
 public class AccessReview {
     @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;

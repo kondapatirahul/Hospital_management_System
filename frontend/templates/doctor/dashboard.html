@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head th:replace="~{fragments/layout :: htmlHead('Doctor Dashboard')}">  <link rel="stylesheet" th:href="@{/css/dashboard-table-tools.css}">
-  <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
-  <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
-    <link rel="stylesheet" th:href="@{/css/doctor-command-center-increment06.css}">\n</head>
+<head th:replace="~{fragments/layout :: htmlHead('Doctor Clinical Dashboard')}"></head>
 <body>
 
 <div class="app-container">
@@ -155,129 +152,132 @@
                 </div>
             </div>
 
-            <!-- Today's Appointment Schedule Card -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <span>🗓️ Today's Appointment Schedule (<span th:text="${#lists.size(todayAppointments)}">0</span>)</span>
+            <!-- Two-Column Schedule & Upcoming Grid -->
+            <div class="dashboard-grid grid-even">
+                <!-- Today's Appointment Schedule Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>🗓️ Today's Appointment Schedule (<span th:text="${#lists.size(todayAppointments)}">0</span>)</span>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" class="form-control" style="max-width: 250px;" placeholder="Search today's patients..." data-table-search="#todayApptsTable">
+                            <a th:href="@{/doctor/appointments}" class="btn btn-outline btn-sm">View All</a>
+                        </div>
                     </div>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" class="form-control" style="max-width: 250px;" placeholder="Search today's patients..." data-table-search="#todayApptsTable">
-                        <a th:href="@{/doctor/appointments}" class="btn btn-outline btn-sm">View All</a>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table id="todayApptsTable" data-sortable data-cf-table-tools class="custom-table">
-                            <thead>
-                                <tr>
-                                    <th>Time Slot</th>
-                                    <th>Patient</th>
-                                    <th>Patient ID</th>
-                                    <th>Reason for Visit</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:if="${#lists.isEmpty(todayAppointments)}">
-                                    <td colspan="6" style="text-align: center; color: #64748b; padding: 32px;">
-                                        No appointments scheduled for today.
-                                    </td>
-                                </tr>
-                                <tr th:each="appt : ${todayAppointments}">
-                                    <td>
-                                        <strong style="color: #0f2c59;" th:text="${appt.appointmentSlot != null ? appt.appointmentSlot : (appt.appointmentTime != null ? appt.appointmentTime : 'Pending')}">09:30 AM</strong>
-                                    </td>
-                                    <td>
-                                        <div style="font-weight: 700; color: #0f2c59;" th:text="${appt.patient.fullName}">Sarah Jenkins</div>
-                                        <div style="font-size: 0.75rem; color: #64748b;" th:text="${appt.patient.phone}">+1 (555) 234-5678</div>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-secondary" th:text="${appt.patient.patientId}">PAT-2026-0001</span>
-                                    </td>
-                                    <td style="max-width: 260px; font-size: 0.85rem; color: #334155;" th:text="${appt.reasonForVisit != null ? appt.reasonForVisit : 'Routine Consultation'}">
-                                        Follow-up for breathing difficulty
-                                    </td>
-                                    <td>
-                                        <span class="badge" th:classappend="${appt.status.badgeClass}" th:text="${appt.status.displayName}">Checked In</span>
-                                    </td>
-                                    <td>
-                                        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                                            <a th:if="${appt.status.name() != 'COMPLETED' and appt.status.name() != 'CANCELLED'}"
-                                               th:href="@{/doctor/consultations/start(appointmentId=${appt.id})}"
-                                               class="btn btn-teal btn-sm">
-                                                🩺 Consult
-                                            </a>
-                                            <a th:if="${appt.status.name() == 'COMPLETED'}"
-                                               th:href="@{/doctor/consultations/start(appointmentId=${appt.id})}"
-                                               class="btn btn-outline btn-sm">
-                                                📝 View Notes
-                                            </a>
-                                            <a th:href="@{/doctor/patients/{id}(id=${appt.patient.id})}"
-                                               class="btn btn-outline btn-sm" title="Patient Medical Record">
-                                                👤 History
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Upcoming Appointments Summary -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <span>📅 Upcoming Appointments (<span th:text="${#lists.size(upcomingAppointments)}">0</span>)</span>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table id="todayApptsTable" data-sortable data-cf-table-tools class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Time Slot</th>
+                                        <th>Patient</th>
+                                        <th>Patient ID</th>
+                                        <th>Reason for Visit</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:if="${#lists.isEmpty(todayAppointments)}">
+                                        <td colspan="6" style="text-align: center; color: #64748b; padding: 32px;">
+                                            No appointments scheduled for today.
+                                        </td>
+                                    </tr>
+                                    <tr th:each="appt : ${todayAppointments}">
+                                        <td>
+                                            <strong style="color: #0f2c59;" th:text="${appt.appointmentSlot != null ? appt.appointmentSlot : (appt.appointmentTime != null ? appt.appointmentTime : 'Pending')}">09:30 AM</strong>
+                                        </td>
+                                        <td>
+                                            <div style="font-weight: 700; color: #0f2c59;" th:text="${appt.patient.fullName}">Sarah Jenkins</div>
+                                            <div style="font-size: 0.75rem; color: #64748b;" th:text="${appt.patient.phone}">+1 (555) 234-5678</div>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-secondary" th:text="${appt.patient.patientId}">PAT-2026-0001</span>
+                                        </td>
+                                        <td style="max-width: 260px; font-size: 0.85rem; color: #334155;" th:text="${appt.reasonForVisit != null ? appt.reasonForVisit : 'Routine Consultation'}">
+                                            Follow-up for breathing difficulty
+                                        </td>
+                                        <td>
+                                            <span class="badge" th:classappend="${appt.status.badgeClass}" th:text="${appt.status.displayName}">Checked In</span>
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                                <a th:if="${appt.status.name() != 'COMPLETED' and appt.status.name() != 'CANCELLED'}"
+                                                   th:href="@{/doctor/consultations/start(appointmentId=${appt.id})}"
+                                                   class="btn btn-teal btn-sm">
+                                                    🩺 Consult
+                                                </a>
+                                                <a th:if="${appt.status.name() == 'COMPLETED'}"
+                                                   th:href="@{/doctor/consultations/start(appointmentId=${appt.id})}"
+                                                   class="btn btn-outline btn-sm">
+                                                    📝 View Notes
+                                                </a>
+                                                <a th:href="@{/doctor/patients/{id}(id=${appt.patient.id})}"
+                                                   class="btn btn-outline btn-sm" title="Patient Medical Record">
+                                                    👤 History
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table data-cf-table-tools class="custom-table">
-                            <thead>
-                                <tr>
-                                    <th>Date & Time</th>
-                                    <th>Patient</th>
-                                    <th>Patient ID</th>
-                                    <th>Reason for Visit</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:if="${#lists.isEmpty(upcomingAppointments)}">
-                                    <td colspan="6" style="text-align: center; color: #64748b; padding: 24px;">
-                                        No upcoming appointments in the schedule.
-                                    </td>
-                                </tr>
-                                <tr th:each="appt : ${upcomingAppointments}">
-                                    <td>
-                                        <div style="font-weight: 700; color: #0f2c59;" th:text="${#temporals.format(appt.appointmentDate, 'MMM d, yyyy')}">Nov 4, 2026</div>
-                                        <div style="font-size: 0.75rem; color: #64748b;" th:text="${appt.appointmentSlot}">10:00 AM</div>
-                                    </td>
-                                    <td>
-                                        <div style="font-weight: 600; color: #0f2c59;" th:text="${appt.patient.fullName}">Sarah Jenkins</div>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-secondary" th:text="${appt.patient.patientId}">PAT-2026-0001</span>
-                                    </td>
-                                    <td style="font-size: 0.85rem; color: #475569;" th:text="${appt.reasonForVisit}">
-                                        Cardiovascular health checkup
-                                    </td>
-                                    <td>
-                                        <span class="badge" th:classappend="${appt.status.badgeClass}" th:text="${appt.status.displayName}">Scheduled</span>
-                                    </td>
-                                    <td>
-                                        <a th:href="@{/doctor/patients/{id}(id=${appt.patient.id})}" class="btn btn-outline btn-sm">
-                                            👤 Patient Record
-                                        </a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+    
+                <!-- Upcoming Appointments Summary -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>📅 Upcoming Appointments (<span th:text="${#lists.size(upcomingAppointments)}">0</span>)</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table data-cf-table-tools class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date & Time</th>
+                                        <th>Patient</th>
+                                        <th>Patient ID</th>
+                                        <th>Reason for Visit</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:if="${#lists.isEmpty(upcomingAppointments)}">
+                                        <td colspan="6" style="text-align: center; color: #64748b; padding: 24px;">
+                                            No upcoming appointments in the schedule.
+                                        </td>
+                                    </tr>
+                                    <tr th:each="appt : ${upcomingAppointments}">
+                                        <td>
+                                            <div style="font-weight: 700; color: #0f2c59;" th:text="${#temporals.format(appt.appointmentDate, 'MMM d, yyyy')}">Nov 4, 2026</div>
+                                            <div style="font-size: 0.75rem; color: #64748b;" th:text="${appt.appointmentSlot}">10:00 AM</div>
+                                        </td>
+                                        <td>
+                                            <div style="font-weight: 600; color: #0f2c59;" th:text="${appt.patient.fullName}">Sarah Jenkins</div>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-secondary" th:text="${appt.patient.patientId}">PAT-2026-0001</span>
+                                        </td>
+                                        <td style="font-size: 0.85rem; color: #475569;" th:text="${appt.reasonForVisit}">
+                                            Cardiovascular health checkup
+                                        </td>
+                                        <td>
+                                            <span class="badge" th:classappend="${appt.status.badgeClass}" th:text="${appt.status.displayName}">Scheduled</span>
+                                        </td>
+                                        <td>
+                                            <a th:href="@{/doctor/patients/{id}(id=${appt.patient.id})}" class="btn btn-outline btn-sm">
+                                                👤 Patient Record
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -287,5 +287,7 @@
 </div>
 
 <script th:src="@{/js/script.js}"></script>
-<script defer th:src="@{/js/dashboard-table-tools.js}"></script>    <script th:src="@{/js/doctor-command-center-increment06.js}" defer></script>\n</body>
+<script defer th:src="@{/js/dashboard-table-tools.js}"></script>
+<script defer th:src="@{/js/doctor-command-center-increment06.js}"></script>
+</body>
 </html>

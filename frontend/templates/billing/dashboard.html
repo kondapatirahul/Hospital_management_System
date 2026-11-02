@@ -1,11 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: htmlHead('Billing Dashboard')}">
-<link rel="stylesheet" th:href="@{/css/ui-polish-phase1.css}"><link rel="stylesheet" th:href="@{/css/ui-polish-phase3-modules.css}">
-<link rel="stylesheet" th:href="@{/css/ui-polish-phase2-dashboards.css}">  <link rel="stylesheet" th:href="@{/css/dashboard-table-tools.css}">
-  <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
-  <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
-</head>
+<head th:replace="~{fragments/layout :: htmlHead('Billing & Finance Dashboard')}"></head>
 <body><div class="app-container"><aside th:replace="~{fragments/layout :: sidebar('billing/dashboard')}"></aside><div class="app-main"><header th:replace="~{fragments/layout :: navbar('Billing & Finance', 'Invoices, payment records, outstanding balances and revenue visibility.')}"></header>
 <section th:replace="~{fragments/operations-panel :: operationsPanel('billing')}"></section>
 

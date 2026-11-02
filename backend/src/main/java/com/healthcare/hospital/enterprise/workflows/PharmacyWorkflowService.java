@@ -57,7 +57,8 @@ public class PharmacyWorkflowService {
         return WorkflowAnalytics.safe(prescriptions).stream().filter(p->"PARTIALLY_DISPENSED".equalsIgnoreCase(p.getDispenseStatus())).toList();
     }
     public List<Prescription> pendingDispensing(Collection<Prescription> prescriptions) {
-        return WorkflowAnalytics.safe(prescriptions).stream().filter(p->p.getRemainingQuantity()!=null&&p.getRemainingQuantity()>0)
+        return WorkflowAnalytics.safe(prescriptions).stream()
+        .filter(p -> p.getRemainingQuantity() > 0)
             .filter(p->!"Completed".equalsIgnoreCase(p.getStatus())).toList();
     }
     public List<String> validatePrescription(Prescription prescription) {

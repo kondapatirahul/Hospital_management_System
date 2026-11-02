@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /** Application service for periodic least-privilege review and attestation. All mutations are transactional and revision-tracked. */
-@Service
+@Service("phase5AccessReviewService")
 public class AccessReviewService {
     private static final Set<String> TERMINAL = Set.of("CLOSED", "CANCELLED", "REJECTED", "ARCHIVED");
     private static final Set<String> PRIORITIES = Set.of("LOW", "NORMAL", "HIGH", "URGENT");

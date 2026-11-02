@@ -5,7 +5,7 @@ import jakarta.validation.constraints.*;
 import java.time.*;
 
 /** Persisted patient consent capture, review and revocation tracking record with optimistic locking and revision tracking. */
-@Entity
+@Entity(name = "Phase5ConsentRecord")
 @Table(name="cf5_consentrecord", indexes={@Index(name="idx_cf5_consentrecord_status", columnList="status"), @Index(name="idx_cf5_consentrecord_due", columnList="dueDate"), @Index(name="idx_cf5_consentrecord_ref", columnList="referenceCode")})
 public class ConsentRecord {
     @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;

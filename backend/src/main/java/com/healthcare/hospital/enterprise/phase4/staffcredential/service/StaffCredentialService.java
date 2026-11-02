@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /** Domain rules and lifecycle operations for staff credential compliance. */
-@Service
+@Service("phase4StaffCredentialService")
 @Transactional
 public class StaffCredentialService {
     private final StaffCredentialRepository repository;

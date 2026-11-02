@@ -25,7 +25,11 @@ public class DoctorWorkflowService {
         if(doctor==null)return List.of("Doctor is required");
         List<String> errors=new ArrayList<>();
         if(doctor.getFullName()==null||doctor.getFullName().trim().length()<2)errors.add("Doctor name is required");
-        if(doctor.getDepartment()==null||doctor.getDepartment().isBlank())errors.add("Department is required");
+        if (doctor.getDepartment() == null
+        || doctor.getDepartment().getName() == null
+        || doctor.getDepartment().getName().isBlank()) {
+    errors.add("Department is required");
+}
         if(doctor.getEmail()!=null&&!doctor.getEmail().isBlank()&&!doctor.getEmail().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"))errors.add("Email format is invalid");
         return List.copyOf(errors);
     }
@@ -47,10 +51,27 @@ public class DoctorWorkflowService {
     public List<Doctor> byRoom(Collection<Doctor> doctors,String room) {
         return WorkflowAnalytics.safe(doctors).stream().filter(d->room!=null&&room.equalsIgnoreCase(WorkflowAnalytics.text(d.getRoomNumber()))).toList();
     }
-    public WorkflowSnapshot snapshot(Collection<Doctor> doctors) {
-        List<Doctor> list=WorkflowAnalytics.safe(doctors);
-        long attention=missingRoomAssignment(list).size()+missingContact(list).size();
-        return WorkflowAnalytics.snapshot("DOCTOR",list.stream().map(DoctorWorkflowService::departmentName).toList(),list.size(),
-            list.stream().filter(Doctor::isAvailableToday).count(),attention,List.of());
-    }
-    private static String departmentName(Doctor doctor) {\n        return doctor.getDepartment() == null ? "" : doctor.getDepartment().getName();\n    }\n}
+   
+public WorkflowSnapshot snapshot(Collection<Doctor> doctors) {
+    List<Doctor> list = WorkflowAnalytics.safe(doctors);
+    long attention = missingRoomAssignment(list).size()
+            + missingContact(list).size();
+
+    return WorkflowAnalytics.snapshot(
+            "DOCTOR",
+            list.stream()
+                    .map(DoctorWorkflowService::departmentName)
+                    .toList(),
+            list.size(),
+            list.stream().filter(Doctor::isAvailableToday).count(),
+            attention,
+            List.of()
+    );
+}
+
+private static String departmentName(Doctor doctor) {
+    return doctor.getDepartment() == null
+            ? ""
+            : doctor.getDepartment().getName();
+}
+}

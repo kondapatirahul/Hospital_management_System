@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /** Application service for patient consent capture, review and revocation tracking. All mutations are transactional and revision-tracked. */
-@Service
+@Service("phase5ConsentRecordService")
 public class ConsentRecordService {
     private static final Set<String> TERMINAL = Set.of("REVOKED", "CANCELLED", "REJECTED", "ARCHIVED");
     private static final Set<String> PRIORITIES = Set.of("LOW", "NORMAL", "HIGH", "URGENT");

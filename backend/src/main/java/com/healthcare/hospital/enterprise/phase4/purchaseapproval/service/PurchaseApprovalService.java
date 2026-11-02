@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /** Domain rules and lifecycle operations for purchase approvals. */
-@Service
+@Service("phase4PurchaseApprovalService")
 @Transactional
 public class PurchaseApprovalService {
     private final PurchaseApprovalRepository repository;
