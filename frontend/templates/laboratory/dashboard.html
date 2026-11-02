@@ -5,7 +5,7 @@
 <link rel="stylesheet" th:href="@{/css/ui-polish-phase2-dashboards.css}">  <link rel="stylesheet" th:href="@{/css/dashboard-table-tools.css}">
   <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
   <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
-</head>
+<link rel="stylesheet" th:href="@{/css/lab-command-center-increment07.css}"></head>
 <body><div class="app-container"><aside th:replace="~{fragments/layout :: sidebar('laboratory/dashboard')}"></aside><div class="app-main"><header th:replace="~{fragments/layout :: navbar('Laboratory Operations', 'Manage lab orders, sample tracking, verified results and reporting.')}"></header>
 <section th:replace="~{fragments/operations-panel :: operationsPanel('laboratory')}"></section>
 
@@ -37,9 +37,18 @@
 </a>
   </div>
 </section>
+<section class="cf-lab-command-center" aria-labelledby="cf-lab-command-title">
+<div class="cf-lab-command-head"><div><span>LABORATORY INTELLIGENCE</span><h2 id="cf-lab-command-title">Laboratory command center</h2><p>Specimen intake, accessioning, quality control, result verification, turnaround time and compliance.</p></div><button id="cf-lab-refresh" type="button">Refresh insights</button></div>
+<div class="cf-lab-kpis"><article><small>Reports</small><strong th:text="${reports.size()}">0</strong></article><article><small>Pending</small><strong th:text="${pendingCount}">0</strong></article><article><small>Completed</small><strong th:text="${completedCount}">0</strong></article><article><small>Reviewed</small><strong th:text="${reviewedCount}">0</strong></article></div>
+<div id="cf-lab-status" role="status">Loading laboratory signals…</div>
+<div id="cf-lab-domains" class="cf-lab-domains"><article><b>Specimen intake</b><span>Loading coverage</span></article><article><b>Result verification</b><span>Loading coverage</span></article><article><b>Analytical quality</b><span>Loading coverage</span></article><article><b>Turnaround time</b><span>Loading coverage</span></article></div>
+<div class="cf-lab-insights-head"><h3>Actionable worklist signals</h3><span id="cf-lab-count">0 items</span></div>
+<div id="cf-lab-insights"><p class="cf-lab-empty">No current signals loaded.</p></div>
+<p class="cf-lab-note">Operational worklist support only. Verify source records and follow approved laboratory procedures before taking action. This dashboard does not validate clinical results.</p>
+</section>
 <div class="dashboard-legacy">
 <header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><div><p>CARE­FLOW / LABORATORY</p><h1>Laboratory Operations</h1><p>Review requested tests and publish verified results.</p></div><a th:href="@{/logout}">Sign out</a><a th:href="@{/laboratory/samples}" style="margin-left:16px">Sample tracking →</a></header>
 <p th:if="${successMessage}" th:text="${successMessage}" role="status"></p><p th:if="${errorMessage}" th:text="${errorMessage}" role="alert"></p>
 <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin:24px 0"><article class="card"><h3>Pending</h3><strong th:text="${pendingCount}">0</strong></article><article class="card"><h3>Completed</h3><strong th:text="${completedCount}">0</strong></article><article class="card"><h3>Reviewed</h3><strong th:text="${reviewedCount}">0</strong></article></section>
 <section class="card"><h2>Lab orders and results</h2><div style="overflow-x:auto"><table data-cf-table-tools style="width:100%;border-collapse:collapse"><thead><tr><th>Patient</th><th>Test</th><th>Category</th><th>Requested</th><th>Status</th><th>Result / Complete</th></tr></thead><tbody><tr th:each="report : ${reports}"><td><span th:text="${report.patient.fullName}">Patient</span><br><small th:text="${report.patient.patientId}">PAT-ID</small></td><td th:text="${report.testName}">Test</td><td th:text="${report.testCategory}">Category</td><td th:text="${report.requestedDate}">Date</td><td th:text="${report.status.displayName}">Pending</td><td><div th:if="${report.status.name() == 'PENDING'}"><form th:action="@{/laboratory/reports/{id}/complete(id=${report.id})}" method="post"><label>Result <input name="summaryResult" required maxlength="2000"></label><label>Reference range <input name="referenceRange" maxlength="255"></label><label>Notes <input name="doctorNotes" maxlength="2000"></label><button type="submit">Mark completed</button></form></div><div th:unless="${report.status.name() == 'PENDING'}"><strong th:text="${report.summaryResult}">Result</strong><p th:text="${report.referenceRange}"></p><small th:text="${report.completedDate}"></small></div></td></tr><tr th:if="${#lists.isEmpty(reports)}"><td colspan="6">No laboratory reports found.</td></tr></tbody></table></div></section>
-</div></main></div></div><script th:src="@{/js/script.js}"></script><script defer th:src="@{/js/dashboard-table-tools.js}"></script></body></html>
+</div></main></div></div><script th:src="@{/js/script.js}"></script><script defer th:src="@{/js/dashboard-table-tools.js}"></script><script defer th:src="@{/js/lab-command-center-increment07.js}"></script></body></html>

@@ -8,12 +8,18 @@
   <link rel="stylesheet" th:href="@{/css/dashboard-table-tools.css}">
 <link rel="stylesheet" th:href="@{/css/ui-polish-phase1.css}"><link rel="stylesheet" th:href="@{/css/ui-polish-phase3-modules.css}">  <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
   <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
+  <link rel="stylesheet" th:href="@{/css/staff-command-increment09.css}">
+  <script defer th:src="@{/js/staff-command-increment09.js}"></script>
 </head>
 <body><div class="app-container"><aside th:replace="~{fragments/layout :: sidebar('staff/dashboard')}"></aside><div class="app-main"><header th:replace="~{fragments/layout :: navbar('Staff & Nursing', 'Coordinate care tasks, shifts, attendance and ward readiness.')}"></header>
 <section th:replace="~{fragments/operations-panel :: operationsPanel('staff')}"></section>
 
 
-<main class="page-content cf-dashboard-page">
+<main class="page-content cf-dashboard-page staff-command-center">
+<section class="staff-command-hero"><div><span class="staff-command-kicker">CAREFLOW / NURSING OPERATIONS</span><h1>Care team command center</h1><p>Coordinate shift readiness, patient safety, handovers and ward operations.</p></div><button type="button" id="staffCommandRefresh">Refresh control coverage</button></section>
+<section class="staff-command-stats" aria-label="Staff control coverage"><article><span>Control domains</span><strong id="staffDomainCount">16</strong></article><article><span>Configured controls</span><strong id="staffControlCount">2,080</strong></article><article><span>Live queue</span><strong th:text="${waitingCount}">0</strong></article><article><span>Patients registered</span><strong th:text="${patientCount}">0</strong></article></section>
+<section class="staff-command-panel"><div class="staff-command-heading"><div><span class="staff-command-kicker">OPERATIONAL GOVERNANCE</span><h2>Care delivery control library</h2><p>Choose a domain to inspect the controls and evidence requirements.</p></div><input id="staffControlSearch" type="search" placeholder="Search care controls…" aria-label="Search care controls"></div><div id="staffControlDomains" class="staff-control-domains"><p>Loading control domains…</p></div><p id="staffControlNotice" class="staff-control-notice" aria-live="polite">Control definitions are available; workflow-specific evidence adapters are being connected.</p></section>
+
 <section class="cf-quick-panel" aria-label="Care team workspace">
   <div class="cf-section-heading">
     <div><span class="cf-eyebrow">WORKSPACE SHORTCUTS</span><h2>Care team workspace</h2><p>Open a workflow directly. Actions still use the existing server routes and permissions.</p></div>

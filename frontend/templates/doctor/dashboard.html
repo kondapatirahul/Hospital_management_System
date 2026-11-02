@@ -3,7 +3,7 @@
 <head th:replace="~{fragments/layout :: htmlHead('Doctor Dashboard')}">  <link rel="stylesheet" th:href="@{/css/dashboard-table-tools.css}">
   <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
   <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
-</head>
+    <link rel="stylesheet" th:href="@{/css/doctor-command-center-increment06.css}">\n</head>
 <body>
 
 <div class="app-container">
@@ -45,6 +45,39 @@
 </a>
   </div>
 </section>
+
+            <section class="cf-doctor-command-center" aria-labelledby="cf-doctor-command-title">
+                <div class="cf-doctor-command-heading">
+                    <div>
+                        <span class="cf-doctor-eyebrow">CLINICAL OPERATIONS</span>
+                        <h2 id="cf-doctor-command-title">Doctor command center</h2>
+                        <p>Priority signals across appointments, documentation, medication safety, diagnostics and continuity of care.</p>
+                    </div>
+                    <button type="button" class="cf-command-refresh" id="cf-command-refresh">Refresh insights</button>
+                </div>
+                <div class="cf-command-kpis">
+                    <article><span>Appointments today</span><strong th:text="${todayTotal}">0</strong></article>
+                    <article><span>Completed visits</span><strong th:text="${completedToday}">0</strong></article>
+                    <article><span>Pending consultations</span><strong th:text="${pendingConsultations}">0</strong></article>
+                    <article><span>Upcoming visits</span><strong th:text="${upcomingTotal}">0</strong></article>
+                </div>
+                <div class="cf-command-status" id="cf-command-status" role="status" aria-live="polite">
+                    Loading live appointment signals…
+                </div>
+                <div class="cf-command-domain-grid" id="cf-command-domains">
+                    <article class="cf-command-domain"><strong>Appointment flow</strong><span>Live appointment signals are being evaluated.</span></article>
+                    <article class="cf-command-domain"><strong>Clinical documentation</strong><span>Signal coverage will appear after refresh.</span></article>
+                    <article class="cf-command-domain"><strong>Medication safety</strong><span>Signal coverage will appear after refresh.</span></article>
+                    <article class="cf-command-domain"><strong>Diagnostic follow-up</strong><span>Signal coverage will appear after refresh.</span></article>
+                </div>
+                <div class="cf-command-insights">
+                    <div class="cf-command-subheading"><h3>Actionable insights</h3><span id="cf-command-count">0 items</span></div>
+                    <div id="cf-command-insight-list" class="cf-command-insight-list">
+                        <p class="cf-command-empty">No insights loaded yet.</p>
+                    </div>
+                </div>
+                <p class="cf-command-disclaimer">Operational prioritization only. This dashboard does not diagnose, prescribe, or replace clinical judgment. Review source records before acting.</p>
+            </section>
 
             <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
 
@@ -254,5 +287,5 @@
 </div>
 
 <script th:src="@{/js/script.js}"></script>
-<script defer th:src="@{/js/dashboard-table-tools.js}"></script></body>
+<script defer th:src="@{/js/dashboard-table-tools.js}"></script>    <script th:src="@{/js/doctor-command-center-increment06.js}" defer></script>\n</body>
 </html>

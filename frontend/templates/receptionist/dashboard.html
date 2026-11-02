@@ -3,7 +3,7 @@
 <head th:replace="~{fragments/layout :: htmlHead('Receptionist Desk Dashboard')}">  <link rel="stylesheet" th:href="@{/css/dashboard-table-tools.css}">
   <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
   <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
-</head>
+<link rel="stylesheet" th:href="@{/css/reception-command-increment08.css}"></head>
 <body>
 
 <div class="app-container">
@@ -50,6 +50,20 @@
   </div>
 </section>
 
+<section class="cf-reception-command" aria-labelledby="cf-reception-command-title">
+ <div class="cf-reception-heading"><div><span>FRONT DESK INTELLIGENCE</span><h2 id="cf-reception-command-title">Reception command center</h2><p>Coordinate registrations, appointments, arrivals, queues, billing handoffs and patient communication.</p></div><button id="cf-reception-refresh" type="button">Refresh workspace</button></div>
+ <div class="cf-reception-kpis">
+  <article><small>Appointments today</small><strong th:text="${totalToday}">0</strong></article>
+  <article><small>Waiting in queue</small><strong th:text="${waitingInQueue}">0</strong></article>
+  <article><small>Active doctors</small><strong th:text="${activeDoctorsCount}">0</strong></article>
+  <article><small>Registered patients</small><strong th:text="${totalPatientsCount}">0</strong></article>
+ </div>
+ <div id="cf-reception-status" role="status">Loading front-desk signals…</div>
+ <div id="cf-reception-domains" class="cf-reception-domains"><article><b>Arrival check-in</b><span>Loading coverage…</span></article><article><b>Waiting room flow</b><span>Loading coverage…</span></article><article><b>Doctor availability</b><span>Loading coverage…</span></article><article><b>Billing handoff</b><span>Loading coverage…</span></article></div>
+ <div class="cf-reception-insight-head"><h3>Prioritized front-desk worklist</h3><span id="cf-reception-count">0 items</span></div>
+ <div id="cf-reception-insights"><p class="cf-reception-empty">No signals loaded yet.</p></div>
+ <p class="cf-reception-note">Operational coordination only. Verify the patient and source workflow before taking action. Do not use operational signals as clinical advice.</p>
+</section>
             <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
 
             <!-- Quick Action Toolbar -->
@@ -276,5 +290,5 @@
 </div>
 
 <script th:src="@{/js/script.js}"></script>
-<script defer th:src="@{/js/dashboard-table-tools.js}"></script></body>
+<script defer th:src="@{/js/dashboard-table-tools.js}"></script><script defer th:src="@{/js/reception-command-increment08.js}"></script></body>
 </html>
