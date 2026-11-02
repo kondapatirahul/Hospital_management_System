@@ -1,11 +1,44 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Staff Attendance - CareFlow</title><link rel="stylesheet" th:href="@{/css/style.css}"></head>
-<body><main class="container" style="max-width:1200px;margin:28px auto;padding:24px">
-<header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><div><p>CAREFLOW / STAFF & NURSING</p><h1>Attendance Management</h1><p>Record daily check-in/check-out and review team attendance.</p></div><nav><a th:href="@{/staff/dashboard}">Dashboard</a> · <a th:href="@{/staff/wards}">Ward & beds</a> · <a th:href="@{/staff/shifts}">Duty roster</a> · <a th:href="@{/logout}">Sign out</a></nav></header>
-<p th:if="${successMessage}" th:text="${successMessage}" role="status" class="alert alert-success"></p><p th:if="${errorMessage}" th:text="${errorMessage}" role="alert" class="alert alert-danger"></p>
-<section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin:22px 0"><article class="card"><h3>Present</h3><strong th:text="${presentCount}">0</strong></article><article class="card"><h3>Checked out</h3><strong th:text="${checkedOutCount}">0</strong></article><article class="card"><h3>Selected date</h3><strong th:text="${selectedDate}">Date</strong></article></section>
-<section class="card" style="margin-bottom:20px"><h2>My attendance today</h2><p th:if="${ownRecord == null}">No attendance record exists for your account today.</p><div th:if="${ownRecord != null}"><p><strong>Status:</strong> <span th:text="${ownRecord.status}"></span></p><p><strong>Check-in:</strong> <span th:text="${ownRecord.checkInAt}"></span></p><p><strong>Check-out:</strong> <span th:text="${ownRecord.checkOutAt != null ? ownRecord.checkOutAt : 'Not checked out'}"></span></p><p><strong>Worked minutes:</strong> <span th:text="${ownRecord.workedMinutes}"></span></p></div>
-<div th:if="${isToday}" style="display:flex;gap:12px;flex-wrap:wrap"><form th:if="${ownRecord == null}" th:action="@{/staff/attendance/check-in}" method="post" style="display:flex;gap:8px;flex-wrap:wrap"><input name="department" required maxlength="100" placeholder="Department" value="General"><input name="notes" maxlength="500" placeholder="Optional note"><button class="btn btn-primary" type="submit">Check in</button></form><form th:if="${ownRecord != null and ownRecord.checkOutAt == null}" th:action="@{/staff/attendance/check-out}" method="post"><button class="btn btn-primary" type="submit">Check out</button></form></div></section>
-<section class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2>Team attendance</h2><form method="get" th:action="@{/staff/attendance}"><input type="date" name="date" th:value="${selectedDate}"><button type="submit">View date</button></form></div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Staff</th><th>Username</th><th>Department</th><th>Check in</th><th>Check out</th><th>Status</th><th>Worked minutes</th></tr></thead><tbody><tr th:each="r : ${records}"><td th:text="${r.staffDisplayName}"></td><td th:text="${r.staffUsername}"></td><td th:text="${r.department}"></td><td th:text="${r.checkInAt}"></td><td th:text="${r.checkOutAt != null ? r.checkOutAt : '—'}"></td><td th:text="${r.status}"></td><td th:text="${r.workedMinutes}"></td></tr><tr th:if="${#lists.isEmpty(records)}"><td colspan="7">No attendance records for the selected date.</td></tr></tbody></table></div></section>
-</main></body></html>
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Staff Attendance - CareFlow</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"><link rel="stylesheet" th:href="@{/css/ui-polish-phase1.css}"><link rel="stylesheet" th:href="@{/css/ui-polish-phase3-modules.css}">
+  <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
+  <link rel="stylesheet" th:href="@{/css/ui-polish-phase5-targeted.css}">
+  <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
+</head>
+<body>
+<main class="cf-page-shell cf-standalone-page">
+  <header class="cf-page-header">
+    <div><p class="cf-eyebrow">CAREFLOW / STAFF &amp; NURSING</p><h1>Attendance Management</h1><p class="cf-page-subtitle">Record daily check-in/check-out and review team attendance.</p></div>
+    <nav class="cf-page-nav" aria-label="Staff navigation"><a th:href="@{/staff/dashboard}">Dashboard</a><a th:href="@{/staff/wards}">Ward &amp; beds</a><a th:href="@{/staff/shifts}">Duty roster</a><a th:href="@{/logout}">Sign out</a></nav>
+  </header>
+  <p th:if="${successMessage}" th:text="${successMessage}" role="status" class="alert alert-success"></p><p th:if="${errorMessage}" th:text="${errorMessage}" role="alert" class="alert alert-danger"></p>
+  <section class="cf-stat-grid" aria-label="Attendance summary">
+    <article class="cf-stat-card"><span>Present</span><strong th:text="${presentCount}">0</strong></article>
+    <article class="cf-stat-card"><span>Checked out</span><strong th:text="${checkedOutCount}">0</strong></article>
+    <article class="cf-stat-card"><span>Selected date</span><strong th:text="${selectedDate}">Date</strong></article>
+  </section>
+  <section class="cf-surface cf-attendance-self">
+    <div class="cf-section-title"><div><h2>My attendance today</h2><p>Check in when your shift starts and check out when it ends.</p></div></div>
+    <p th:if="${ownRecord == null}" class="cf-muted">No attendance record exists for your account today.</p>
+    <div th:if="${ownRecord != null}" class="cf-detail-grid">
+      <p><span>Status</span><strong th:text="${ownRecord.status}"></strong></p><p><span>Check-in</span><strong th:text="${ownRecord.checkInAt}"></strong></p>
+      <p><span>Check-out</span><strong th:text="${ownRecord.checkOutAt != null ? ownRecord.checkOutAt : 'Not checked out'}"></strong></p><p><span>Worked minutes</span><strong th:text="${ownRecord.workedMinutes}"></strong></p>
+    </div>
+    <div th:if="${isToday}" class="cf-attendance-action">
+      <form th:if="${ownRecord == null}" th:action="@{/staff/attendance/check-in}" method="post" class="cf-form-grid cf-checkin-form"><label>Department<input name="department" required maxlength="100" placeholder="e.g. General" value="General"></label><label>Note <span class="cf-muted">(optional)</span><input name="notes" maxlength="500" placeholder="Add a note"></label><div class="cf-form-actions"><button class="btn btn-primary" type="submit">Check in</button></div></form>
+      <form th:if="${ownRecord != null and ownRecord.checkOutAt == null}" th:action="@{/staff/attendance/check-out}" method="post"><button class="btn btn-primary" type="submit">Check out</button></form>
+    </div>
+  </section>
+  <section class="cf-surface">
+    <div class="cf-section-title cf-section-title-row"><div><h2>Team attendance</h2><p>Attendance records for the selected date.</p></div><form method="get" th:action="@{/staff/attendance}" class="cf-date-filter"><label for="attendance-date">Date</label><input id="attendance-date" type="date" name="date" th:value="${selectedDate}"><button class="btn btn-secondary" type="submit">View date</button></form></div>
+    <div class="cf-table-wrap"><table class="cf-data-table"><thead><tr><th>Staff</th><th>Username</th><th>Department</th><th>Check in</th><th>Check out</th><th>Status</th><th>Worked minutes</th></tr></thead><tbody>
+      <tr th:each="r : ${records}"><td data-label="Staff" th:text="${r.staffDisplayName}"></td><td data-label="Username" th:text="${r.staffUsername}"></td><td data-label="Department" th:text="${r.department}"></td><td data-label="Check in" th:text="${r.checkInAt}"></td><td data-label="Check out" th:text="${r.checkOutAt != null ? r.checkOutAt : '—'}"></td><td data-label="Status"><span class="cf-status-pill" th:text="${r.status}"></span></td><td data-label="Worked minutes" th:text="${r.workedMinutes}"></td></tr>
+      <tr th:if="${#lists.isEmpty(records)}"><td colspan="7" class="cf-empty-state">No attendance records for the selected date.</td></tr>
+    </tbody></table></div>
+  </section>
+</main>
+<script th:src="@{/js/ui-polish-phase5-enhancements.js}" defer></script>
+</body></html>

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title th:text="${item.caseReference}+' | CareFlow Quality'">Quality Case</title><link rel="stylesheet" th:href="@{/css/quality-governance.css}"></head>
+<title th:text="${item.caseReference}+' | CareFlow Quality'">Quality Case</title><link rel="stylesheet" th:href="@{/css/quality-governance.css}">  <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
+  <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
+</head>
 <body><main class="qg-shell"><header class="qg-header"><div><p class="eyebrow">QUALITY CASE · <span th:text="${item.caseReference}">QCR</span></p><h1 th:text="${item.title}">Case title</h1><p class="muted" th:text="${item.category}+' · '+${item.severity}+' · '+${item.status}">Metadata</p></div><div class="header-actions"><a class="button secondary" th:href="@{/quality/reviews}">Register</a><a class="button secondary" th:href="@{/quality/reviews/export.csv}">Export</a></div></header>
 <div th:if="${successMessage}" class="notice success" th:text="${successMessage}"></div><div th:if="${errorMessage}" class="notice error" th:text="${errorMessage}"></div>
 <div class="detail-layout"><section class="main-column">

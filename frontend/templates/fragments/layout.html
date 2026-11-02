@@ -5,9 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${pageTitle != null ? pageTitle + ' - CareFlow HMS' : 'CareFlow Healthcare Management'}">CareFlow HMS</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/ui-polish-phase1.css}">
+    <link rel="stylesheet" th:href="@{/css/ui-polish-phase2-dashboards.css}">
+    <link rel="stylesheet" th:href="@{/css/ui-polish-phase3-modules.css}">
     <link rel="stylesheet" th:href="@{/css/pharmacy.css}">
     <link rel="stylesheet" th:href="@{/css/careflow-operations.css}">
+    <link rel="stylesheet" th:href="@{/css/clinical-workflow-tools.css}">
     <script defer th:src="@{/js/careflow-operations.js}"></script>
+    <script defer th:src="@{/js/clinical-workflow-tools.js}"></script>
+  <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
+<link rel="stylesheet" th:href="@{/css/ui-polish-phase6-clinical-finance.css}">
+  <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
 </head>
 <body>
 
@@ -322,6 +330,7 @@
                 <li class="nav-item"><a th:href="@{/admin/dashboard}"><span class="nav-icon">⚙️</span><span>Admin Dashboard</span></a></li>
                 <li class="nav-item"><a th:href="@{/admin/settings}"><span class="nav-icon">🛠️</span><span>System Settings</span></a></li>
                 <li class="nav-item"><a th:href="@{/admin/audit}"><span class="nav-icon">🛡️</span><span>Audit Trail</span></a></li>
+                <li class="nav-item"><a th:href="@{/enterprise/phase5}"><span class="nav-icon">🔗</span><span>Enterprise Integration Hub</span></a></li>
                 <li class="nav-item"><a th:href="@{/reports}"><span class="nav-icon">📈</span><span>Hospital Reports</span></a></li>
                 <li class="nav-item"><a th:href="@{/billing/dashboard}"><span class="nav-icon">💳</span><span>Billing Dashboard</span></a></li>
                 <li class="nav-item"><a th:href="@{/laboratory/dashboard}"><span class="nav-icon">🧪</span><span>Laboratory Dashboard</span></a></li>

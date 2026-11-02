@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title th:text="${pageTitle}">
+   Record detail
+  </title>
+  <link rel="stylesheet" th:href="@{/css/phase5-workspaces.css}"/>
+   <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
+  <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
+</head>
+ <body>
+  <main class="wrap narrow">
+   <a th:href="@{${basePath}}">
+    ← Back to workspace
+   </a>
+   <h1 th:text="${record.title}">
+    Record
+   </h1>
+   <div class="notice success" th:if="${successMessage}" th:text="${successMessage}">
+   </div>
+   <section class="detail-card">
+    <dl>
+     <dt>
+      Status
+     </dt>
+     <dd th:text="${record.status}">
+     </dd>
+     <dt>
+      Priority
+     </dt>
+     <dd th:text="${record.priority}">
+     </dd>
+     <dt>
+      Reference
+     </dt>
+     <dd th:text="${record.referenceCode}">
+     </dd>
+     <dt>
+      Owner
+     </dt>
+     <dd th:text="${record.owner}">
+     </dd>
+     <dt>
+      Department
+     </dt>
+     <dd th:text="${record.department}">
+     </dd>
+     <dt>
+      Due date
+     </dt>
+     <dd th:text="${record.dueDate}">
+     </dd>
+     <dt>
+      Description
+     </dt>
+     <dd th:text="${record.description}">
+     </dd>
+     <dt>
+      Evidence
+     </dt>
+     <dd th:text="${record.evidenceReference}">
+     </dd>
+     <dt>
+      Decision history
+     </dt>
+     <dd class="history" th:text="${record.decisionNote}">
+     </dd>
+    </dl>
+   </section>
+   <section class="action-grid">
+    <form method="post" th:action="@{${basePath} + '/' + ${record.id} + '/transition'}">
+     <h2>
+      Change status
+     </h2>
+     <select name="status">
+      <option>
+       OPEN
+      </option>
+      <option>
+       PENDING
+      </option>
+      <option>
+       IN_PROGRESS
+      </option>
+      <option>
+       IN_REVIEW
+      </option>
+      <option>
+       ACTIVE
+      </option>
+      <option>
+       COMPLETED
+      </option>
+      <option>
+       RESOLVED
+      </option>
+      <option>
+       CLOSED
+      </option>
+      <option>
+       REJECTED
+      </option>
+      <option>
+       CANCELLED
+      </option>
+     </select>
+     <input name="note" placeholder="Reason / transition note"/>
+     <button>
+      Update status
+     </button>
+    </form>
+    <form method="post" th:action="@{${basePath} + '/' + ${record.id} + '/assign'}">
+     <h2>
+      Assignment
+     </h2>
+     <input name="owner" placeholder="Owner" required=""/>
+     <input name="department" placeholder="Department"/>
+     <button>
+      Assign
+     </button>
+    </form>
+    <form method="post" th:action="@{${basePath} + '/' + ${record.id} + '/note'}">
+     <h2>
+      Add note
+     </h2>
+     <textarea maxlength="1500" name="note" placeholder="Decision or follow-up note" required=""></textarea>
+     <button>
+      Add note
+     </button>
+    </form>
+   </section>
+  </main>
+ </body>
+</html>

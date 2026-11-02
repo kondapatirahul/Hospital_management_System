@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title th:text="${pageTitle} + ' | CareFlow'">
+   CareFlow
+  </title>
+  <link rel="stylesheet" th:href="@{/css/phase5-workspaces.css}"/>
+   <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
+  <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
+</head>
+ <body>
+  <main class="wrap">
+   <header class="hero">
+    <div>
+     <p class="eyebrow">
+      CARE FLOW · ENTERPRISE OPERATIONS
+     </p>
+     <h1 th:text="${pageTitle}">
+      Workspace
+     </h1>
+     <p>
+      Track ownership, deadlines, evidence and controlled workflow transitions.
+     </p>
+    </div>
+    <a class="primary" th:href="@{${basePath} + '/new'}">
+     Create record
+    </a>
+   </header>
+   <div class="notice success" th:if="${successMessage}" th:text="${successMessage}">
+   </div>
+   <div class="notice error" th:if="${errorMessage}" th:text="${errorMessage}">
+   </div>
+   <section class="metrics">
+    <article>
+     <span>
+      Total
+     </span>
+     <strong th:text="${summary.total}">
+      0
+     </strong>
+    </article>
+    <article>
+     <span>
+      Open
+     </span>
+     <strong th:text="${summary.open}">
+      0
+     </strong>
+    </article>
+    <article>
+     <span>
+      Overdue
+     </span>
+     <strong th:text="${summary.overdue}">
+      0
+     </strong>
+    </article>
+    <article>
+     <span>
+      Due soon
+     </span>
+     <strong th:text="${summary.dueSoon}">
+      0
+     </strong>
+    </article>
+   </section>
+   <form class="filters" method="get">
+    <input name="q" placeholder="Search title, reference, owner" th:value="${q}"/>
+    <select name="status">
+     <option value="">
+      All statuses
+     </option>
+     <option>
+      OPEN
+     </option>
+     <option>
+      PENDING
+     </option>
+     <option>
+      ACTIVE
+     </option>
+     <option>
+      IN_PROGRESS
+     </option>
+     <option>
+      COMPLETED
+     </option>
+     <option>
+      RESOLVED
+     </option>
+     <option>
+      CLOSED
+     </option>
+    </select>
+    <select name="priority">
+     <option value="">
+      All priorities
+     </option>
+     <option>
+      LOW
+     </option>
+     <option>
+      NORMAL
+     </option>
+     <option>
+      HIGH
+     </option>
+     <option>
+      URGENT
+     </option>
+    </select>
+    <button>
+     Apply filters
+    </button>
+    <a th:href="@{${basePath}}">
+     Clear
+    </a>
+    <a class="export" th:href="@{${basePath} + '/export.csv'}">
+     Export CSV
+    </a>
+   </form>
+   <div class="table-wrap">
+    <table>
+     <thead>
+      <tr>
+       <th>
+        Reference
+       </th>
+       <th>
+        Title
+       </th>
+       <th>
+        Status
+       </th>
+       <th>
+        Priority
+       </th>
+       <th>
+        Owner
+       </th>
+       <th>
+        Department
+       </th>
+       <th>
+        Due date
+       </th>
+       <th>
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr th:each="r : ${records}">
+       <td th:text="${r.referenceCode}">
+        REF
+       </td>
+       <td th:text="${r.title}">
+        Title
+       </td>
+       <td>
+        <span class="pill" th:text="${r.status}">
+         OPEN
+        </span>
+       </td>
+       <td th:text="${r.priority}">
+        NORMAL
+       </td>
+       <td th:text="${r.owner}">
+        Unassigned
+       </td>
+       <td th:text="${r.department}">
+        General
+       </td>
+       <td th:text="${r.dueDate}">
+        —
+       </td>
+       <td>
+        <a th:href="@{${basePath} + '/' + ${r.id}}">
+         View
+        </a>
+       </td>
+      </tr>
+      <tr th:if="${#lists.isEmpty(records)}">
+       <td class="empty" colspan="8">
+        No records match these filters.
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </main>
+ </body>
+</html>

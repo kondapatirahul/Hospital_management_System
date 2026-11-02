@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   Enterprise Integration Hub | CareFlow
+  </title>
+  <link rel="stylesheet" th:href="@{/css/phase5-workspaces.css}"/>
+   <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
+  <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
+</head>
+ <body>
+  <main class="wrap">
+   <header class="hero">
+    <div>
+     <p class="eyebrow">
+      CARE FLOW · PHASE 5
+     </p>
+     <h1>
+      Enterprise Integration Hub
+     </h1>
+     <p>
+      Operational workspaces for reliable integration, governance, observability and lifecycle management.
+     </p>
+    </div>
+    <div>
+     <strong th:text="${workspaceCount}">
+      10
+     </strong>
+     workspaces ·
+     <strong th:text="${recordCount}">
+      0
+     </strong>
+     records
+    </div>
+   </header>
+   <section class="metrics">
+    <article th:each="entry : ${counts}">
+     <span th:text="${entry.key}">
+      Workspace
+     </span>
+     <strong th:text="${entry.value}">
+      0
+     </strong>
+    </article>
+   </section>
+   <section class="table-wrap">
+    <table>
+     <thead>
+      <tr>
+       <th>
+        Workspace
+       </th>
+       <th>
+        Purpose
+       </th>
+       <th>
+        Records
+       </th>
+       <th>
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr th:each="w : ${workspaces}">
+       <td th:text="${w.title}">
+        Workspace
+       </td>
+       <td th:text="${w.description}">
+        Purpose
+       </td>
+       <td th:text="${counts.get(w.title)}">
+        0
+       </td>
+       <td>
+        <a th:href="${w.path}">
+         Open workspace →
+        </a>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </section>
+  </main>
+ </body>
+</html>

@@ -1,0 +1,75 @@
+/* CareFlow Phase 2: consistent, accessible dashboard table controls. */
+.cf-table-tools {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid var(--cf-border, #dce4ef);
+  border-radius: 12px;
+  background: var(--cf-surface-soft, #f7f9fc);
+  font-size: .88rem;
+}
+.cf-table-tools label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 150px;
+  color: var(--cf-text-muted, #526176);
+  font-weight: 600;
+}
+.cf-table-tools input,
+.cf-table-tools select {
+  min-height: 38px;
+  max-width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--cf-border, #cbd5e1);
+  border-radius: 8px;
+  background: var(--cf-surface, #fff);
+  color: var(--cf-text, #152033);
+  font: inherit;
+}
+.cf-table-tools-search { flex: 1 1 220px; }
+.cf-table-tools-count {
+  margin: 0 auto 9px 0;
+  color: var(--cf-text-muted, #526176);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.cf-table-tools button {
+  min-height: 36px;
+  padding: 8px 12px;
+  border: 1px solid var(--cf-border, #cbd5e1);
+  border-radius: 8px;
+  background: var(--cf-surface, #fff);
+  color: var(--cf-text, #152033);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.cf-table-tools button:hover {
+  border-color: var(--cf-accent, #2563eb);
+  color: var(--cf-accent, #2563eb);
+}
+.cf-table-tools button:focus-visible,
+.cf-table-tools input:focus-visible,
+.cf-table-tools select:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--cf-accent, #2563eb) 32%, transparent);
+  outline-offset: 2px;
+}
+.cf-table-tools .cf-table-tools-export {
+  background: var(--cf-accent, #1d4ed8);
+  border-color: var(--cf-accent, #1d4ed8);
+  color: #fff;
+}
+.cf-table-tools .cf-table-tools-export:hover { filter: brightness(.94); color: #fff; }
+table[data-cf-table-tools] tbody tr[hidden] { display: none !important; }
+@media (max-width: 640px) {
+  .cf-table-tools { align-items: stretch; }
+  .cf-table-tools label,
+  .cf-table-tools-search { min-width: 100%; flex: 1 1 100%; }
+  .cf-table-tools-count { width: 100%; margin: 0; }
+  .cf-table-tools button { flex: 1 1 auto; }
+}
+@media print { .cf-table-tools { display: none !important; } }
