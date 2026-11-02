@@ -12,6 +12,12 @@ import com.healthcare.hospital.entity.QueueEntry;
 import com.healthcare.hospital.enums.AppointmentStatus;
 import com.healthcare.hospital.enums.QueueStatus;
 import com.healthcare.hospital.service.*;
+import com.healthcare.hospital.enterprise.reception.commandcenter.ReceptionCommandCenterService;
+import com.healthcare.hospital.enterprise.reception.commandcenter.ReceptionDashboardSignalSnapshot;
+import org.springframework.web.bind.annotation.ResponseBody;
+import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,19 +38,22 @@ public class ReceptionistDashboardController {
     private final DoctorService doctorService;
     private final MedicalService medicalService;
     private final BillingService billingService;
+    private final ReceptionCommandCenterService commandCenter;
 
     public ReceptionistDashboardController(PatientService patientService,
                                           AppointmentService appointmentService,
                                           QueueService queueService,
                                           DoctorService doctorService,
                                           MedicalService medicalService,
-                                          BillingService billingService) {
+                                          BillingService billingService,
+                                          ReceptionCommandCenterService commandCenter) {
         this.patientService = patientService;
         this.appointmentService = appointmentService;
         this.queueService = queueService;
         this.doctorService = doctorService;
         this.medicalService = medicalService;
         this.billingService = billingService;
+        this.commandCenter = commandCenter;
     }
 
     // 1. Receptionist Dashboard Overview
@@ -72,6 +81,37 @@ public class ReceptionistDashboardController {
         model.addAttribute("totalPatientsCount", patientService.getAllPatients().size());
 
         return "receptionist/dashboard";
+    }
+
+
+    @GetMapping("/command-center/summary")
+    @ResponseBody
+    public Map<String,Object> commandCenterSummary() {
+        List<Appointment> appointments = appointmentService.getTodayAppointments();
+        List<QueueEntry> queue = queueService.getTodayQueue();
+        List<Doctor> doctors = doctorService.getAllDoctors();
+        Map<String,Double> signals = new LinkedHashMap<>();
+        signals.put("UNCONFIRMED_APPOINTMENTS", appointments.stream()
+                .filter(a -> a.getStatus() == AppointmentStatus.SCHEDULED).count() * 1.0);
+        signals.put("CHECKIN_QUEUE_LENGTH", appointments.stream()
+                .filter(a -> a.getStatus() == AppointmentStatus.CHECKED_IN).count() * 1.0);
+        signals.put("WAITING_PATIENT_COUNT", queueService.getWaitingCountToday() * 1.0);
+        signals.put("QUEUE_STALE_ENTRY", queue.stream()
+                .filter(q -> q.getStatus() == QueueStatus.WAITING).count() * 1.0);
+        signals.put("DOCTOR_AVAILABILITY_GAP", doctors.stream()
+                .filter(d -> !d.isAvailableToday()).count() * 1.0);
+        signals.put("DOCTOR_QUEUE_IMBALANCE", Math.max(0, queue.size() - doctors.stream().filter(Doctor::isAvailableToday).count()) * 1.0);
+        signals.put("UNBILLED_COMPLETED_VISITS", appointments.stream()
+                .filter(a -> a.getStatus() == AppointmentStatus.COMPLETED).count() * 1.0);
+        ReceptionDashboardSignalSnapshot snapshot = new ReceptionDashboardSignalSnapshot(signals, Instant.now());
+        Map<String,Object> result = new LinkedHashMap<>(commandCenter.summarize(snapshot));
+        result.put("appointmentsToday", appointments.size());
+        result.put("queueEntriesToday", queue.size());
+        result.put("waitingCount", queueService.getWaitingCountToday());
+        result.put("availableDoctors", doctors.stream().filter(Doctor::isAvailableToday).count());
+        result.put("totalPatients", patientService.getAllPatients().size());
+        result.put("dataNotice", "Live appointment, queue, doctor availability and patient counts are connected. Other reception domains show signal coverage gaps until their source workflows are integrated.");
+        return result;
     }
 
     // 2. Patient Management & Search
