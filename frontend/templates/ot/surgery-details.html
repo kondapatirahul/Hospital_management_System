@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head th:replace="~{fragments/layout :: htmlHead('Surgery Hub: ' + ${booking.bookingNumber})}"></head>
+<head th:replace="~{fragments/layout :: htmlHead('Surgery Hub: ' + ${booking.bookingNumber})}">    <link rel="stylesheet" th:href="@{/css/careflow-responsive.css}">
+</head>
 <body>
 <div class="app-container">
     <aside th:replace="~{fragments/layout :: sidebar('ot-schedule')}"></aside>

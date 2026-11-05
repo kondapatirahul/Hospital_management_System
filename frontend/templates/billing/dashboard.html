@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: htmlHead('Billing & Finance Dashboard')}"></head>
+<head th:replace="~{fragments/layout :: htmlHead('Billing & Finance Dashboard')}">    <link rel="stylesheet" th:href="@{/css/careflow-responsive.css}">
+</head>
 <body><div class="app-container"><aside th:replace="~{fragments/layout :: sidebar('billing/dashboard')}"></aside><div class="app-main"><header th:replace="~{fragments/layout :: navbar('Billing & Finance', 'Invoices, payment records, outstanding balances and revenue visibility.')}"></header>
 <section th:replace="~{fragments/operations-panel :: operationsPanel('billing')}"></section>
 

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: htmlHead('Administration & Governance - CareFlow')}"></head>
+<head th:replace="~{fragments/layout :: htmlHead('Administration & Governance - CareFlow')}">    <link rel="stylesheet" th:href="@{/css/careflow-responsive.css}">
+</head>
 <body><div class="app-container"><aside th:replace="~{fragments/layout :: sidebar('admin/dashboard')}"></aside><div class="app-main"><header th:replace="~{fragments/layout :: navbar('Administration & Governance', 'Hospital-wide oversight, accounts, departments, settings and auditability.')}"></header>
 <section th:replace="~{fragments/operations-panel :: operationsPanel('admin')}"></section>
 
