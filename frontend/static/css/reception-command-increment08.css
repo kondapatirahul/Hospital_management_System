@@ -1,25 +1,232 @@
 /* Reception command center — Increment 08 */
-.cf-reception-command{margin:0 0 26px;padding:24px;border:1px solid #dce7ed;border-radius:20px;background:linear-gradient(145deg,#fff,#f4fafb);box-shadow:0 12px 34px rgba(15,44,89,.06)}
-.cf-reception-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap}
-.cf-reception-heading>div>span{font-size:.7rem;letter-spacing:.14em;font-weight:800;color:#0f766e}
-.cf-reception-heading h2{margin:5px 0;color:#15334d;font-size:1.45rem}
-.cf-reception-heading p{margin:0;color:#64748b;font-size:.88rem}
-#cf-reception-refresh{border:0;border-radius:10px;padding:11px 16px;background:#0f766e;color:#fff;font-weight:700;cursor:pointer}
-#cf-reception-refresh:hover{background:#115e59}#cf-reception-refresh:disabled{opacity:.55;cursor:wait}
-.cf-reception-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:20px 0}
-.cf-reception-kpis article{padding:14px 16px;border:1px solid #e2e8f0;border-radius:13px;background:#fff}
-.cf-reception-kpis small{display:block;color:#64748b;font-weight:600}.cf-reception-kpis strong{display:block;margin-top:5px;color:#12365a;font-size:1.55rem}
-#cf-reception-status{padding:11px 14px;margin-bottom:13px;border-radius:10px;background:#eff6ff;color:#1e40af;font-size:.82rem}
-.cf-reception-domains{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.cf-reception-domains article{display:flex;flex-direction:column;gap:7px;min-height:86px;padding:14px;border:1px solid #e2e8f0;border-radius:12px;background:#fff}
-.cf-reception-domains b{font-size:.84rem;color:#173752}.cf-reception-domains span{font-size:.75rem;color:#64748b}
-.cf-reception-insight-head{display:flex;justify-content:space-between;align-items:center;margin:20px 0 10px}
-.cf-reception-insight-head h3{margin:0;color:#173752;font-size:1rem}.cf-reception-insight-head span{color:#64748b;font-size:.75rem}
-.cf-reception-insight{display:grid;grid-template-columns:6px minmax(0,1fr) auto;gap:12px;margin:8px 0;padding:13px;border:1px solid #e2e8f0;border-radius:11px;background:#fff}
-.cf-reception-insight i{border-radius:8px;background:#94a3b8}.cf-reception-insight[data-severity="CRITICAL"] i{background:#dc2626}.cf-reception-insight[data-severity="HIGH"] i{background:#ea580c}.cf-reception-insight[data-severity="MEDIUM"] i{background:#d97706}
-.cf-reception-insight b{display:block;color:#173752;font-size:.84rem}.cf-reception-insight p{margin:4px 0;color:#64748b;font-size:.76rem}.cf-reception-insight small{color:#0f766e;font-size:.74rem}
-.cf-reception-insight em{font-style:normal;color:#475569;font-size:.65rem;font-weight:800}
-.cf-reception-empty{padding:14px;text-align:center;border-radius:10px;background:#f8fafc;color:#64748b;font-size:.82rem}
-.cf-reception-note{margin:14px 0 0;color:#94a3b8;font-size:.72rem;line-height:1.5}
-@media(max-width:900px){.cf-reception-domains{grid-template-columns:repeat(2,minmax(0,1fr))}.cf-reception-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:520px){.cf-reception-command{padding:15px}.cf-reception-domains{grid-template-columns:1fr}.cf-reception-insight{grid-template-columns:5px minmax(0,1fr)}.cf-reception-insight em{grid-column:2}}
+.cf-reception-command {
+    margin: 0 0 26px;
+    padding: 24px;
+    border: 1px solid #dce7ed;
+    border-radius: 20px;
+    background: linear-gradient(145deg, #fff, #f4fafb);
+    box-shadow: 0 12px 34px rgba(15, 44, 89, .06)
+}
+
+.cf-reception-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 18px;
+    flex-wrap: wrap
+}
+
+.cf-reception-heading>div>span {
+    font-size: .7rem;
+    letter-spacing: .14em;
+    font-weight: 800;
+    color: #0f766e
+}
+
+.cf-reception-heading h2 {
+    margin: 5px 0;
+    color: #15334d;
+    font-size: 1.45rem
+}
+
+.cf-reception-heading p {
+    margin: 0;
+    color: #64748b;
+    font-size: .88rem
+}
+
+#cf-reception-refresh {
+    border: 0;
+    border-radius: 10px;
+    padding: 11px 16px;
+    background: #0f766e;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer
+}
+
+#cf-reception-refresh:hover {
+    background: #115e59
+}
+
+#cf-reception-refresh:disabled {
+    opacity: .55;
+    cursor: wait
+}
+
+.cf-reception-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin: 20px 0
+}
+
+.cf-reception-kpis article {
+    padding: 14px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    background: #fff
+}
+
+.cf-reception-kpis small {
+    display: block;
+    color: #64748b;
+    font-weight: 600
+}
+
+.cf-reception-kpis strong {
+    display: block;
+    margin-top: 5px;
+    color: #12365a;
+    font-size: 1.55rem
+}
+
+#cf-reception-status {
+    padding: 11px 14px;
+    margin-bottom: 13px;
+    border-radius: 10px;
+    background: #eff6ff;
+    color: #1e40af;
+    font-size: .82rem
+}
+
+.cf-reception-domains {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px
+}
+
+.cf-reception-domains article {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-height: 86px;
+    padding: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff
+}
+
+.cf-reception-domains b {
+    font-size: .84rem;
+    color: #173752
+}
+
+.cf-reception-domains span {
+    font-size: .75rem;
+    color: #64748b
+}
+
+.cf-reception-insight-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0 10px
+}
+
+.cf-reception-insight-head h3 {
+    margin: 0;
+    color: #173752;
+    font-size: 1rem
+}
+
+.cf-reception-insight-head span {
+    color: #64748b;
+    font-size: .75rem
+}
+
+.cf-reception-insight {
+    display: grid;
+    grid-template-columns: 6px minmax(0, 1fr) auto;
+    gap: 12px;
+    margin: 8px 0;
+    padding: 13px;
+    border: 1px solid #e2e8f0;
+    border-radius: 11px;
+    background: #fff
+}
+
+.cf-reception-insight i {
+    border-radius: 8px;
+    background: #94a3b8
+}
+
+.cf-reception-insight[data-severity="CRITICAL"] i {
+    background: #dc2626
+}
+
+.cf-reception-insight[data-severity="HIGH"] i {
+    background: #ea580c
+}
+
+.cf-reception-insight[data-severity="MEDIUM"] i {
+    background: #d97706
+}
+
+.cf-reception-insight b {
+    display: block;
+    color: #173752;
+    font-size: .84rem
+}
+
+.cf-reception-insight p {
+    margin: 4px 0;
+    color: #64748b;
+    font-size: .76rem
+}
+
+.cf-reception-insight small {
+    color: #0f766e;
+    font-size: .74rem
+}
+
+.cf-reception-insight em {
+    font-style: normal;
+    color: #475569;
+    font-size: .65rem;
+    font-weight: 800
+}
+
+.cf-reception-empty {
+    padding: 14px;
+    text-align: center;
+    border-radius: 10px;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: .82rem
+}
+
+.cf-reception-note {
+    margin: 14px 0 0;
+    color: #94a3b8;
+    font-size: .72rem;
+    line-height: 1.5
+}
+
+@media(max-width:900px) {
+    .cf-reception-domains {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+    }
+
+    .cf-reception-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+    }
+}
+
+@media(max-width:520px) {
+    .cf-reception-command {
+        padding: 15px
+    }
+
+    .cf-reception-domains {
+        grid-template-columns: 1fr
+    }
+
+    .cf-reception-insight {
+        grid-template-columns: 5px minmax(0, 1fr)
+    }
+
+    .cf-reception-insight em {
+        grid-column: 2
+    }
+}
