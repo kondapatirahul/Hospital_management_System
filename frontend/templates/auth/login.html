@@ -1,80 +1,107 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In - CareFlow HMS</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-<link rel="stylesheet" th:href="@{/css/ui-polish-phase1.css}"><link rel="stylesheet" th:href="@{/css/ui-polish-phase3-modules.css}">  <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0d2744">
+  <title>Sign In | CareFlow HMS</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/ui-polish-phase1.css}">
+  <link rel="stylesheet" th:href="@{/css/ui-polish-phase3-modules.css}">
+  <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
   <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
+  <link rel="stylesheet" th:href="@{/css/careflow-login.css}">
 </head>
-<body class="auth-page">
-
-<div class="auth-card">
-    <div class="auth-header">
-        <div class="logo-badge">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
+<body class="careflow-login-page">
+  <main class="login-shell">
+    <section class="login-story" aria-label="CareFlow introduction">
+      <a class="story-brand" th:href="@{/}">
+        <span class="story-logo">+</span>
+        <span><strong>CareFlow HMS</strong><small>HOSPITAL MANAGEMENT SYSTEM</small></span>
+      </a>
+      <div class="story-content">
+        <span class="story-kicker"><i></i> CONNECTED HEALTHCARE PLATFORM</span>
+        <h1>Every team.<br>Every patient.<br><span>One connected careflow.</span></h1>
+        <p class="story-quote">“Great healthcare happens when every part of the team moves together.”</p>
+        <p class="story-description">A unified workspace for managing patients, clinical teams and hospital operations — designed to keep care moving.</p>
+        <div class="story-points">
+          <span><b>✚</b> Patient-centred care</span>
+          <span><b>⌘</b> Connected departments</span>
+          <span><b>▤</b> Clear operational insights</span>
         </div>
-        <h1>CareFlow HMS</h1>
-        <p>Enterprise Healthcare Management Portal</p>
-    </div>
+      </div>
+      <div class="story-bottom"><span class="story-pulse"></span> Secure role-based access <span class="story-separator">•</span> CareFlow Hospital Portal</div>
+    </section>
 
-    <div class="auth-body">
-        <!-- Flash messages -->
+    <section class="login-side">
+      <div class="login-topline"><a th:href="@{/}" class="back-home">← Back to home</a><span class="secure-label"> <span>✓</span> Secure sign in</span></div>
+      <div class="login-content">
+        <div class="login-heading">
+          <div class="login-symbol">+</div>
+          <span class="login-eyebrow">WELCOME TO CAREflow</span>
+          <h2>Sign in to your workspace</h2>
+          <p>Choose your dashboard to continue to the right portal.</p>
+        </div>
+
         <div th:replace="~{fragments/alerts :: flashAlerts}"></div>
 
-        <!-- Role-based demo access: every role from the workflow has a seeded account. -->
-        <section class="demo-account-box" aria-labelledby="demo-accounts-heading">
-            <h4 id="demo-accounts-heading">Role-based demo access</h4>
-            <p style="font-size:12px;color:#64748b;margin:0 0 12px;">
-                Select a role to fill its demo credentials, then click Sign In. Password for new demo accounts:
-                <strong>Password@123</strong>
-            </p>
-            <div class="demo-btn-group" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;">
-                <button type="button" class="btn-demo" onclick="fillDemoCredentials('admin')">⚙️ Admin</button>
-                <button type="button" class="btn-demo" onclick="fillDemoCredentials('patient')">👤 Patient</button>
-                <button type="button" class="btn-demo" onclick="fillDemoCredentials('doctor')">🩺 Doctor</button>
-                <button type="button" class="btn-demo" onclick="fillDemoCredentials('receptionist')">📋 Receptionist</button>
-                <button type="button" class="btn-demo" onclick="fillDemoCredentials('pharmacy')">💊 Pharmacy</button>
-                <button type="button" class="btn-demo" onclick="fillDemoCredentials('laboratory')">🧪 Laboratory</button>
-                <button type="button" class="btn-demo" onclick="fillDemoCredentials('billing')">💳 Billing & Finance</button>
-                <button type="button" class="btn-demo" onclick="fillDemoCredentials('nurse')">🩹 Staff & Nursing</button>
-            </div>
-            <p style="font-size:11px;color:#64748b;margin:10px 0 0;">
-                Demo accounts are for local development only. Change demo passwords before deployment.
-            </p>
-        </section>
-
-        <form th:action="@{/login}" method="post">
-            <div class="form-group">
-                <label for="username" class="form-label required">Email Address / Username</label>
-                <input type="text" id="username" name="username" class="form-control"
-                       placeholder="e.g. receptionist@hospital.com, patient@hospital.com, dr.vance@hospital.com" required autofocus>
-            </div>
-
-            <div class="form-group">
-                <label for="password" class="form-label required">Password</label>
-                <input type="password" id="password" name="password" class="form-control"
-                       placeholder="Enter your account password" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 10px;">
-                Sign In to Portal
+        <div class="portal-picker" id="portalPicker">
+          <label class="field-label" for="portalToggle">Select your login dashboard</label>
+          <button type="button" class="portal-toggle" id="portalToggle" aria-expanded="false" aria-controls="portalMenu">
+            <span class="portal-toggle-icon" id="selectedPortalIcon">▦</span>
+            <span class="portal-toggle-text"><strong id="selectedPortalName">Choose a dashboard</strong><small id="selectedPortalHint">Select your department or role</small></span>
+            <span class="portal-chevron">⌄</span>
+          </button>
+          <div class="portal-menu" id="portalMenu" hidden>
+            <button type="button" class="portal-option" data-role="admin" data-name="Administration" data-icon="🏥" data-hint="Hospital-wide administration">
+              <span class="option-icon">🏥</span><span><strong>Administration</strong><small>System administration and governance</small></span><span class="option-arrow">→</span>
             </button>
+            <button type="button" class="portal-option" data-role="receptionist" data-name="Reception" data-icon="🗂️" data-hint="Patient registration and appointments">
+              <span class="option-icon">🗂️</span><span><strong>Reception</strong><small>Patient registration and appointments</small></span><span class="option-arrow">→</span>
+            </button>
+            <button type="button" class="portal-option" data-role="doctor" data-name="Doctor" data-icon="🩺" data-hint="Clinical and patient care workspace">
+              <span class="option-icon">🩺</span><span><strong>Doctor</strong><small>Clinical and patient care workspace</small></span><span class="option-arrow">→</span>
+            </button>
+            <button type="button" class="portal-option" data-role="patient" data-name="Patient" data-icon="👤" data-hint="Your personal patient portal">
+              <span class="option-icon">👤</span><span><strong>Patient</strong><small>Your personal patient portal</small></span><span class="option-arrow">→</span>
+            </button>
+            <button type="button" class="portal-option" data-role="pharmacy" data-name="Pharmacy" data-icon="💊" data-hint="Prescriptions and medicine inventory">
+              <span class="option-icon">💊</span><span><strong>Pharmacy</strong><small>Prescriptions and medicine inventory</small></span><span class="option-arrow">→</span>
+            </button>
+            <button type="button" class="portal-option" data-role="laboratory" data-name="Laboratory" data-icon="🧪" data-hint="Samples, tests and lab results">
+              <span class="option-icon">🧪</span><span><strong>Laboratory</strong><small>Samples, tests and lab results</small></span><span class="option-arrow">→</span>
+            </button>
+            <button type="button" class="portal-option" data-role="billing" data-name="Billing & Finance" data-icon="💳" data-hint="Payments, invoices and finance">
+              <span class="option-icon">💳</span><span><strong>Billing &amp; Finance</strong><small>Payments, invoices and finance</small></span><span class="option-arrow">→</span>
+            </button>
+            <button type="button" class="portal-option" data-role="nurse" data-name="Staff & Nursing" data-icon="🩹" data-hint="Staff, nursing and ward operations">
+              <span class="option-icon">🩹</span><span><strong>Staff &amp; Nursing</strong><small>Staff, nursing and ward operations</small></span><span class="option-arrow">→</span>
+            </button>
+          </div>
+        </div>
+
+        <form th:action="@{/login}" method="post" id="loginForm" class="login-form is-locked">
+          <div class="form-unlock-note" id="formUnlockNote"><span>↳</span> Select a dashboard above to show its sign-in form.</div>
+          <div class="form-fields" id="formFields" aria-hidden="true">
+            <div class="form-group">
+              <label for="username" class="field-label">Email address / Username</label>
+              <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username" autocomplete="username" required disabled>
+            </div>
+            <div class="form-group">
+              <label for="password" class="field-label">Password</label>
+              <div class="password-wrap"><input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" autocomplete="current-password" required disabled><button type="button" id="togglePassword" class="password-toggle" aria-label="Show password">◎</button></div>
+            </div>
+            <div class="form-meta"><label class="remember-label"><input type="checkbox" name="remember-me" disabled> <span>Remember me</span></label><span class="demo-note">Demo password: Password@123</span></div>
+            <button type="submit" class="login-submit" id="loginSubmit" disabled><span>Sign in to dashboard</span><b>→</b></button>
+          </div>
         </form>
 
-        <div style="margin-top: 24px; text-align: center; font-size: 0.85rem; color: #64748b;">
-            New patient without an account?
-            <a th:href="@{/register}" style="color: #0d9488; font-weight: 600; text-decoration: none;">
-                Create Patient Portal Account
-            </a>
-        </div>
-    </div>
-</div>
-
-<script th:src="@{/js/script.js}"></script>
+        <div class="login-footnote">New patient? <a th:href="@{/register}">Create a patient portal account</a></div>
+      </div>
+      <footer class="login-footer"><span>© <span id="loginYear">2026</span> CareFlow HMS</span><span>Healthcare, connected.</span></footer>
+    </section>
+  </main>
+  <script th:src="@{/js/script.js}"></script>
+  <script th:src="@{/js/careflow-login.js}"></script>
 </body>
 </html>
