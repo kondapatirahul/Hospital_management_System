@@ -1,17 +1,116 @@
 /* CareFlow Phase 3: accessible feedback for clinical workflow controls. */
-.cfw-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
-.cfw-field-message{display:block;margin-top:5px;color:#b42318;font-size:.8rem;line-height:1.35;font-weight:600}
-.cfw-invalid,[aria-invalid="true"]{border-color:#b42318!important;box-shadow:0 0 0 3px rgba(180,35,24,.12)!important;outline-offset:2px}
-.cfw-character-count{display:block;margin-top:4px;text-align:right;color:#667085;font-size:.75rem}
-.cfw-count-near-limit{color:#b54708;font-weight:700}
-.cfw-status-success{background:#e7f6ec!important;color:#17663a!important;border-color:#a6d8b5!important}
-.cfw-status-warning{background:#fff4d6!important;color:#8a4b08!important;border-color:#f1d18a!important}
-.cfw-status-danger{background:#ffebe9!important;color:#a4261d!important;border-color:#f4b8b4!important}
-.cfw-status-neutral{background:#eef2f6!important;color:#344054!important;border-color:#d0d5dd!important}
-button[aria-busy="true"]{opacity:.75;cursor:progress!important}
-button:disabled,input[type="submit"]:disabled{opacity:.65;cursor:wait!important}
-.cfw-empty-cell{padding:24px!important;text-align:center!important;color:#667085!important;background:#f9fafb!important;font-size:.9rem}
-.cfw-clinical-tools-ready :is(input,select,textarea,button,a):focus-visible{outline:3px solid #0e7490;outline-offset:2px}
-.cfw-clinical-tools-ready .cfw-field-message{scroll-margin-block:1rem}
-@media(prefers-reduced-motion:reduce){.cfw-clinical-tools-ready *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
-@media print{.cfw-field-message,.cfw-character-count,button[type="submit"],.cfw-no-print{display:none!important}.cfw-empty-cell{background:#fff!important;color:#111!important}}
+.cfw-sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important
+}
+
+.cfw-field-message {
+    display: block;
+    margin-top: 5px;
+    color: #b42318;
+    font-size: .8rem;
+    line-height: 1.35;
+    font-weight: 600
+}
+
+.cfw-invalid,
+[aria-invalid="true"] {
+    border-color: #b42318 !important;
+    box-shadow: 0 0 0 3px rgba(180, 35, 24, .12) !important;
+    outline-offset: 2px
+}
+
+.cfw-character-count {
+    display: block;
+    margin-top: 4px;
+    text-align: right;
+    color: #667085;
+    font-size: .75rem
+}
+
+.cfw-count-near-limit {
+    color: #b54708;
+    font-weight: 700
+}
+
+.cfw-status-success {
+    background: #e7f6ec !important;
+    color: #17663a !important;
+    border-color: #a6d8b5 !important
+}
+
+.cfw-status-warning {
+    background: #fff4d6 !important;
+    color: #8a4b08 !important;
+    border-color: #f1d18a !important
+}
+
+.cfw-status-danger {
+    background: #ffebe9 !important;
+    color: #a4261d !important;
+    border-color: #f4b8b4 !important
+}
+
+.cfw-status-neutral {
+    background: #eef2f6 !important;
+    color: #344054 !important;
+    border-color: #d0d5dd !important
+}
+
+button[aria-busy="true"] {
+    opacity: .75;
+    cursor: progress !important
+}
+
+button:disabled,
+input[type="submit"]:disabled {
+    opacity: .65;
+    cursor: wait !important
+}
+
+.cfw-empty-cell {
+    padding: 24px !important;
+    text-align: center !important;
+    color: #667085 !important;
+    background: #f9fafb !important;
+    font-size: .9rem
+}
+
+.cfw-clinical-tools-ready :is(input, select, textarea, button, a):focus-visible {
+    outline: 3px solid #0e7490;
+    outline-offset: 2px
+}
+
+.cfw-clinical-tools-ready .cfw-field-message {
+    scroll-margin-block: 1rem
+}
+
+@media(prefers-reduced-motion:reduce) {
+    .cfw-clinical-tools-ready * {
+        scroll-behavior: auto !important;
+        transition: none !important;
+        animation: none !important
+    }
+}
+
+@media print {
+
+    .cfw-field-message,
+    .cfw-character-count,
+    button[type="submit"],
+    .cfw-no-print {
+        display: none !important
+    }
+
+    .cfw-empty-cell {
+        background: #fff !important;
+        color: #111 !important
+    }
+}
