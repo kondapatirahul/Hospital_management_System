@@ -372,12 +372,12 @@
 
   function setupDateGuardrails() {
     const today = new Date();
-    const localDate = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
+    const localDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
     $$('input[type="date"][data-no-past]').forEach((field) => {
       if (!field.min) field.min = localDate;
     });
     $$('input[type="datetime-local"][data-no-past]').forEach((field) => {
-      const localDateTime = `${localDate}T${String(today.getHours()).padStart(2,"0")}:${String(today.getMinutes()).padStart(2,"0")}`;
+      const localDateTime = `${localDate}T${String(today.getHours()).padStart(2, "0")}:${String(today.getMinutes()).padStart(2, "0")}`;
       if (!field.min) field.min = localDateTime;
     });
   }
