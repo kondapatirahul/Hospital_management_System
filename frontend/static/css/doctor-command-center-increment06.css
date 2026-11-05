@@ -1,260 +1,36 @@
 /* Doctor Command Center — Increment 06 */
-.cf-doctor-command-center {
-    margin: 0 0 26px;
-    padding: 24px;
-    border: 1px solid #dce7ee;
-    border-radius: 20px;
-    background: linear-gradient(145deg, #fff 0%, #f6fbfc 100%);
-    box-shadow: 0 12px 34px rgba(15, 44, 89, .07)
-}
-
-.cf-doctor-command-heading {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 18px;
-    flex-wrap: wrap
-}
-
-.cf-doctor-eyebrow {
-    font-size: .7rem;
-    font-weight: 800;
-    letter-spacing: .13em;
-    color: #0d9488
-}
-
-.cf-doctor-command-heading h2 {
-    margin: 5px 0;
-    color: #102b46;
-    font-size: 1.45rem
-}
-
-.cf-doctor-command-heading p {
-    margin: 0;
-    color: #64748b;
-    max-width: 720px;
-    font-size: .9rem
-}
-
-.cf-command-refresh {
-    border: 0;
-    border-radius: 10px;
-    padding: 11px 16px;
-    background: #0f766e;
-    color: #fff;
-    font-weight: 700;
-    cursor: pointer;
-    transition: transform .18s, background .18s
-}
-
-.cf-command-refresh:hover {
-    background: #115e59;
-    transform: translateY(-1px)
-}
-
-.cf-command-refresh:disabled {
-    opacity: .55;
-    cursor: wait
-}
-
-.cf-command-kpis {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px;
-    margin: 20px 0
-}
-
-.cf-command-kpis article {
-    padding: 15px 16px;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    background: #fff
-}
-
-.cf-command-kpis span {
-    display: block;
-    color: #64748b;
-    font-size: .78rem;
-    font-weight: 600
-}
-
-.cf-command-kpis strong {
-    display: block;
-    margin-top: 5px;
-    color: #0f2c59;
-    font-size: 1.55rem
-}
-
-.cf-command-status {
-    margin: 12px 0;
-    padding: 11px 14px;
-    border-radius: 10px;
-    background: #eff6ff;
-    color: #1e40af;
-    font-size: .84rem
-}
-
-.cf-command-domain-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 10px
-}
-
-.cf-command-domain {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-    padding: 14px;
-    border: 1px solid #e2e8f0;
-    border-radius: 13px;
-    background: #fff;
-    min-height: 94px
-}
-
-.cf-command-domain strong {
-    font-size: .86rem;
-    color: #183653
-}
-
-.cf-command-domain span {
-    font-size: .76rem;
-    line-height: 1.45;
-    color: #64748b
-}
-
-.cf-command-domain em {
-    font-style: normal;
-    font-size: .7rem;
-    font-weight: 800;
-    color: #0f766e
-}
-
-.cf-command-subheading {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 22px 0 10px
-}
-
-.cf-command-subheading h3 {
-    font-size: 1rem;
-    color: #102b46;
-    margin: 0
-}
-
-.cf-command-subheading span {
-    font-size: .75rem;
-    color: #64748b
-}
-
-.cf-command-insight-list {
-    display: grid;
-    gap: 8px
-}
-
-.cf-command-insight {
-    display: grid;
-    grid-template-columns: 7px minmax(0, 1fr) auto;
-    gap: 12px;
-    align-items: start;
-    padding: 13px;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    background: #fff
-}
-
-.cf-command-insight-bar {
-    height: 100%;
-    min-height: 42px;
-    border-radius: 8px;
-    background: #94a3b8
-}
-
-.cf-command-insight[data-severity="CRITICAL"] .cf-command-insight-bar {
-    background: #dc2626
-}
-
-.cf-command-insight[data-severity="HIGH"] .cf-command-insight-bar {
-    background: #ea580c
-}
-
-.cf-command-insight[data-severity="MEDIUM"] .cf-command-insight-bar {
-    background: #d97706
-}
-
-.cf-command-insight strong {
-    display: block;
-    color: #183653;
-    font-size: .86rem
-}
-
-.cf-command-insight p {
-    margin: 4px 0;
-    color: #64748b;
-    font-size: .78rem;
-    line-height: 1.5
-}
-
-.cf-command-insight small {
-    color: #0f766e;
-    font-size: .75rem
-}
-
-.cf-command-severity {
-    font-size: .65rem;
-    font-weight: 800;
-    letter-spacing: .06em;
-    color: #475569
-}
-
-.cf-command-empty {
-    padding: 15px;
-    text-align: center;
-    color: #64748b;
-    background: #f8fafc;
-    border-radius: 10px;
-    font-size: .82rem
-}
-
-.cf-command-disclaimer {
-    margin: 14px 0 0;
-    color: #94a3b8;
-    font-size: .72rem;
-    line-height: 1.5
-}
-
-@media(max-width:900px) {
-    .cf-command-domain-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr))
-    }
-
-    .cf-command-kpis {
-        grid-template-columns: repeat(2, minmax(0, 1fr))
-    }
-}
-
-@media(max-width:520px) {
-    .cf-doctor-command-center {
-        padding: 16px
-    }
-
-    .cf-command-domain-grid {
-        grid-template-columns: 1fr
-    }
-
-    .cf-command-kpis {
-        gap: 8px
-    }
-
-    .cf-command-kpis article {
-        padding: 12px
-    }
-
-    .cf-command-insight {
-        grid-template-columns: 5px minmax(0, 1fr)
-    }
-
-    .cf-command-severity {
-        grid-column: 2
-    }
-}
+.cf-doctor-command-center{margin:0 0 26px;padding:24px;border:1px solid #dce7ee;border-radius:20px;background:linear-gradient(145deg,#fff 0%,#f6fbfc 100%);box-shadow:0 12px 34px rgba(15,44,89,.07)}
+.cf-doctor-command-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.cf-doctor-eyebrow{font-size:.7rem;font-weight:800;letter-spacing:.13em;color:#0d9488}
+.cf-doctor-command-heading h2{margin:5px 0;color:#102b46;font-size:1.45rem}
+.cf-doctor-command-heading p{margin:0;color:#64748b;max-width:720px;font-size:.9rem}
+.cf-command-refresh{border:0;border-radius:10px;padding:11px 16px;background:#0f766e;color:#fff;font-weight:700;cursor:pointer;transition:transform .18s,background .18s}
+.cf-command-refresh:hover{background:#115e59;transform:translateY(-1px)}
+.cf-command-refresh:disabled{opacity:.55;cursor:wait}
+.cf-command-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:20px 0}
+.cf-command-kpis article{padding:15px 16px;border:1px solid #e2e8f0;border-radius:14px;background:#fff}
+.cf-command-kpis span{display:block;color:#64748b;font-size:.78rem;font-weight:600}
+.cf-command-kpis strong{display:block;margin-top:5px;color:#0f2c59;font-size:1.55rem}
+.cf-command-status{margin:12px 0;padding:11px 14px;border-radius:10px;background:#eff6ff;color:#1e40af;font-size:.84rem}
+.cf-command-domain-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.cf-command-domain{display:flex;flex-direction:column;gap:7px;padding:14px;border:1px solid #e2e8f0;border-radius:13px;background:#fff;min-height:94px}
+.cf-command-domain strong{font-size:.86rem;color:#183653}
+.cf-command-domain span{font-size:.76rem;line-height:1.45;color:#64748b}
+.cf-command-domain em{font-style:normal;font-size:.7rem;font-weight:800;color:#0f766e}
+.cf-command-subheading{display:flex;justify-content:space-between;align-items:center;margin:22px 0 10px}
+.cf-command-subheading h3{font-size:1rem;color:#102b46;margin:0}
+.cf-command-subheading span{font-size:.75rem;color:#64748b}
+.cf-command-insight-list{display:grid;gap:8px}
+.cf-command-insight{display:grid;grid-template-columns:7px minmax(0,1fr) auto;gap:12px;align-items:start;padding:13px;border:1px solid #e2e8f0;border-radius:12px;background:#fff}
+.cf-command-insight-bar{height:100%;min-height:42px;border-radius:8px;background:#94a3b8}
+.cf-command-insight[data-severity="CRITICAL"] .cf-command-insight-bar{background:#dc2626}
+.cf-command-insight[data-severity="HIGH"] .cf-command-insight-bar{background:#ea580c}
+.cf-command-insight[data-severity="MEDIUM"] .cf-command-insight-bar{background:#d97706}
+.cf-command-insight strong{display:block;color:#183653;font-size:.86rem}
+.cf-command-insight p{margin:4px 0;color:#64748b;font-size:.78rem;line-height:1.5}
+.cf-command-insight small{color:#0f766e;font-size:.75rem}
+.cf-command-severity{font-size:.65rem;font-weight:800;letter-spacing:.06em;color:#475569}
+.cf-command-empty{padding:15px;text-align:center;color:#64748b;background:#f8fafc;border-radius:10px;font-size:.82rem}
+.cf-command-disclaimer{margin:14px 0 0;color:#94a3b8;font-size:.72rem;line-height:1.5}
+@media(max-width:900px){.cf-command-domain-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.cf-command-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.cf-doctor-command-center{padding:16px}.cf-command-domain-grid{grid-template-columns:1fr}.cf-command-kpis{gap:8px}.cf-command-kpis article{padding:12px}.cf-command-insight{grid-template-columns:5px minmax(0,1fr)}.cf-command-severity{grid-column:2}}
