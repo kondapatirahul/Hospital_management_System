@@ -14,6 +14,9 @@
   const selectedHint = document.getElementById('selectedPortalHint');
   const selectedIcon = document.getElementById('selectedPortalIcon');
   const remember = form.querySelector('input[name="remember-me"]');
+  const registrationPromptText = document.getElementById('registrationPromptText');
+  const patientRegisterLink = document.getElementById('patientRegisterLink');
+  const staffRegistrationNote = document.getElementById('staffRegistrationNote');
 
   function closeMenu() {
     menu.hidden = true;
@@ -33,6 +36,21 @@
       selectedHint.textContent = option.dataset.hint;
       selectedIcon.textContent = option.dataset.icon;
       closeMenu();
+
+      // Public self-registration is intentionally limited to patients.
+      // Staff and privileged accounts must be provisioned by an administrator.
+      const isPatient = role === 'patient';
+      patientRegisterLink.hidden = !isPatient;
+      staffRegistrationNote.hidden = isPatient;
+      registrationPromptText.hidden = false;
+      registrationPromptText.textContent = isPatient
+        ? 'New patient? '
+        : 'Need staff access? ';
+      if (isPatient) {
+        registrationPromptText.textContent = 'New patient? ';
+      } else {
+        registrationPromptText.textContent = 'Need staff access? ';
+      }
 
       // Reuse the existing demo-account helper so the selected portal
       // fills the matching local demo account without changing auth rules.

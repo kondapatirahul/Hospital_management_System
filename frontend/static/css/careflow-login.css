@@ -2,7 +2,7 @@
 body.careflow-login-page{margin:0;min-height:100vh;background:#f3f7fc;color:#173451;font-family:"DM Sans",Arial,sans-serif}
 .careflow-login-page a{text-decoration:none}
 .login-shell{min-height:100vh;display:grid;grid-template-columns:minmax(390px,.92fr) minmax(520px,1.08fr);background:#f7faff}
-.login-story{position:relative;min-height:100vh;overflow:hidden;padding:42px clamp(34px,5vw,78px);display:flex;flex-direction:column;justify-content:space-between;color:#fff;background:linear-gradient(150deg,rgba(8,31,58,.93),rgba(9,71,99,.88)),url("/images/careflow-login-visual.jpg") center/cover no-repeat}
+.login-story{position:relative;min-height:100vh;overflow:hidden;padding:42px clamp(34px,5vw,78px);display:flex;flex-direction:column;justify-content:space-between;color:#fff;background:linear-gradient(145deg,#102c49 0%,#123b58 58%,#0c5260 100%)}
 .login-story:before{content:"";position:absolute;width:520px;height:520px;border:1px solid #8ce9e52a;border-radius:50%;right:-230px;top:12%;box-shadow:0 0 0 45px #8ce9e50b,0 0 0 95px #8ce9e508}
 .login-story:after{content:"";position:absolute;left:-150px;bottom:-270px;width:570px;height:570px;border:1px solid #67e6df3b;border-radius:50%;box-shadow:0 0 0 35px #67e6df0b,0 0 0 75px #67e6df08}
 .story-brand{position:relative;z-index:1;display:flex;align-items:center;gap:13px;color:#fff}
@@ -80,3 +80,15 @@ body.careflow-login-page{margin:0;min-height:100vh;background:#f3f7fc;color:#173
 @media(max-width:980px){.login-shell{grid-template-columns:minmax(320px,.8fr) minmax(480px,1.2fr)}.login-story{padding:32px}.story-content h1{font-size:42px}.story-points{grid-template-columns:1fr}.story-points span{font-size:10px}}
 @media(max-width:760px){.login-shell{grid-template-columns:1fr}.login-story{min-height:390px;padding:27px 26px 22px}.story-content{margin:45px 0 35px}.story-content h1{font-size:39px}.story-quote{font-size:16px}.story-description{font-size:12px}.story-points{display:flex;flex-wrap:wrap;gap:13px}.story-points span{font-size:10px}.story-bottom{font-size:9px}.login-side{min-height:650px;padding:22px 20px}.login-content{margin:45px auto}.login-heading h2{font-size:26px}}
 @media(max-width:420px){.story-content h1{font-size:34px}.story-points{display:grid;grid-template-columns:1fr 1fr}.login-side{padding-left:15px;padding-right:15px}.login-form{padding:14px}.demo-note{font-size:9px}}
+
+/* Redesign 14: calm solid-colour story panel with a contained corner illustration */
+.login-story{background:#102d49;isolation:isolate}
+.login-story:before{border-color:#8ce9e51c;right:-260px;top:8%;box-shadow:0 0 0 48px #8ce9e508,0 0 0 100px #8ce9e505}
+.login-story:after{border-color:#67e6df20;left:-210px;bottom:-300px;box-shadow:0 0 0 38px #67e6df07,0 0 0 82px #67e6df05}
+.story-illustration{position:absolute;z-index:0;width:min(76%,560px);height:auto;right:-12px;bottom:55px;object-fit:contain;opacity:.96;pointer-events:none;filter:drop-shadow(0 20px 25px #06182a35)}
+.story-content{z-index:2;max-width:590px}
+.story-bottom{z-index:2}
+.login-footnote{line-height:1.7}
+.login-footnote [hidden]{display:none!important}
+@media(max-width:980px){.story-illustration{width:74%;right:-30px;bottom:65px;opacity:.72}}
+@media(max-width:760px){.story-illustration{width:54%;right:-8px;bottom:12px;opacity:.58}.story-content{max-width:100%}.story-content h1{max-width:520px}}
