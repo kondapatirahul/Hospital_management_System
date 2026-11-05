@@ -390,7 +390,7 @@
 <!-- TOP NAVBAR FRAGMENT -->
 <header th:fragment="navbar(pageTitle, pageSubtitle)" class="top-navbar">
     <div class="navbar-left">
-        <button id="mobileNavToggle" class="btn btn-outline btn-sm" style="display:none;">☰</button>
+        <button id="mobileNavToggle" class="btn btn-outline btn-sm" style="display:none;" aria-label="Toggle navigation menu" aria-expanded="false">☰</button>
         <div class="page-title">
             <h1 th:text="${pageTitle}">Dashboard</h1>
             <p th:text="${pageSubtitle}">Welcome back to CareFlow Healthcare Management System</p>
@@ -420,7 +420,7 @@
 
         <!-- Logout Form (POST method for Spring Security CSRF compliance) -->
         <form th:action="@{/logout}" method="post" style="display:inline;">
-            <button type="submit" class="btn-logout" title="Sign Out">
+            <button type="submit" class="btn-logout" title="Sign Out" aria-label="Sign out of CareFlow HMS">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                     <polyline points="16 17 21 12 16 7"></polyline>
