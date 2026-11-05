@@ -31,7 +31,7 @@ public class HomeController {
                 }
             }
         }
-        return "redirect:/login";
+        return "home";
     }
 
     @GetMapping("/access-denied")
