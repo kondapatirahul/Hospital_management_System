@@ -1,196 +1,48 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
-<head th:replace="~{fragments/layout :: htmlHead('Staff & Nursing Dashboard - CareFlow')}"></head>
-
-<body>
-  <div class="app-container">
-    <aside th:replace="~{fragments/layout :: sidebar('staff/dashboard')}"></aside>
-    <div class="app-main">
-      <header
-        th:replace="~{fragments/layout :: navbar('Staff & Nursing', 'Coordinate care tasks, shifts, attendance and ward readiness.')}">
-      </header>
-      <section th:replace="~{fragments/operations-panel :: operationsPanel('staff')}"></section>
+<head th:replace="~{fragments/layout :: htmlHead('Staff & Nursing Dashboard - CareFlow')}">    <link rel="stylesheet" th:href="@{/css/careflow-responsive.css}">
+</head>
+<body><div class="app-container"><aside th:replace="~{fragments/layout :: sidebar('staff/dashboard')}"></aside><div class="app-main"><header th:replace="~{fragments/layout :: navbar('Staff & Nursing', 'Coordinate care tasks, shifts, attendance and ward readiness.')}"></header>
+<section th:replace="~{fragments/operations-panel :: operationsPanel('staff')}"></section>
 
 
-      <main class="page-content cf-dashboard-page staff-command-center">
-        <section class="staff-command-hero">
-          <div><span class="staff-command-kicker">CAREFLOW / NURSING OPERATIONS</span>
-            <h1>Care team command center</h1>
-            <p>Coordinate shift readiness, patient safety, handovers and ward operations.</p>
-          </div><button type="button" id="staffCommandRefresh">Refresh control coverage</button>
-        </section>
-        <section class="staff-command-stats" aria-label="Staff control coverage">
-          <article><span>Control domains</span><strong id="staffDomainCount">16</strong></article>
-          <article><span>Configured controls</span><strong id="staffControlCount">2,080</strong></article>
-          <article><span>Live queue</span><strong th:text="${waitingCount}">0</strong></article>
-          <article><span>Patients registered</span><strong th:text="${patientCount}">0</strong></article>
-        </section>
-        <section class="staff-command-panel">
-          <div class="staff-command-heading">
-            <div><span class="staff-command-kicker">OPERATIONAL GOVERNANCE</span>
-              <h2>Care delivery control library</h2>
-              <p>Choose a domain to inspect the controls and evidence requirements.</p>
-            </div><input id="staffControlSearch" type="search" placeholder="Search care controls…"
-              aria-label="Search care controls">
-          </div>
-          <div id="staffControlDomains" class="staff-control-domains">
-            <p>Loading control domains…</p>
-          </div>
-          <p id="staffControlNotice" class="staff-control-notice" aria-live="polite">Control definitions are available;
-            workflow-specific evidence adapters are being connected.</p>
-        </section>
+<main class="page-content cf-dashboard-page staff-command-center">
+<section class="staff-command-hero"><div><span class="staff-command-kicker">CAREFLOW / NURSING OPERATIONS</span><h1>Care team command center</h1><p>Coordinate shift readiness, patient safety, handovers and ward operations.</p></div><button type="button" id="staffCommandRefresh">Refresh control coverage</button></section>
+<section class="staff-command-stats" aria-label="Staff control coverage"><article><span>Control domains</span><strong id="staffDomainCount">16</strong></article><article><span>Configured controls</span><strong id="staffControlCount">2,080</strong></article><article><span>Live queue</span><strong th:text="${waitingCount}">0</strong></article><article><span>Patients registered</span><strong th:text="${patientCount}">0</strong></article></section>
+<section class="staff-command-panel"><div class="staff-command-heading"><div><span class="staff-command-kicker">OPERATIONAL GOVERNANCE</span><h2>Care delivery control library</h2><p>Choose a domain to inspect the controls and evidence requirements.</p></div><input id="staffControlSearch" type="search" placeholder="Search care controls…" aria-label="Search care controls"></div><div id="staffControlDomains" class="staff-control-domains"><p>Loading control domains…</p></div><p id="staffControlNotice" class="staff-control-notice" aria-live="polite">Control definitions are available; workflow-specific evidence adapters are being connected.</p></section>
 
-        <section class="cf-quick-panel" aria-label="Care team workspace">
-          <div class="cf-section-heading">
-            <div><span class="cf-eyebrow">WORKSPACE SHORTCUTS</span>
-              <h2>Care team workspace</h2>
-              <p>Open a workflow directly. Actions still use the existing server routes and permissions.</p>
-            </div>
-            <span class="cf-section-mark" aria-hidden="true">✦</span>
-          </div>
-          <div class="cf-dashboard-filter-row"><input class="cf-dashboard-filter" type="search" data-cf-shortcut-filter
-              placeholder="Filter shortcuts…" aria-label="Filter dashboard shortcuts"><span class="cf-shortcut-count"
-              aria-live="polite"></span></div>
-          <div class="cf-quick-grid">
-            <a class="cf-quick-action" th:href="@{/staff/tasks}">
-              <span class="cf-quick-action-icon" aria-hidden="true">✓</span>
-              <span class="cf-quick-action-copy"><strong>Care tasks</strong><small>Track assigned patient-care
-                  tasks</small></span>
-              <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
-            </a><a class="cf-quick-action" th:href="@{/staff/wards}">
-              <span class="cf-quick-action-icon" aria-hidden="true">▤</span>
-              <span class="cf-quick-action-copy"><strong>Ward & beds</strong><small>Review ward and bed
-                  status</small></span>
-              <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
-            </a><a class="cf-quick-action" th:href="@{/staff/shifts}">
-              <span class="cf-quick-action-icon" aria-hidden="true">◷</span>
-              <span class="cf-quick-action-copy"><strong>Duty roster</strong><small>Review shifts and handover
-                  coverage</small></span>
-              <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
-            </a><a class="cf-quick-action" th:href="@{/staff/attendance}">
-              <span class="cf-quick-action-icon" aria-hidden="true">✓</span>
-              <span class="cf-quick-action-copy"><strong>Attendance</strong><small>Record or review
-                  attendance</small></span>
-              <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
-            </a>
-          </div>
-        </section>
-        <div class="dashboard-legacy">
-          <header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
-            <div>
-              <p>CAREFLOW / CARE TEAMS</p>
-              <h1>Staff & Nursing Dashboard</h1>
-              <p>Today's appointment list, queue operations and care-team overview.</p>
-            </div><a th:href="@{/logout}">Sign out</a><a th:href="@{/staff/tasks}" style="margin-left:16px">Care tasks
-              →</a><a th:href="@{/staff/wards}" style="margin-left:16px">Ward & beds →</a><a
-              th:href="@{/staff/attendance}" style="margin-left:16px">Attendance →</a><a th:href="@{/staff/shifts}"
-              style="margin-left:16px">Duty roster →</a>
-          </header>
-          <p th:if="${successMessage}" th:text="${successMessage}" role="status" class="alert alert-success"></p>
-          <p th:if="${errorMessage}" th:text="${errorMessage}" role="alert" class="alert alert-danger"></p>
-          <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin:24px 0">
-            <article class="card">
-              <h3>Registered patients</h3><strong th:text="${patientCount}">0</strong>
-            </article>
-            <article class="card">
-              <h3>Doctors</h3><strong th:text="${doctorCount}">0</strong>
-            </article>
-            <article class="card">
-              <h3>Today's appointments</h3><strong th:text="${#lists.size(todayAppointments)}">0</strong>
-            </article>
-            <article class="card">
-              <h3>Waiting</h3><strong th:text="${waitingCount}">0</strong>
-            </article>
-            <article class="card">
-              <h3>In consultation</h3><strong th:text="${consultationCount}">0</strong>
-            </article>
-            <article class="card">
-              <h3>Completed</h3><strong th:text="${completedCount}">0</strong>
-            </article>
-          </section>
-          <div class="dashboard-grid grid-even">
-            <section class="card">
-              <h2>Today's appointments</h2>
-              <div style="overflow-x:auto">
-                <table data-cf-table-tools style="width:100%;border-collapse:collapse">
-                  <thead>
-                    <tr>
-                      <th>Time</th>
-                      <th>Patient</th>
-                      <th>Doctor</th>
-                      <th>Reason</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr th:each="appointment : ${todayAppointments}">
-                      <td th:text="${appointment.appointmentTime}">Time</td>
-                      <td th:text="${appointment.patient.fullName}">Patient</td>
-                      <td th:text="${appointment.doctor.fullName}">Doctor</td>
-                      <td th:text="${appointment.reasonForVisit}">Reason</td>
-                      <td th:text="${appointment.status}">Status</td>
-                    </tr>
-                    <tr th:if="${#lists.isEmpty(todayAppointments)}">
-                      <td colspan="5">No appointments scheduled for today.</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </section>
-            <section class="card">
-              <h2>Today's waiting queue</h2>
-              <p>Move a waiting patient into consultation, then mark the queue entry completed or skipped.</p>
-              <div style="overflow-x:auto">
-                <table data-cf-table-tools style="width:100%;border-collapse:collapse">
-                  <thead>
-                    <tr>
-                      <th>Queue</th>
-                      <th>Patient</th>
-                      <th>Doctor</th>
-                      <th>Check-in</th>
-                      <th>Status</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr th:each="entry : ${queueEntries}">
-                      <td th:text="${entry.queueNumber}">Q-1</td>
-                      <td th:text="${entry.patient.fullName}">Patient</td>
-                      <td th:text="${entry.doctor.fullName}">Doctor</td>
-                      <td th:text="${entry.checkInTime}">Time</td>
-                      <td th:text="${entry.status}">WAITING</td>
-                      <td>
-                        <form th:if="${entry.status.name() == 'WAITING'}"
-                          th:action="@{/staff/queue/{id}/status(id=${entry.id})}" method="post"
-                          style="display:flex;gap:6px;flex-wrap:wrap"><input type="hidden" name="status"
-                            value="IN_CONSULTATION"><button type="submit">Call patient</button></form>
-                        <form th:if="${entry.status.name() == 'IN_CONSULTATION'}"
-                          th:action="@{/staff/queue/{id}/status(id=${entry.id})}" method="post"
-                          style="display:flex;gap:6px;flex-wrap:wrap"><input type="hidden" name="status"
-                            value="COMPLETED"><button type="submit">Complete</button></form>
-                        <form th:if="${entry.status.name() == 'WAITING'}"
-                          th:action="@{/staff/queue/{id}/status(id=${entry.id})}" method="post" style="margin-top:4px">
-                          <input type="hidden" name="status" value="SKIPPED"><button type="submit">Skip</button></form>
-                        <span
-                          th:if="${entry.status.name() == 'COMPLETED' || entry.status.name() == 'SKIPPED'}">Closed</span>
-                      </td>
-                    </tr>
-                    <tr th:if="${#lists.isEmpty(queueEntries)}">
-                      <td colspan="6">No queue entries for today.</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          </div>
-        </div>
-      </main>
-    </div>
+<section class="cf-quick-panel" aria-label="Care team workspace">
+  <div class="cf-section-heading">
+    <div><span class="cf-eyebrow">WORKSPACE SHORTCUTS</span><h2>Care team workspace</h2><p>Open a workflow directly. Actions still use the existing server routes and permissions.</p></div>
+    <span class="cf-section-mark" aria-hidden="true">✦</span>
   </div>
-  <script th:src="@{/js/script.js}"></script>
-  <script defer th:src="@{/js/dashboard-table-tools.js}"></script>
-  <script defer th:src="@{/js/staff-command-increment09.js}"></script>
-</body>
-
-</html>
+  <div class="cf-dashboard-filter-row"><input class="cf-dashboard-filter" type="search" data-cf-shortcut-filter placeholder="Filter shortcuts…" aria-label="Filter dashboard shortcuts"><span class="cf-shortcut-count" aria-live="polite"></span></div>
+  <div class="cf-quick-grid">
+    <a class="cf-quick-action" th:href="@{/staff/tasks}">
+  <span class="cf-quick-action-icon" aria-hidden="true">✓</span>
+  <span class="cf-quick-action-copy"><strong>Care tasks</strong><small>Track assigned patient-care tasks</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/staff/wards}">
+  <span class="cf-quick-action-icon" aria-hidden="true">▤</span>
+  <span class="cf-quick-action-copy"><strong>Ward & beds</strong><small>Review ward and bed status</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/staff/shifts}">
+  <span class="cf-quick-action-icon" aria-hidden="true">◷</span>
+  <span class="cf-quick-action-copy"><strong>Duty roster</strong><small>Review shifts and handover coverage</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a><a class="cf-quick-action" th:href="@{/staff/attendance}">
+  <span class="cf-quick-action-icon" aria-hidden="true">✓</span>
+  <span class="cf-quick-action-copy"><strong>Attendance</strong><small>Record or review attendance</small></span>
+  <span class="cf-quick-action-arrow" aria-hidden="true">↗</span>
+</a>
+  </div>
+</section>
+<div class="dashboard-legacy">
+<header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><div><p>CAREFLOW / CARE TEAMS</p><h1>Staff & Nursing Dashboard</h1><p>Today's appointment list, queue operations and care-team overview.</p></div><a th:href="@{/logout}">Sign out</a><a th:href="@{/staff/tasks}" style="margin-left:16px">Care tasks →</a><a th:href="@{/staff/wards}" style="margin-left:16px">Ward & beds →</a><a th:href="@{/staff/attendance}" style="margin-left:16px">Attendance →</a><a th:href="@{/staff/shifts}" style="margin-left:16px">Duty roster →</a></header>
+<p th:if="${successMessage}" th:text="${successMessage}" role="status" class="alert alert-success"></p><p th:if="${errorMessage}" th:text="${errorMessage}" role="alert" class="alert alert-danger"></p>
+<section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin:24px 0"><article class="card"><h3>Registered patients</h3><strong th:text="${patientCount}">0</strong></article><article class="card"><h3>Doctors</h3><strong th:text="${doctorCount}">0</strong></article><article class="card"><h3>Today's appointments</h3><strong th:text="${#lists.size(todayAppointments)}">0</strong></article><article class="card"><h3>Waiting</h3><strong th:text="${waitingCount}">0</strong></article><article class="card"><h3>In consultation</h3><strong th:text="${consultationCount}">0</strong></article><article class="card"><h3>Completed</h3><strong th:text="${completedCount}">0</strong></article></section>
+<div class="dashboard-grid grid-even">
+<section class="card"><h2>Today's appointments</h2><div style="overflow-x:auto"><table data-cf-table-tools style="width:100%;border-collapse:collapse"><thead><tr><th>Time</th><th>Patient</th><th>Doctor</th><th>Reason</th><th>Status</th></tr></thead><tbody><tr th:each="appointment : ${todayAppointments}"><td th:text="${appointment.appointmentTime}">Time</td><td th:text="${appointment.patient.fullName}">Patient</td><td th:text="${appointment.doctor.fullName}">Doctor</td><td th:text="${appointment.reasonForVisit}">Reason</td><td th:text="${appointment.status}">Status</td></tr><tr th:if="${#lists.isEmpty(todayAppointments)}"><td colspan="5">No appointments scheduled for today.</td></tr></tbody></table></div></section>
+<section class="card"><h2>Today's waiting queue</h2><p>Move a waiting patient into consultation, then mark the queue entry completed or skipped.</p><div style="overflow-x:auto"><table data-cf-table-tools style="width:100%;border-collapse:collapse"><thead><tr><th>Queue</th><th>Patient</th><th>Doctor</th><th>Check-in</th><th>Status</th><th>Action</th></tr></thead><tbody><tr th:each="entry : ${queueEntries}"><td th:text="${entry.queueNumber}">Q-1</td><td th:text="${entry.patient.fullName}">Patient</td><td th:text="${entry.doctor.fullName}">Doctor</td><td th:text="${entry.checkInTime}">Time</td><td th:text="${entry.status}">WAITING</td><td><form th:if="${entry.status.name() == 'WAITING'}" th:action="@{/staff/queue/{id}/status(id=${entry.id})}" method="post" style="display:flex;gap:6px;flex-wrap:wrap"><input type="hidden" name="status" value="IN_CONSULTATION"><button type="submit">Call patient</button></form><form th:if="${entry.status.name() == 'IN_CONSULTATION'}" th:action="@{/staff/queue/{id}/status(id=${entry.id})}" method="post" style="display:flex;gap:6px;flex-wrap:wrap"><input type="hidden" name="status" value="COMPLETED"><button type="submit">Complete</button></form><form th:if="${entry.status.name() == 'WAITING'}" th:action="@{/staff/queue/{id}/status(id=${entry.id})}" method="post" style="margin-top:4px"><input type="hidden" name="status" value="SKIPPED"><button type="submit">Skip</button></form><span th:if="${entry.status.name() == 'COMPLETED' || entry.status.name() == 'SKIPPED'}">Closed</span></td></tr><tr th:if="${#lists.isEmpty(queueEntries)}"><td colspan="6">No queue entries for today.</td></tr></tbody></table></div></section>
+</div>
+</div></main></div></div><script th:src="@{/js/script.js}"></script><script defer th:src="@{/js/dashboard-table-tools.js}"></script><script defer th:src="@{/js/staff-command-increment09.js}"></script></body></html>

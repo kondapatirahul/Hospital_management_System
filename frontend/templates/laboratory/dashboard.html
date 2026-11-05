@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: htmlHead('Laboratory Operations Dashboard')}"></head>
+<head th:replace="~{fragments/layout :: htmlHead('Laboratory Operations Dashboard')}">    <link rel="stylesheet" th:href="@{/css/careflow-responsive.css}">
+</head>
 <body><div class="app-container"><aside th:replace="~{fragments/layout :: sidebar('laboratory/dashboard')}"></aside><div class="app-main"><header th:replace="~{fragments/layout :: navbar('Laboratory Operations', 'Manage lab orders, sample tracking, verified results and reporting.')}"></header>
 <section th:replace="~{fragments/operations-panel :: operationsPanel('laboratory')}"></section>
 
