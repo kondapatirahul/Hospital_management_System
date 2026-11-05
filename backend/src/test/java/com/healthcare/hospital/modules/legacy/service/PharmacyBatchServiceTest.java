@@ -1,4 +1,4 @@
-package com.healthcare.hospital.modules.legacy.service;
+ package com.healthcare.hospital.modules.legacy.service;
 
 import com.healthcare.hospital.shared.dto.MedicineBatchDto;
 import com.healthcare.hospital.shared.dto.StockAdjustmentDto;
