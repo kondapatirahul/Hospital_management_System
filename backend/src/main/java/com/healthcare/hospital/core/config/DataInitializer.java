@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
-@Component
+ @Component
 public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -667,3 +667,4 @@ public class DataInitializer implements CommandLineRunner {
         medicineRepository.save(medicine);
     }
 }
+
