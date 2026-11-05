@@ -1,86 +1,257 @@
-# CareFlow — Hospital Management System
+# CareFlow – Hospital Management System
 
-CareFlow is a Java 17 / Spring Boot 3.3 application with Thymeleaf pages, Spring Security, Spring Data JPA, and MySQL.
+A comprehensive, web-based Hospital Management System designed to simplify hospital operations, improve patient management, and streamline administrative workflows through a centralized platform.
 
-## Requirements
+CareFlow brings multiple hospital departments together in one application, providing a structured and user-friendly experience for administrators, doctors, receptionists, patients, pharmacy staff, laboratory staff, billing teams, and nursing staff.
 
-- JDK 17 or later (the project compiles against Java 17)
+---
+
+## Project Overview
+
+CareFlow is built to digitize everyday hospital activities and reduce manual administrative work. It provides dedicated dashboards and management interfaces for different hospital departments.
+
+The application follows a centralized architecture with a Spring Boot backend, Thymeleaf-based frontend, and MySQL database.
+
+## Key Modules
+
+| Module | Description |
+|---|---|
+| Administration | Centralized hospital administration and management |
+| Reception | Patient registration and reception operations |
+| Doctor | Doctor dashboard and patient-related workflows |
+| Patient | Patient access and healthcare-related information |
+| Pharmacy | Pharmacy and medicine management |
+| Laboratory | Laboratory operations and sample tracking |
+| Billing & Finance | Billing, payments, and receipt management |
+| Staff & Nursing | Staff management, duty rosters, and shift handovers |
+
+## Features
+
+- Role-based authentication and access control
+- Dedicated dashboards for different hospital roles
+- Centralized hospital management
+- Patient and staff management
+- Laboratory sample tracking
+- Pharmacy management
+- Billing and payment management
+- Reports and analytics
+- Responsive dashboard layouts
+- Organized department-wise navigation
+- MySQL database integration
+
+## Technology Stack
+
+### Backend
+- Java 17
+- Spring Boot 3.3.5
+- Spring Security
+- Spring Data JPA
+- Maven
+
+### Frontend
+- HTML5
+- CSS3
+- JavaScript
+- Thymeleaf
+- Bootstrap (where used)
+
+### Database
+- MySQL
+
+### Development Tools
+- IntelliJ IDEA / Eclipse
+- Visual Studio Code
+- Git
+- GitHub
+- Apache Maven
+- MySQL Workbench
+
+## Project Structure
+
+```text
+CareFlow/
+│
+├── backend/
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/
+│   │   │   │   └── com/healthcare/hospital/
+│   │   │   └── resources/
+│   │   └── test/
+│   └── pom.xml
+│
+├── frontend/
+│   ├── templates/
+│   └── static/
+│       ├── css/
+│       ├── js/
+│       └── images/
+│
+├── .gitignore
+└── README.md
+```
+
+## Prerequisites
+
+Make sure the following tools are installed:
+
+- JDK 17
 - Apache Maven 3.9+
 - MySQL Server 8.0+
+- Git
 
-## Local setup (Windows PowerShell)
+Verify the installations:
 
-1. Start the MySQL Windows service.
-2. Create the database (or let the configured JDBC URL create it):
+```bash
+java -version
+mvn -version
+git --version
+```
 
-   ```sql
-   CREATE DATABASE IF NOT EXISTS hospital_db;
-   ```
+## Installation and Setup
 
-3. Set environment variables in the same PowerShell window. Do not commit a real password to Git:
+### 1. Clone the Repository
 
-   ```powershell
-   $env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.18.8-hotspot"
-   $env:Path = "$env:JAVA_HOME\bin;C:\Program Files\apache-maven-3.9.14\bin;$env:Path"
-   $env:DB_URL = "jdbc:mysql://localhost:3306/hospital_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
-   $env:DB_USERNAME = "root"
-   $env:DB_PASSWORD = "YOUR_LOCAL_MYSQL_PASSWORD"
-   ```
+```bash
+git clone YOUR_GITHUB_REPOSITORY_URL
+```
 
-4. Run from the repository root:
+Navigate into the project directory:
 
-   ```powershell
-   mvn -f backend\pom.xml spring-boot:run
-   ```
+```bash
+cd CareFlow
+```
 
-5. Open `http://localhost:8082`.
+### 2. Configure MySQL
 
-The application currently uses `spring.jpa.hibernate.ddl-auto=update`; for production, use versioned migrations and a least-privilege database account instead of a root account.
+Start your MySQL server and create the database:
 
-## Role dashboards
+```sql
+CREATE DATABASE hospital_db;
+```
 
-- Patient: `/patient/dashboard`
-- Receptionist: `/receptionist/dashboard`
-- Doctor: `/doctor/dashboard`
-- Pharmacy: `/pharmacy/dashboard`
-- Laboratory: `/laboratory/dashboard`
-- Billing: `/billing/dashboard`
-- Staff / Nursing: `/staff/dashboard`
-- Administration: `/admin/dashboard`
+### 3. Configure Environment Variables
 
-The laboratory, billing, staff/nursing, and administration pages added in this iteration are initial operational dashboards, not a claim that every workflow in the architecture diagram is complete. New accounts must be assigned the appropriate role by a trusted administrator; public self-registration should not be extended to privileged roles.
+Set the following environment variables before running the application:
 
-## Project documents
+| Variable | Description | Example |
+|---|---|---|
+| `PORT` | Application port | `8082` |
+| `DB_URL` | MySQL connection URL | `jdbc:mysql://localhost:3306/hospital_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC` |
+| `DB_USERNAME` | MySQL username | `root` |
+| `DB_PASSWORD` | MySQL password | Your MySQL password |
 
-- `docs/PROJECT_AUDIT_AND_IMPLEMENTATION.md` — source inventory, reference comparison, gaps, security notes, and implementation status.
-- `.env.example` — environment variable names (replace placeholder values locally).
+**Windows PowerShell:**
 
+```powershell
+$env:PORT = "8082"
+$env:DB_USERNAME = "root"
+$env:DB_PASSWORD = "your_mysql_password"
+```
 
-## M3/M4 Batch 03 additions
+Never commit actual database passwords or secret credentials to GitHub.
 
-See `IMPLEMENTATION_PROGRESS_M3_M4_BATCH_03.md` for scope, limitations and verification steps, and `LOC_REPORT_BATCH_03.txt` for the before/after Java source-line counts.
+### 4. Run the Application
 
-New routes:
-- `/staff/wards` — ward and bed inventory
-- `/staff/attendance` — staff check-in/check-out and team attendance
-- `/admin/audit` — audit trail (Admin)
-- `/admin/settings` — non-secret system settings (Admin)
-- `/reports` — cross-module reports and CSV exports
+From the project root directory:
 
-This batch has not been compiled or tested in this packaging environment. Run `mvn -f backend/pom.xml test` from the project root before merging.
+```bash
+mvn -f backend/pom.xml spring-boot:run
+```
 
+Alternatively, build the application:
 
-## Batch 10 Workflow Hub
+```bash
+mvn -f backend/pom.xml clean package
+```
 
-See `BATCH10_WORKFLOW_HUB.md` for the role-specific workspace routes, UI changes, and verification steps. The eight routes are protected by role-based method security.
+### 5. Access the Application
 
-## Phase 3 — Clinical Workflow Safeguards
+Open your browser:
 
-See `docs/releases/PHASE_3_CLINICAL_WORKFLOWS.md` for scope, LOC accounting, verification, and rollback instructions. Run the static check with `python tools/phase3_clinical_workflow_check.py` and validate JavaScript syntax with `node --check frontend/static/js/clinical-workflow-tools.js`.
+```text
+http://localhost:8082
+```
 
-## Phase 5 Enterprise Integration Hub
-Open `/enterprise/phase5` for the Phase 5 workspaces. See `docs/PHASE_5_ENTERPRISE_INTEGRATION.md` for scope and verification notes.
+The application should display the CareFlow landing page.
 
+## Testing
 
-## Phase 6 release audit
-Run `python tools/phase6_release_audit.py` for static checks and LOC inventory. This does not replace Maven, MySQL, or browser integration testing. See `docs/PHASE_6_RELEASE_AUDIT.md`.
+Run the test suite using:
+
+```bash
+mvn -f backend/pom.xml clean test
+```
+
+To build the application:
+
+```bash
+mvn -f backend/pom.xml clean package
+```
+
+## Screenshots
+
+Add screenshots of the application here to demonstrate its interface and functionality.
+
+Suggested screenshots:
+
+- Landing Page
+- Login Page
+- Administration Dashboard
+- Reception Dashboard
+- Doctor Dashboard
+- Patient Dashboard
+- Pharmacy Dashboard
+- Laboratory Dashboard
+- Billing Dashboard
+- Staff Dashboard
+
+## Security
+
+- Authentication is handled through Spring Security.
+- Access to application features is controlled according to user roles.
+- Database credentials should be configured through environment variables.
+- Sensitive configuration files and credentials should not be committed to the repository.
+
+## Development Workflow
+
+This project uses Git and GitHub for version control and collaborative development.
+
+Development workflow:
+
+1. Create a feature branch from `main`.
+2. Implement the required changes.
+3. Test the affected functionality.
+4. Commit the changes with meaningful messages.
+5. Push the feature branch to GitHub.
+6. Open a Pull Request.
+7. Review and merge approved changes into `main`.
+
+## Future Enhancements
+
+- Advanced hospital analytics and reporting
+- Improved appointment scheduling
+- Automated notifications and reminders
+- Enhanced patient communication
+- Additional workflow automation
+- Cloud deployment and monitoring
+
+## Contribution
+
+Contributions and suggestions are welcome.
+
+If you want to contribute:
+
+1. Fork the repository.
+2. Create a new feature branch.
+3. Make your changes.
+4. Commit and push your changes.
+5. Open a Pull Request with a clear description.
+
+## License
+
+This project is developed for educational and software development purposes.
+
+---
+
+**CareFlow – Simplifying Hospital Management Through Technology.**
