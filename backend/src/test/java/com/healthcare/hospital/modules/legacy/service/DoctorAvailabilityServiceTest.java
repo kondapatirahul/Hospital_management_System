@@ -1,4 +1,4 @@
-package com.healthcare.hospital.modules.legacy.service;
+ package com.healthcare.hospital.modules.legacy.service;
 
 import com.healthcare.hospital.shared.dto.DoctorAvailabilityDto;
 import com.healthcare.hospital.modules.legacy.entity.Appointment;
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+ @ExtendWith(MockitoExtension.class)
 public class DoctorAvailabilityServiceTest {
 
     @Mock
