@@ -2,8 +2,13 @@
 <html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Care Tasks - CareFlow</title><link rel="stylesheet" th:href="@{/css/style.css}"><link rel="stylesheet" th:href="@{/css/ui-polish-phase1.css}"><link rel="stylesheet" th:href="@{/css/ui-polish-phase3-modules.css}">  <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
   <link rel="stylesheet" th:href="@{/css/ui-polish-phase5-targeted.css}">
   <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
+  <link rel="stylesheet" th:href="@{/css/careflow-unified-dashboard.css}">
 </head>
-<body><main class="cf-page-shell cf-standalone-page">
+<body>
+<div class="app-container">
+<aside th:replace="~{fragments/layout :: sidebar('staff-tasks')}"></aside>
+<div class="app-main">
+<main class="cf-page-shell cf-standalone-page">
 <header class="cf-page-header"><div><a class="cf-back-link" th:href="@{/staff/dashboard}">← Staff dashboard</a><p class="cf-eyebrow">STAFF &amp; NURSING</p><h1>Care Task Tracking</h1><p class="cf-page-subtitle">Create, assign and complete nursing and ward tasks.</p></div><nav class="cf-page-nav"><a th:href="@{/staff/attendance}">Attendance</a><a th:href="@{/staff/wards}">Ward &amp; beds</a><a th:href="@{/staff/shifts}">Duty roster</a></nav></header>
 <p th:if="${successMessage}" th:text="${successMessage}" role="status" class="alert alert-success"></p><p th:if="${errorMessage}" th:text="${errorMessage}" role="alert" class="alert alert-danger"></p>
 <section class="cf-surface"><div class="cf-section-title"><div><h2>Create care task</h2><p>Provide task details and assign ownership before saving.</p></div></div>
@@ -15,4 +20,7 @@
 <tr th:each="t : ${tasks}"><td data-label="Task"><strong th:text="${t.title}"></strong><small class="cf-table-secondary" th:text="${t.taskType}"></small></td><td data-label="Patient" th:text="${t.patient != null ? t.patient.fullName : '—'}"></td><td data-label="Owner" th:text="${t.assignedTo != null and !t.assignedTo.isEmpty() ? t.assignedTo : 'Unassigned'}"></td><td data-label="Ward" th:text="${t.ward != null and !t.ward.isEmpty() ? t.ward : '—'}"></td><td data-label="Priority"><span class="cf-status-pill" th:text="${t.priority}"></span></td><td data-label="Due" th:text="${t.dueAt != null ? t.dueAt : 'Not set'}"></td><td data-label="Status / action"><span class="cf-status-pill" th:text="${t.status}"></span><form class="cf-inline-action" th:if="${t.status != 'COMPLETED' and t.status != 'CANCELLED'}" method="post" th:action="@{/staff/tasks/{id}/status(id=${t.id})}"><label class="cf-visually-hidden">Update task status<select name="status"><option>IN_PROGRESS</option><option>COMPLETED</option><option>CANCELLED</option></select></label><button class="btn btn-secondary" type="submit">Update</button></form></td></tr>
 <tr th:if="${#lists.isEmpty(tasks)}"><td colspan="7" class="cf-empty-state">No care tasks yet. Create a task above to get started.</td></tr></tbody></table></div></section>
 </main><script th:src="@{/js/ui-polish-phase5-enhancements.js}" defer></script>
+
+</div>
+</div>
 </body></html>

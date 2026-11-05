@@ -9,9 +9,13 @@
   <link rel="stylesheet" th:href="@{/css/phase5-workspaces.css}"/>
    <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
   <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
-  <link rel="stylesheet" th:href="@{/css/careflow-focused-ui-consistency.css}">
+  <link rel="stylesheet" th:href="@{/css/careflow-unified-dashboard.css}">
 </head>
  <body>
+<div class="app-container">
+<aside th:replace="~{fragments/layout :: sidebar('enterprise-phase5-catalog')}"></aside>
+<div class="app-main">
+
   <main class="wrap">
    <header class="hero">
     <div>
@@ -84,5 +88,8 @@
     </table>
    </section>
   </main>
- </body>
+ 
+</div>
+</div>
+</body>
 </html>

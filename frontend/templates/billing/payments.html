@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Payment Records - CareFlow</title><link rel="stylesheet" th:href="@{/css/style.css}"><link rel="stylesheet" th:href="@{/css/ui-polish-phase1.css}"><link rel="stylesheet" th:href="@{/css/ui-polish-phase3-modules.css}">  <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
 <link rel="stylesheet" th:href="@{/css/ui-polish-phase6-clinical-finance.css}">  <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
+  <link rel="stylesheet" th:href="@{/css/careflow-unified-dashboard.css}">
 </head>
-<body><main class="container" style="max-width:1250px;margin:32px auto;padding:24px">
+<body>
+<div class="app-container">
+<aside th:replace="~{fragments/layout :: sidebar('billing-payments')}"></aside>
+<div class="app-main">
+<main class="container" style="max-width:1250px;margin:32px auto;padding:24px">
 <header><a th:href="@{/billing/dashboard}">← Billing dashboard</a><h1>Payments & Receipts</h1><p>Record partial or full payments with unique receipt numbers.</p></header>
 <p th:if="${successMessage}" th:text="${successMessage}" role="status"></p><p th:if="${errorMessage}" th:text="${errorMessage}" role="alert"></p>
 <section class="card"><h2>Record payment</h2><form method="post" th:action="@{/billing/payments}" style="display:flex;flex-wrap:wrap;gap:12px">
@@ -10,4 +15,7 @@
 <input type="number" name="amount" min="0.01" step="0.01" placeholder="Amount" required><select name="paymentMethod" required><option>Cash</option><option>UPI</option><option>Credit Card</option><option>Insurance</option><option>Bank Transfer</option></select>
 <input name="transactionReference" maxlength="100" placeholder="Transaction reference (optional)"><input name="notes" maxlength="500" placeholder="Notes (optional)"><button type="submit">Record payment</button></form></section>
 <section class="card"><h2>Receipt ledger</h2><div style="overflow-x:auto"><table style="width:100%"><thead><tr><th>Receipt</th><th>Invoice</th><th>Patient</th><th>Amount</th><th>Method</th><th>Reference</th><th>Received at</th></tr></thead><tbody>
-<tr th:each="p : ${payments}"><td th:text="${p.receiptNumber}"></td><td th:text="${p.invoice.invoiceNumber}"></td><td th:text="${p.invoice.patient.fullName}"></td><td th:text="${p.amount}"></td><td th:text="${p.paymentMethod}"></td><td th:text="${p.transactionReference}"></td><td th:text="${p.receivedAt}"></td></tr><tr th:if="${#lists.isEmpty(payments)}"><td colspan="7">No payment records yet.</td></tr></tbody></table></div></section></main></body></html>
+<tr th:each="p : ${payments}"><td th:text="${p.receiptNumber}"></td><td th:text="${p.invoice.invoiceNumber}"></td><td th:text="${p.invoice.patient.fullName}"></td><td th:text="${p.amount}"></td><td th:text="${p.paymentMethod}"></td><td th:text="${p.transactionReference}"></td><td th:text="${p.receivedAt}"></td></tr><tr th:if="${#lists.isEmpty(payments)}"><td colspan="7">No payment records yet.</td></tr></tbody></table></div></section></main>
+</div>
+</div>
+</body></html>

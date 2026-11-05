@@ -2,8 +2,13 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title th:text="${item.caseReference}+' | CareFlow Quality'">Quality Case</title><link rel="stylesheet" th:href="@{/css/quality-governance.css}">  <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
   <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
+  <link rel="stylesheet" th:href="@{/css/careflow-unified-dashboard.css}">
 </head>
-<body><main class="qg-shell"><header class="qg-header"><div><p class="eyebrow">QUALITY CASE · <span th:text="${item.caseReference}">QCR</span></p><h1 th:text="${item.title}">Case title</h1><p class="muted" th:text="${item.category}+' · '+${item.severity}+' · '+${item.status}">Metadata</p></div><div class="header-actions"><a class="button secondary" th:href="@{/quality/reviews}">Register</a><a class="button secondary" th:href="@{/quality/reviews/export.csv}">Export</a></div></header>
+<body>
+<div class="app-container">
+<aside th:replace="~{fragments/layout :: sidebar('enterprise-quality-detail')}"></aside>
+<div class="app-main">
+<main class="qg-shell"><header class="qg-header"><div><p class="eyebrow">QUALITY CASE · <span th:text="${item.caseReference}">QCR</span></p><h1 th:text="${item.title}">Case title</h1><p class="muted" th:text="${item.category}+' · '+${item.severity}+' · '+${item.status}">Metadata</p></div><div class="header-actions"><a class="button secondary" th:href="@{/quality/reviews}">Register</a><a class="button secondary" th:href="@{/quality/reviews/export.csv}">Export</a></div></header>
 <div th:if="${successMessage}" class="notice success" th:text="${successMessage}"></div><div th:if="${errorMessage}" class="notice error" th:text="${errorMessage}"></div>
 <div class="detail-layout"><section class="main-column">
 <article class="panel"><div class="panel-heading"><h2>Event record</h2><span class="pill" th:text="${item.status}">Status</span></div>
@@ -42,4 +47,7 @@
 <form th:if="${item.status=='CLOSED'}" method="post" th:action="@{/quality/reviews/{id}/reopen(id=${item.id})}"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"><label>Reopen reason<input name="reason" required maxlength="1000"></label><button class="button secondary full">Reopen case</button></form>
 <p class="muted small-text">Closure requires root cause, corrective plan, no open actions and preserved evidence. Sentinel events require an independent reviewer.</p></article>
 <article class="panel"><h2>Audit trail</h2><div class="timeline"><article th:each="e:${auditEvents}"><strong th:text="${e.eventType}">Event</strong><small class="block" th:text="${e.occurredAt}+' · '+${e.actorUsername}">Meta</small><small class="block" th:if="${e.fromState!=null}" th:text="${e.fromState}+' → '+${e.toState}">Transition</small><p th:if="${e.summary!=null}" th:text="${e.summary}"></p></article></div></article></aside></div>
-<footer>CareFlow · Maintain confidentiality and follow local clinical governance procedures.</footer></main><script th:src="@{/js/quality-governance.js}"></script></body></html>
+<footer>CareFlow · Maintain confidentiality and follow local clinical governance procedures.</footer></main><script th:src="@{/js/quality-governance.js}"></script>
+</div>
+</div>
+</body></html>

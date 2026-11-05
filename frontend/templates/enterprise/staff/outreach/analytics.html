@@ -11,8 +11,13 @@
   </script>
    <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
   <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
+  <link rel="stylesheet" th:href="@{/css/careflow-unified-dashboard.css}">
 </head>
  <body class="co-page">
+<div class="app-container">
+<aside th:replace="~{fragments/layout :: sidebar('enterprise-staff-outreach-analytics')}"></aside>
+<div class="app-main">
+
   <header class="co-topbar">
    <a class="co-brand" th:href="@{/}">
     <span class="co-logo">
@@ -284,6 +289,9 @@
     Metrics reflect data available at page load.
    </span>
   </footer>
- </body>
+ 
+</div>
+</div>
+</body>
 </html>
 
