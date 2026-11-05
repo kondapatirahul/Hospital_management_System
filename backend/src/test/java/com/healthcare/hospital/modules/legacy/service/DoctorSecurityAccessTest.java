@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({SecurityConfig.class, CustomAuthenticationSuccessHandler.class})
 public class DoctorSecurityAccessTest {
 
-    @Autowired
+     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
