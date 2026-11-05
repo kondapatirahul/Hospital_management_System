@@ -42,8 +42,8 @@ public class NotificationService {
     }
 
     @Transactional
-    public void markAsRead(Long notificationId) {
-        notificationRepository.findById(notificationId).ifPresent(n -> {
+    public void markAsRead(Long notificationId, User user) {
+        notificationRepository.findByIdAndUser(notificationId, user).ifPresent(n -> {
             n.setReadStatus(true);
             notificationRepository.save(n);
         });

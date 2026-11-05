@@ -51,6 +51,60 @@
                                 </div>
                             </div>
 
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">💊 Medication Reminders</div>
+                                </div>
+                                <div class="card-body">
+                                    <div th:if="${#lists.isEmpty(medicationReminders)}" style="padding: 24px; text-align: center; color: #64748b;">
+                                        No medication reminders are due today.
+                                    </div>
+                                    <div th:unless="${#lists.isEmpty(medicationReminders)}" class="table-responsive">
+                                        <table class="custom-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Scheduled</th>
+                                                    <th>Medication</th>
+                                                    <th>Dosage & Instructions</th>
+                                                    <th>Status</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="reminder : ${medicationReminders}">
+                                                    <td th:text="${#temporals.format(reminder.scheduledAt, 'MMM d, yyyy - h:mm a')}">Today - 8:00 AM</td>
+                                                    <td>
+                                                        <strong th:text="${reminder.prescription.medicationName}">Medicine</strong>
+                                                        <div style="font-size: 0.775rem; color: #64748b;" th:text="${reminder.prescription.frequency}">Twice daily</div>
+                                                    </td>
+                                                    <td>
+                                                        <div th:text="${reminder.prescription.dosage}">Dosage</div>
+                                                        <div style="font-size: 0.775rem; color: #64748b;"
+                                                             th:text="${reminder.prescription.instructions}">Instructions</div>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge"
+                                                              th:classappend="${reminder.status.name() == 'TAKEN' ? 'badge-success' : (reminder.status.name() == 'SKIPPED' ? 'badge-secondary' : 'badge-warning')}"
+                                                              th:text="${reminder.status.name() == 'PENDING' ? (reminder.scheduledAt.isAfter(reminderNow) ? 'Scheduled' : 'Due') : reminder.status.name()}">Due</span>
+                                                    </td>
+                                                    <td>
+                                                        <div th:if="${reminder.status.name() == 'PENDING' and !reminder.scheduledAt.isAfter(reminderNow)}"
+                                                             style="display: flex; gap: 8px;">
+                                                            <form th:action="@{/patient/notifications/reminders/{id}/taken(id=${reminder.id})}" method="post">
+                                                                <button type="submit" class="btn btn-outline btn-sm">Taken</button>
+                                                            </form>
+                                                            <form th:action="@{/patient/notifications/reminders/{id}/skipped(id=${reminder.id})}" method="post">
+                                                                <button type="submit" class="btn btn-outline btn-sm">Skipped</button>
+                                                            </form>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div th:if="${!n.readStatus}">
                                 <form th:action="@{/patient/notifications/{id}/read(id=${n.id})}" method="post">
                                     <button type="submit" class="btn btn-outline btn-sm" title="Mark as read">

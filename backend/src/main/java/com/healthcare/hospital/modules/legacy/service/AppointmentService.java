@@ -4,11 +4,13 @@ import com.healthcare.hospital.shared.dto.AppointmentBookingDto;
 import com.healthcare.hospital.shared.dto.AppointmentFilterDto;
 import com.healthcare.hospital.shared.dto.AppointmentRescheduleDto;
 import com.healthcare.hospital.modules.legacy.entity.Appointment;
+import com.healthcare.hospital.modules.legacy.entity.AppointmentRescheduleHistory;
 import com.healthcare.hospital.modules.legacy.entity.Department;
 import com.healthcare.hospital.modules.legacy.entity.Doctor;
 import com.healthcare.hospital.modules.legacy.entity.Patient;
 import com.healthcare.hospital.shared.enums.AppointmentStatus;
 import com.healthcare.hospital.modules.legacy.repository.AppointmentRepository;
+import com.healthcare.hospital.modules.legacy.repository.AppointmentRescheduleHistoryRepository;
 import com.healthcare.hospital.modules.legacy.repository.DepartmentRepository;
 import com.healthcare.hospital.modules.legacy.repository.DoctorRepository;
 import com.healthcare.hospital.modules.legacy.repository.PatientRepository;
@@ -29,17 +31,23 @@ public class AppointmentService {
     private final DoctorRepository doctorRepository;
     private final DepartmentRepository departmentRepository;
     private final NotificationService notificationService;
+    private final DoctorAvailabilityService doctorAvailabilityService;
+    private final AppointmentRescheduleHistoryRepository rescheduleHistoryRepository;
 
     public AppointmentService(AppointmentRepository appointmentRepository,
                               PatientRepository patientRepository,
                               DoctorRepository doctorRepository,
                               DepartmentRepository departmentRepository,
-                              NotificationService notificationService) {
+                              NotificationService notificationService,
+                              DoctorAvailabilityService doctorAvailabilityService,
+                              AppointmentRescheduleHistoryRepository rescheduleHistoryRepository) {
         this.appointmentRepository = appointmentRepository;
         this.patientRepository = patientRepository;
         this.doctorRepository = doctorRepository;
         this.departmentRepository = departmentRepository;
         this.notificationService = notificationService;
+        this.doctorAvailabilityService = doctorAvailabilityService;
+        this.rescheduleHistoryRepository = rescheduleHistoryRepository;
     }
 
     public List<Appointment> getPatientUpcomingAppointments(Patient patient) {
@@ -48,8 +56,8 @@ public class AppointmentService {
     }
 
     public List<Appointment> getPatientPastAppointments(Patient patient) {
-        return appointmentRepository.findByPatientAndAppointmentDateLessThanOrderByAppointmentDateDescAppointmentTimeDesc(
-                patient, LocalDate.now());
+        return appointmentRepository.findPatientPastOrCompletedAppointments(
+                patient, LocalDate.now(), AppointmentStatus.COMPLETED);
     }
 
     public List<Appointment> getPatientAllAppointments(Patient patient) {
@@ -84,13 +92,22 @@ public class AppointmentService {
 
     @Transactional
     public Appointment bookAppointment(AppointmentBookingDto dto, Patient patient) {
-        Doctor doctor = doctorRepository.findById(dto.getDoctorId())
+        Doctor doctor = doctorRepository.findByIdForUpdate(dto.getDoctorId())
                 .orElseThrow(() -> new IllegalArgumentException("Doctor not found: " + dto.getDoctorId()));
 
         Department department = departmentRepository.findById(dto.getDepartmentId())
                 .orElseThrow(() -> new IllegalArgumentException("Department not found: " + dto.getDepartmentId()));
 
         LocalTime parsedTime = parseTimeSlot(dto.getAppointmentSlot());
+        String normalizedSlot = formatTimeSlot(parsedTime);
+        validateFutureDate(dto.getAppointmentDate());
+        if (!doctor.getDepartment().getId().equals(department.getId())) {
+            throw new IllegalArgumentException("Selected doctor does not belong to the selected department.");
+        }
+        if (!doctorAvailabilityService.getAvailableSlotsForDoctorAndDate(doctor, dto.getAppointmentDate())
+                .contains(normalizedSlot)) {
+            throw new IllegalArgumentException("The selected appointment slot is no longer available.");
+        }
 
         Appointment appointment = new Appointment(
                 patient,
@@ -98,7 +115,7 @@ public class AppointmentService {
                 department,
                 dto.getAppointmentDate(),
                 parsedTime,
-                dto.getAppointmentSlot(),
+                normalizedSlot,
                 dto.getReasonForVisit(),
                 AppointmentStatus.SCHEDULED
         );
@@ -120,12 +137,43 @@ public class AppointmentService {
 
     @Transactional
     public Appointment rescheduleAppointment(Long appointmentId, AppointmentRescheduleDto dto) {
-        Appointment appointment = appointmentRepository.findById(appointmentId)
+        return rescheduleAppointment(appointmentId, dto, null);
+    }
+
+    @Transactional
+    public Appointment rescheduleAppointment(Long appointmentId, AppointmentRescheduleDto dto, Patient requestingPatient) {
+        Appointment appointment = appointmentRepository.findByIdForUpdate(appointmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Appointment not found: " + appointmentId));
 
+        if (requestingPatient != null && !appointment.getPatient().getId().equals(requestingPatient.getId())) {
+            throw new SecurityException("Appointment does not belong to the authenticated patient.");
+        }
+        validateReschedulable(appointment);
+
+        Doctor doctor = doctorRepository.findByIdForUpdate(appointment.getDoctor().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Doctor not found: " + appointment.getDoctor().getId()));
+        validateFutureDate(dto.getNewDate());
+        LocalTime newTime = parseTimeSlot(dto.getNewSlot());
+        String normalizedSlot = formatTimeSlot(newTime);
+        if (!doctorAvailabilityService.getAvailableSlotsForDoctorAndDate(doctor, dto.getNewDate(), appointmentId)
+                .contains(normalizedSlot)) {
+            throw new IllegalArgumentException("The selected appointment slot is no longer available.");
+        }
+
+        rescheduleHistoryRepository.save(new AppointmentRescheduleHistory(
+                appointment,
+                appointment.getAppointmentDate(),
+                appointment.getAppointmentTime(),
+                appointment.getAppointmentSlot(),
+                dto.getNewDate(),
+                newTime,
+                normalizedSlot,
+                dto.getRescheduleReason()
+        ));
+
         appointment.setAppointmentDate(dto.getNewDate());
-        appointment.setAppointmentSlot(dto.getNewSlot());
-        appointment.setAppointmentTime(parseTimeSlot(dto.getNewSlot()));
+        appointment.setAppointmentSlot(normalizedSlot);
+        appointment.setAppointmentTime(newTime);
         appointment.setStatus(AppointmentStatus.RESCHEDULED);
 
         Appointment updated = appointmentRepository.save(appointment);
@@ -141,6 +189,19 @@ public class AppointmentService {
         }
 
         return updated;
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getAvailableSlotsForReschedule(Long appointmentId, Patient requestingPatient, LocalDate date) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Appointment not found: " + appointmentId));
+        if (requestingPatient != null && !appointment.getPatient().getId().equals(requestingPatient.getId())) {
+            throw new SecurityException("Appointment does not belong to the authenticated patient.");
+        }
+        validateReschedulable(appointment);
+        validateFutureDate(date);
+        return doctorAvailabilityService.getAvailableSlotsForDoctorAndDate(
+                appointment.getDoctor(), date, appointmentId);
     }
 
     @Transactional
@@ -168,7 +229,7 @@ public class AppointmentService {
 
     private LocalTime parseTimeSlot(String slot) {
         if (slot == null || slot.trim().isEmpty()) {
-            return LocalTime.of(9, 0);
+            throw new IllegalArgumentException("Appointment time slot is required.");
         }
         try {
             // Support "09:30 AM" or "9:30 AM" or "09:30"
@@ -179,8 +240,31 @@ public class AppointmentService {
             } else {
                 return LocalTime.parse(cleaned);
             }
-        } catch (Exception e) {
-            return LocalTime.of(9, 0);
+        } catch (java.time.format.DateTimeParseException e) {
+            throw new IllegalArgumentException("Appointment time slot is invalid.", e);
+        }
+    }
+
+    private String formatTimeSlot(LocalTime time) {
+        return time.format(DateTimeFormatter.ofPattern("hh:mm a")).toUpperCase();
+    }
+
+    private void validateFutureDate(LocalDate date) {
+        if (date == null || date.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Appointment date must be today or in the future.");
+        }
+    }
+
+    private void validateReschedulable(Appointment appointment) {
+        if (appointment.getStatus() != AppointmentStatus.SCHEDULED
+                && appointment.getStatus() != AppointmentStatus.RESCHEDULED) {
+            throw new IllegalArgumentException("Only scheduled appointments can be rescheduled.");
+        }
+        if (appointment.getAppointmentDate().isBefore(LocalDate.now())
+                || (appointment.getAppointmentDate().isEqual(LocalDate.now())
+                && appointment.getAppointmentTime() != null
+                && appointment.getAppointmentTime().isBefore(LocalTime.now()))) {
+            throw new IllegalArgumentException("Past appointments cannot be rescheduled.");
         }
     }
 }

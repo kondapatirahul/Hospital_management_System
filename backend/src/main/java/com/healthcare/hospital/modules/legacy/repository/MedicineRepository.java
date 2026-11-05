@@ -60,6 +60,9 @@ public interface MedicineRepository extends JpaRepository<Medicine, Long> {
     @Query("SELECT m FROM Medicine m WHERE m.active = true AND m.totalStock > 0 AND m.totalStock <= m.reorderLevel ORDER BY m.totalStock ASC")
     List<Medicine> findLowStockMedicines();
 
+    @Query("SELECT m FROM Medicine m WHERE m.active = true AND m.totalStock <= m.reorderLevel ORDER BY m.totalStock ASC, m.name ASC")
+    List<Medicine> findActiveMedicinesNeedingReorder();
+
     @Query("SELECT m FROM Medicine m WHERE m.active = true AND m.totalStock <= 0 ORDER BY m.name ASC")
     List<Medicine> findOutOfStockMedicines();
 }

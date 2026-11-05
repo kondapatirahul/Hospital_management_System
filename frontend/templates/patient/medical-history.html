@@ -89,6 +89,10 @@
                                 📌 <strong>Follow-up Instructions: </strong>
                                 <span th:text="${record.followUpInstructions}">Follow up in 2 weeks or immediately if symptoms worsen.</span>
                             </div>
+                            <div style="margin-top: 10px;">
+                                <a th:href="@{/patient/reports/medical-record/{id}(id=${record.id})}" target="_blank" rel="noopener" class="btn btn-outline btn-sm">View PDF</a>
+                                <a th:href="@{/patient/reports/medical-record/{id}(id=${record.id},download=true)}" class="btn btn-outline btn-sm">Download</a>
+                            </div>
                         </div>
                     </div>
                 </div>

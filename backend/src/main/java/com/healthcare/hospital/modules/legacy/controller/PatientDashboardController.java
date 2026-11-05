@@ -3,11 +3,15 @@ package com.healthcare.hospital.modules.legacy.controller;
 import com.healthcare.hospital.core.config.CustomUserDetails;
 import com.healthcare.hospital.shared.dto.AppointmentBookingDto;
 import com.healthcare.hospital.shared.dto.AppointmentRescheduleDto;
+import com.healthcare.hospital.shared.dto.PatientFeedbackDto;
 import com.healthcare.hospital.shared.dto.PatientProfileDto;
+import com.healthcare.hospital.shared.enums.MedicationReminderStatus;
 import com.healthcare.hospital.modules.legacy.entity.*;
 import com.healthcare.hospital.modules.legacy.service.*;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.time.LocalDate;
 
 @Controller
 @RequestMapping("/patient")
@@ -26,19 +31,25 @@ public class PatientDashboardController {
     private final BillingService billingService;
     private final NotificationService notificationService;
     private final DoctorService doctorService;
+    private final MedicationReminderService medicationReminderService;
+    private final PatientFeedbackService patientFeedbackService;
 
     public PatientDashboardController(PatientService patientService,
                                       AppointmentService appointmentService,
                                       MedicalService medicalService,
                                       BillingService billingService,
                                       NotificationService notificationService,
-                                      DoctorService doctorService) {
+                                      DoctorService doctorService,
+                                      MedicationReminderService medicationReminderService,
+                                      PatientFeedbackService patientFeedbackService) {
         this.patientService = patientService;
         this.appointmentService = appointmentService;
         this.medicalService = medicalService;
         this.billingService = billingService;
         this.notificationService = notificationService;
         this.doctorService = doctorService;
+        this.medicationReminderService = medicationReminderService;
+        this.patientFeedbackService = patientFeedbackService;
     }
 
     private Patient getAuthenticatedPatient(CustomUserDetails userDetails) {
@@ -120,11 +131,55 @@ public class PatientDashboardController {
     @GetMapping("/appointments")
     public String appointments(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         Patient patient = getAuthenticatedPatient(userDetails);
+        List<Appointment> pastAppointments = appointmentService.getPatientPastAppointments(patient);
         model.addAttribute("patient", patient);
         model.addAttribute("upcomingAppointments", appointmentService.getPatientUpcomingAppointments(patient));
-        model.addAttribute("pastAppointments", appointmentService.getPatientPastAppointments(patient));
+        model.addAttribute("pastAppointments", pastAppointments);
+        model.addAttribute("feedbackByAppointmentId",
+                patientFeedbackService.getForPatientAppointments(patient, pastAppointments));
         model.addAttribute("rescheduleDto", new AppointmentRescheduleDto());
+        model.addAttribute("currentDate", LocalDate.now());
+        model.addAttribute("currentTime", java.time.LocalTime.now());
         return "patient/appointments";
+    }
+
+    @PostMapping("/appointments/{id}/feedback")
+    public String submitAppointmentFeedback(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable("id") Long appointmentId,
+            @Valid @ModelAttribute("feedbackDto") PatientFeedbackDto feedbackDto,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
+        Patient patient = getAuthenticatedPatient(userDetails);
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Please provide both ratings from 1 to 5 and keep comments under 2,000 characters.");
+            return "redirect:/patient/appointments";
+        }
+        try {
+            patientFeedbackService.submit(appointmentId, patient, feedbackDto);
+            redirectAttributes.addFlashAttribute("successMessage", "Thank you for sharing your feedback.");
+        } catch (SecurityException exception) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Appointment not found.");
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
+        }
+        return "redirect:/patient/appointments";
+    }
+
+    @GetMapping("/appointments/{id}/available-slots")
+    @ResponseBody
+    public ResponseEntity<List<String>> availableRescheduleSlots(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable("id") Long appointmentId,
+            @RequestParam @org.springframework.format.annotation.DateTimeFormat(
+                    iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate date) {
+        Patient patient = getAuthenticatedPatient(userDetails);
+        try {
+            return ResponseEntity.ok(appointmentService.getAvailableSlotsForReschedule(appointmentId, patient, date));
+        } catch (SecurityException | IllegalArgumentException exception) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of());
+        }
     }
 
     // Book Appointment
@@ -170,22 +225,19 @@ public class PatientDashboardController {
                                    BindingResult bindingResult,
                                    RedirectAttributes redirectAttributes) {
         Patient patient = getAuthenticatedPatient(userDetails);
-        Appointment appointment = appointmentService.getAppointmentById(appointmentId)
-                .orElseThrow(() -> new IllegalArgumentException("Appointment not found: " + appointmentId));
-
-        // Security check: ensure appointment belongs to this patient
-        if (!appointment.getPatient().getId().equals(patient.getId())) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Unauthorized action.");
-            return "redirect:/patient/appointments";
-        }
-
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Invalid reschedule parameters. Please check date and time.");
             return "redirect:/patient/appointments";
         }
 
-        appointmentService.rescheduleAppointment(appointmentId, dto);
-        redirectAttributes.addFlashAttribute("successMessage", "Appointment rescheduled successfully!");
+        try {
+            appointmentService.rescheduleAppointment(appointmentId, dto, patient);
+            redirectAttributes.addFlashAttribute("successMessage", "Appointment rescheduled successfully!");
+        } catch (SecurityException exception) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Appointment not found.");
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
+        }
         return "redirect:/patient/appointments";
     }
 
@@ -224,6 +276,8 @@ public class PatientDashboardController {
         Patient patient = getAuthenticatedPatient(userDetails);
         model.addAttribute("patient", patient);
         model.addAttribute("prescriptions", medicalService.getPrescriptions(patient));
+        model.addAttribute("medicationSchedules",
+                medicationReminderService.getSchedules(medicalService.getPrescriptions(patient)));
         return "patient/prescriptions";
     }
 
@@ -268,12 +322,43 @@ public class PatientDashboardController {
     @GetMapping("/notifications")
     public String notifications(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         model.addAttribute("notifications", notificationService.getNotificationsForUser(userDetails.getUser()));
+        model.addAttribute("medicationReminders", medicationReminderService.getPatientReminders(
+                getAuthenticatedPatient(userDetails)));
+        model.addAttribute("reminderNow", java.time.LocalDateTime.now());
         return "patient/notifications";
     }
 
+    @PostMapping("/notifications/reminders/{id}/taken")
+    public String markReminderTaken(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                    @PathVariable Long id,
+                                    RedirectAttributes redirectAttributes) {
+        return recordMedicationReminder(userDetails, id, MedicationReminderStatus.TAKEN, redirectAttributes);
+    }
+
+    @PostMapping("/notifications/reminders/{id}/skipped")
+    public String markReminderSkipped(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                      @PathVariable Long id,
+                                      RedirectAttributes redirectAttributes) {
+        return recordMedicationReminder(userDetails, id, MedicationReminderStatus.SKIPPED, redirectAttributes);
+    }
+
+    private String recordMedicationReminder(CustomUserDetails userDetails, Long id,
+                                            MedicationReminderStatus status,
+                                            RedirectAttributes redirectAttributes) {
+        try {
+            medicationReminderService.recordReminder(id, getAuthenticatedPatient(userDetails), status);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    status == MedicationReminderStatus.TAKEN ? "Medication marked as taken." : "Medication marked as skipped.");
+        } catch (IllegalArgumentException exception) {
+            redirectAttributes.addFlashAttribute("errorMessage", exception.getMessage());
+        }
+        return "redirect:/patient/notifications";
+    }
+
     @PostMapping("/notifications/{id}/read")
-    public String markNotificationRead(@PathVariable("id") Long notificationId) {
-        notificationService.markAsRead(notificationId);
+    public String markNotificationRead(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                        @PathVariable("id") Long notificationId) {
+        notificationService.markAsRead(notificationId, userDetails.getUser());
         return "redirect:/patient/notifications";
     }
 
