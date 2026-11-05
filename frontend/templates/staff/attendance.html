@@ -7,9 +7,13 @@
   <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
   <link rel="stylesheet" th:href="@{/css/ui-polish-phase5-targeted.css}">
   <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
-  <link rel="stylesheet" th:href="@{/css/careflow-focused-ui-consistency.css}">
+  <link rel="stylesheet" th:href="@{/css/careflow-unified-dashboard.css}">
 </head>
 <body>
+<div class="app-container">
+<aside th:replace="~{fragments/layout :: sidebar('staff-attendance')}"></aside>
+<div class="app-main">
+
 <main class="cf-page-shell cf-standalone-page">
   <header class="cf-page-header">
     <div><p class="cf-eyebrow">CAREFLOW / STAFF &amp; NURSING</p><h1>Attendance Management</h1><p class="cf-page-subtitle">Record daily check-in/check-out and review team attendance.</p></div>
@@ -42,4 +46,7 @@
   </section>
 </main>
 <script th:src="@{/js/ui-polish-phase5-enhancements.js}" defer></script>
+
+</div>
+</div>
 </body></html>

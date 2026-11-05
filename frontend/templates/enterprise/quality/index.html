@@ -6,8 +6,13 @@
 <link rel="stylesheet" th:href="@{/css/quality-governance.css}">
   <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
   <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
+  <link rel="stylesheet" th:href="@{/css/careflow-unified-dashboard.css}">
 </head>
 <body>
+<div class="app-container">
+<aside th:replace="~{fragments/layout :: sidebar('enterprise-quality-index')}"></aside>
+<div class="app-main">
+
 <main class="qg-shell">
 <header class="qg-header">
   <div><p class="eyebrow">CARE DELIVERY · QUALITY & SAFETY</p><h1>Clinical quality register</h1>
@@ -57,4 +62,7 @@
 <div><h3>By category</h3><p th:each="entry:${summary.byCategory}"><span th:text="${entry.key}">Category</span><strong th:text="${entry.value}">0</strong></p></div>
 </div><small class="muted">Distribution uses the 200 most recently updated cases. Use the filtered register for case-level review.</small></section>
 <footer>CareFlow · Quality data should be handled according to hospital privacy and incident-reporting policies.</footer>
-</main><script th:src="@{/js/quality-governance.js}"></script></body></html>
+</main><script th:src="@{/js/quality-governance.js}"></script>
+</div>
+</div>
+</body></html>

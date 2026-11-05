@@ -9,8 +9,13 @@
   <link rel="stylesheet" th:href="@{/css/careflow-safety.css}"/>
    <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
   <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
+  <link rel="stylesheet" th:href="@{/css/careflow-unified-dashboard.css}">
 </head>
  <body class="cf-safety-page">
+<div class="app-container">
+<aside th:replace="~{fragments/layout :: sidebar('staff-handover-form')}"></aside>
+<div class="app-main">
+
   <header class="cf-topbar">
    <a class="cf-brand" th:href="@{/}">
     <span class="cf-brand-mark">
@@ -356,6 +361,9 @@
   </main>
   <script th:src="@{/js/careflow-safety.js}">
   </script>
- </body>
+ 
+</div>
+</div>
+</body>
 </html>
 

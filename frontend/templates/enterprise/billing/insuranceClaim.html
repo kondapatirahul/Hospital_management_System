@@ -21,8 +21,13 @@
 @media(max-width:760px){.enterprise-table{display:block;overflow-x:auto}}
 </style><link rel="stylesheet" th:href="@{/css/ui-polish-phase1.css}"><link rel="stylesheet" th:href="@{/css/ui-polish-phase3-modules.css}">  <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
 <link rel="stylesheet" th:href="@{/css/ui-polish-phase6-clinical-finance.css}">  <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
+  <link rel="stylesheet" th:href="@{/css/careflow-unified-dashboard.css}">
 </head>
 <body>
+<div class="app-container">
+<aside th:replace="~{fragments/layout :: sidebar('enterprise-billing-insuranceClaim')}"></aside>
+<div class="app-main">
+
 <div class="enterprise-wrap">
   <div class="enterprise-head">
     <div><p>CareFlow / Billing</p><h1>InsuranceClaim</h1><p>Insurance claim lifecycle.</p></div>
@@ -59,4 +64,7 @@
       <tr th:if="${#lists.isEmpty(records)}"><td colspan="8">No records found. Create the first record to begin this workflow.</td></tr>
     </tbody>
   </table></div>
-</div></body></html>
+</div>
+</div>
+</div>
+</body></html>
