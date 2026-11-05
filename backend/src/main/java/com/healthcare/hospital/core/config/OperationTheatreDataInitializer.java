@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Seeds standard Operation Theatres, equipment readiness, and sample clinical surgical workflows.
  */
-@Component
+ @Component
 @Order(10)
 public class OperationTheatreDataInitializer implements CommandLineRunner {
 
