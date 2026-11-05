@@ -95,7 +95,7 @@ public class ConsultationServiceTest {
         verify(prescriptionRepository, times(1)).save(any(Prescription.class));
     }
 
-    @Test
+     @Test
     void testSaveConsultation_UnauthorizedDoctor_ThrowsSecurityException() {
         ConsultationDto dto = new ConsultationDto();
         dto.setAppointmentId(100L);
