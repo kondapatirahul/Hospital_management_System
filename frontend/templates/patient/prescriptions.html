@@ -37,18 +37,20 @@
                         <table id="prescriptionsTable" data-sortable class="custom-table">
                             <thead>
                                 <tr>
-                                    <th>Date Prescribed</th>
+                                    <th>Start Date</th>
                                     <th>Medication Name</th>
                                     <th>Dosage</th>
                                     <th>Frequency & Timing</th>
                                     <th>Duration</th>
+                                    <th>End Date</th>
                                     <th>Special Instructions</th>
                                     <th>Prescribed By</th>
                                     <th>Status</th>
+                                    <th>Report PDF</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:each="rx : ${prescriptions}">
+                                <tr th:each="rx, stat : ${prescriptions}">
                                     <td>
                                         <strong th:text="${#temporals.format(rx.prescriptionDate, 'MMM d, yyyy')}">Oct 13, 2026</strong>
                                     </td>
@@ -60,8 +62,16 @@
                                     </td>
                                     <td>
                                         <strong style="color: #0f766e;" th:text="${rx.frequency}">Twice daily after meals</strong>
+                                        <div th:if="${!#lists.isEmpty(medicationSchedules[stat.index].times)}"
+                                             style="font-size: 0.75rem; color: #64748b;"
+                                             th:text="${'Schedule: ' + #strings.listJoin(medicationSchedules[stat.index].times, ', ')}">Schedule: 8:00 AM, 8:00 PM</div>
                                     </td>
                                     <td th:text="${rx.duration}">7 days</td>
+                                    <td>
+                                        <span th:if="${medicationSchedules[stat.index].endDate != null}"
+                                              th:text="${#temporals.format(medicationSchedules[stat.index].endDate, 'MMM d, yyyy')}">Oct 20, 2026</span>
+                                        <span th:unless="${medicationSchedules[stat.index].endDate != null}">Not specified</span>
+                                    </td>
                                     <td style="max-width: 250px; font-size: 0.825rem; color: #475569;" th:text="${rx.instructions}">
                                         Take with water after meals. Finish entire course.
                                     </td>
@@ -70,6 +80,10 @@
                                     </td>
                                     <td>
                                         <span class="badge" th:classappend="${rx.status == 'Active' ? 'badge-success' : 'badge-secondary'}" th:text="${rx.status}">Active</span>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/patient/reports/prescription/{id}(id=${rx.id})}" target="_blank" rel="noopener" class="btn btn-outline btn-sm">View PDF</a>
+                                        <a th:href="@{/patient/reports/prescription/{id}(id=${rx.id},download=true)}" class="btn btn-outline btn-sm">Download</a>
                                     </td>
                                 </tr>
                             </tbody>

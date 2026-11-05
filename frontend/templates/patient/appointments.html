@@ -70,11 +70,13 @@
                                         <span class="badge" th:classappend="${appt.status.badgeClass}" th:text="${appt.status.displayName}">Scheduled</span>
                                     </td>
                                     <td>
-                                        <div style="display: flex; gap: 8px;" th:if="${appt.status.name() == 'SCHEDULED' or appt.status.name() == 'RESCHEDULED'}">
+                                        <div style="display: flex; gap: 8px;"
+                                             th:if="${(appt.status.name() == 'SCHEDULED' or appt.status.name() == 'RESCHEDULED') and (appt.appointmentDate.isAfter(currentDate) or (appt.appointmentDate.isEqual(currentDate) and appt.appointmentTime != null and appt.appointmentTime.isAfter(currentTime)))}">
                                             <!-- Reschedule Modal Trigger -->
                                             <button type="button" class="btn btn-outline btn-sm"
                                                     data-modal-target="rescheduleModal"
                                                     th:data-action-url="@{/patient/appointments/{id}/reschedule(id=${appt.id})}"
+                                                    th:data-availability-url="@{/patient/appointments/{id}/available-slots(id=${appt.id})}"
                                                     th:data-appt-info="${'With Dr. ' + appt.doctor.fullName + ' on ' + #temporals.format(appt.appointmentDate, 'MMM d, yyyy')}">
                                                 Reschedule
                                             </button>
@@ -87,7 +89,7 @@
                                                 Cancel
                                             </button>
                                         </div>
-                                        <div th:unless="${appt.status.name() == 'SCHEDULED' or appt.status.name() == 'RESCHEDULED'}">
+                                        <div th:unless="${(appt.status.name() == 'SCHEDULED' or appt.status.name() == 'RESCHEDULED') and (appt.appointmentDate.isAfter(currentDate) or (appt.appointmentDate.isEqual(currentDate) and appt.appointmentTime != null and appt.appointmentTime.isAfter(currentTime)))}">
                                             <span style="font-size: 0.75rem; color: #64748b;">Visit in progress</span>
                                         </div>
                                     </td>
@@ -119,6 +121,7 @@
                                     <th>Department</th>
                                     <th>Reason</th>
                                     <th>Status</th>
+                                    <th>Feedback</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -132,6 +135,44 @@
                                     <td th:text="${appt.reasonForVisit}">Bronchitis check</td>
                                     <td>
                                         <span class="badge" th:classappend="${appt.status.badgeClass}" th:text="${appt.status.displayName}">Completed</span>
+                                    </td>
+                                    <td>
+                                        <div th:with="feedback=${feedbackByAppointmentId[appt.id]}">
+                                            <div th:if="${feedback != null}">
+                                                <div><strong>Doctor:</strong> <span th:text="${feedback.doctorRating}">5</span>/5</div>
+                                                <div><strong>Services:</strong> <span th:text="${feedback.serviceRating}">5</span>/5</div>
+                                                <div th:if="${feedback.comments != null and !feedback.comments.isBlank()}"
+                                                     style="font-size: 0.775rem; color: #64748b;"
+                                                     th:text="${feedback.comments}">Comments</div>
+                                            </div>
+                                            <form th:if="${appt.status.name() == 'COMPLETED' and feedback == null}"
+                                                  th:action="@{/patient/appointments/{id}/feedback(id=${appt.id})}"
+                                                  method="post">
+                                                <label class="form-label">Doctor rating</label>
+                                                <select name="doctorRating" class="form-control" required>
+                                                    <option value="">Rate 1–5</option>
+                                                    <option value="5">5 stars</option>
+                                                    <option value="4">4 stars</option>
+                                                    <option value="3">3 stars</option>
+                                                    <option value="2">2 stars</option>
+                                                    <option value="1">1 star</option>
+                                                </select>
+                                                <label class="form-label">Hospital services</label>
+                                                <select name="serviceRating" class="form-control" required>
+                                                    <option value="">Rate 1–5</option>
+                                                    <option value="5">5 stars</option>
+                                                    <option value="4">4 stars</option>
+                                                    <option value="3">3 stars</option>
+                                                    <option value="2">2 stars</option>
+                                                    <option value="1">1 star</option>
+                                                </select>
+                                                <label class="form-label">Comments or suggestions</label>
+                                                <textarea name="comments" class="form-control" maxlength="2000" rows="2"></textarea>
+                                                <button type="submit" class="btn btn-outline btn-sm" style="margin-top: 6px;">Submit feedback</button>
+                                            </form>
+                                            <span th:if="${feedback == null and appt.status.name() != 'COMPLETED'}"
+                                                  style="font-size: 0.75rem; color: #64748b;">Available after completion</span>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>
@@ -164,18 +205,7 @@
                 <div class="form-group">
                     <label class="form-label required">Select New Time Slot</label>
                     <select name="newSlot" class="form-control" required>
-                        <option value="">-- Choose Time Slot --</option>
-                        <option value="09:00 AM">09:00 AM</option>
-                        <option value="09:30 AM">09:30 AM</option>
-                        <option value="10:00 AM">10:00 AM</option>
-                        <option value="10:30 AM">10:30 AM</option>
-                        <option value="11:00 AM">11:00 AM</option>
-                        <option value="11:30 AM">11:30 AM</option>
-                        <option value="02:00 PM">02:00 PM</option>
-                        <option value="02:30 PM">02:30 PM</option>
-                        <option value="03:00 PM">03:00 PM</option>
-                        <option value="03:30 PM">03:30 PM</option>
-                        <option value="04:00 PM">04:00 PM</option>
+                        <option value="">-- Select a date first --</option>
                     </select>
                 </div>
 
@@ -220,5 +250,6 @@
 </div>
 
 <script th:src="@{/js/script.js}"></script>
+<script th:src="@{/js/patient-appointments.js}" defer></script>
 </body>
 </html>

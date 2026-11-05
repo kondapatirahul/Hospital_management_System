@@ -34,17 +34,17 @@ public class SafetyIncident {
     private String patientReference;
     @Column(length = 100)
     private String location;
-    @Column(nullable = false, length = 3000)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
-    @Column(length = 3000)
+    @Column(columnDefinition = "TEXT")
     private String immediateAction;
-    @Column(length = 3000)
+    @Column(columnDefinition = "TEXT")
     private String rootCause;
-    @Column(length = 3000)
+    @Column(columnDefinition = "TEXT")
     private String correctiveAction;
-    @Column(length = 3000)
+    @Column(columnDefinition = "TEXT")
     private String preventionPlan;
-    @Column(length = 2000)
+    @Column(columnDefinition = "TEXT")
     private String reviewNotes;
     @Column(name = "occurred_at", nullable = false)
     private LocalDateTime occurredAt;

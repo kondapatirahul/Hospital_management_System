@@ -4,13 +4,16 @@ import com.healthcare.hospital.modules.legacy.entity.Appointment;
 import com.healthcare.hospital.modules.legacy.entity.Doctor;
 import com.healthcare.hospital.modules.legacy.entity.Patient;
 import com.healthcare.hospital.shared.enums.AppointmentStatus;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
@@ -21,9 +24,21 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     List<Appointment> findByPatientAndAppointmentDateLessThanOrderByAppointmentDateDescAppointmentTimeDesc(Patient patient, LocalDate date);
 
+    @Query("SELECT a FROM Appointment a WHERE a.patient = :patient " +
+           "AND (a.appointmentDate < :date OR a.status = :completedStatus) " +
+           "ORDER BY a.appointmentDate DESC, a.appointmentTime DESC")
+    List<Appointment> findPatientPastOrCompletedAppointments(
+            @Param("patient") Patient patient,
+            @Param("date") LocalDate date,
+            @Param("completedStatus") AppointmentStatus completedStatus);
+
     List<Appointment> findByAppointmentDateOrderByAppointmentTimeAsc(LocalDate date);
 
     List<Appointment> findByDoctorAndAppointmentDate(Doctor doctor, LocalDate date);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT a FROM Appointment a WHERE a.id = :id")
+    Optional<Appointment> findByIdForUpdate(@Param("id") Long id);
 
     List<Appointment> findByDoctorOrderByAppointmentDateDescAppointmentTimeAsc(Doctor doctor);
 

@@ -2,7 +2,11 @@ package com.healthcare.hospital.modules.legacy.repository;
 
 import com.healthcare.hospital.modules.legacy.entity.Doctor;
 import com.healthcare.hospital.modules.legacy.entity.User;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,4 +18,8 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
     List<Doctor> findByAvailableTodayTrue();
     Optional<Doctor> findByUser(User user);
     Optional<Doctor> findByEmailIgnoreCase(String email);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT d FROM Doctor d WHERE d.id = :id")
+    Optional<Doctor> findByIdForUpdate(@Param("id") Long id);
 }

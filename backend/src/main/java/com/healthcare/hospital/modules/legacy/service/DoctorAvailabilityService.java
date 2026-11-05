@@ -6,6 +6,7 @@ import com.healthcare.hospital.modules.legacy.entity.Doctor;
 import com.healthcare.hospital.modules.legacy.entity.DoctorAvailability;
 import com.healthcare.hospital.modules.legacy.repository.AppointmentRepository;
 import com.healthcare.hospital.modules.legacy.repository.DoctorAvailabilityRepository;
+import com.healthcare.hospital.shared.enums.AppointmentStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -93,6 +94,10 @@ public class DoctorAvailabilityService {
      * taking into account configured DoctorAvailability slots and existing booked appointments.
      */
     public List<String> getAvailableSlotsForDoctorAndDate(Doctor doctor, LocalDate date) {
+        return getAvailableSlotsForDoctorAndDate(doctor, date, null);
+    }
+
+    public List<String> getAvailableSlotsForDoctorAndDate(Doctor doctor, LocalDate date, Long excludedAppointmentId) {
         List<DoctorAvailability> customSlots = availabilityRepository.findByDoctorAndAvailableDateOrderByStartTimeAsc(doctor, date);
         List<Appointment> bookedAppointments = appointmentRepository.findByDoctorAndAppointmentDate(doctor, date);
 
@@ -100,6 +105,10 @@ public class DoctorAvailabilityService {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
 
         for (Appointment appt : bookedAppointments) {
+            if (appt.getStatus() == AppointmentStatus.CANCELLED
+                    || (excludedAppointmentId != null && excludedAppointmentId.equals(appt.getId()))) {
+                continue;
+            }
             if (appt.getAppointmentSlot() != null) {
                 bookedTimeStrings.add(appt.getAppointmentSlot().trim().toUpperCase());
             } else if (appt.getAppointmentTime() != null) {
@@ -116,7 +125,7 @@ public class DoctorAvailabilityService {
                     LocalTime current = slot.getStartTime();
                     while (current.plusMinutes(30).isBefore(slot.getEndTime()) || current.plusMinutes(30).equals(slot.getEndTime())) {
                         String slotStr = current.format(timeFormatter).toUpperCase();
-                        if (!bookedTimeStrings.contains(slotStr)) {
+                        if (!bookedTimeStrings.contains(slotStr) && !isPastSlot(date, current)) {
                             result.add(slotStr);
                         }
                         current = current.plusMinutes(30);
@@ -132,12 +141,17 @@ public class DoctorAvailabilityService {
                     "11:30 AM", "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM", "04:00 PM"
             );
             for (String slot : standardSlots) {
-                if (!bookedTimeStrings.contains(slot.toUpperCase())) {
+                LocalTime time = LocalTime.parse(slot, timeFormatter);
+                if (!bookedTimeStrings.contains(slot.toUpperCase()) && !isPastSlot(date, time)) {
                     result.add(slot);
                 }
             }
         }
 
         return result;
+    }
+
+    private boolean isPastSlot(LocalDate date, LocalTime time) {
+        return date.isEqual(LocalDate.now()) && time.isBefore(LocalTime.now());
     }
 }

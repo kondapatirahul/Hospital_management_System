@@ -20,6 +20,8 @@ import java.util.Optional;
 @Repository
 public interface PrescriptionRepository extends JpaRepository<Prescription, Long> {
     List<Prescription> findByPatientOrderByPrescriptionDateDesc(Patient patient);
+    List<Prescription> findByStatusIgnoreCase(String status);
+    Optional<Prescription> findByIdAndPatient(Long id, Patient patient);
     List<Prescription> findByDoctorOrderByPrescriptionDateDesc(Doctor doctor);
     List<Prescription> findByAppointment(Appointment appointment);
     List<Prescription> findByMedicalRecord(MedicalRecord medicalRecord);
