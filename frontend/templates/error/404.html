@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found - CareFlow HMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/ui-polish-phase1.css}">
+    <link rel="stylesheet" th:href="@{/css/ui-polish-phase3-modules.css}">
+    <link rel="stylesheet" th:href="@{/css/ui-polish-phase4-controls.css}">
+    <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
+    <link rel="stylesheet" th:href="@{/css/careflow-responsive.css}">
+</head>
+<body class="auth-page">
+
+<div class="auth-card" style="text-align: center; padding: 40px 30px;">
+    <div style="width: 70px; height: 70px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 20px auto;">
+        🔍
+    </div>
+    <h2 style="font-size: 1.5rem; color: #0f2c59; margin-bottom: 8px;">Page Not Found</h2>
+    <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 24px;">
+        The requested clinical or operational resource could not be found or may have been moved.
+    </p>
+    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <a th:href="@{/}" class="btn btn-primary">Return to Portal Home</a>
+        <a th:href="@{/login}" class="btn btn-outline">Sign In</a>
+    </div>
+</div>
+
+</body>
+</html>
