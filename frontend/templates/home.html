@@ -1,86 +1,110 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#f5f9ff">
-  <meta name="description" content="CareFlow Hospital Management System — connected care, coordinated teams, and a better patient experience.">
+  <meta name="description"
+    content="CareFlow Hospital Management System — connected care, coordinated teams, and a better patient experience.">
   <title>CareFlow HMS | Connected Healthcare</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" th:href="@{/css/landing-page.css}">
 </head>
+
 <body>
-<header class="site-header">
-  <a class="brand" th:href="@{/}" aria-label="CareFlow home">
-    <span class="brand-mark">+</span>
-    <span><strong>CareFlow HMS</strong><small>HOSPITAL PORTAL</small></span>
-  </a>
-  <nav class="main-nav" aria-label="Main navigation">
-    <a href="#about">About</a>
-    <a href="#contact">Contact</a>
-    <a class="nav-login" th:href="@{/login}">Login <span aria-hidden="true">→</span></a>
-  </nav>
-</header>
+  <header class="site-header">
+    <a class="brand" th:href="@{/}" aria-label="CareFlow home">
+      <span class="brand-mark">+</span>
+      <span><strong>CareFlow HMS</strong><small>HOSPITAL PORTAL</small></span>
+    </a>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <a class="nav-login" th:href="@{/login}">Login <span aria-hidden="true">→</span></a>
+    </nav>
+  </header>
 
-<main>
-  <section class="hero">
-    <div class="hero-copy">
-      <span class="eyebrow"><span class="eyebrow-dot"></span> SMARTER HOSPITAL OPERATIONS</span>
-      <h1>Better care starts with <span>better connection.</span></h1>
-      <p class="hero-description">One connected platform for patients, doctors and hospital teams. CareFlow brings everyday healthcare operations together so your people can focus on what matters most — care.</p>
-      <div class="hero-actions">
-        <a class="button button-primary" th:href="@{/login}">Login to CareFlow <span>→</span></a>
-        <a class="button button-secondary" href="#about">Discover CareFlow</a>
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow"><span class="eyebrow-dot"></span> SMARTER HOSPITAL OPERATIONS</span>
+        <h1>Better care starts with <span>better connection.</span></h1>
+        <p class="hero-description">One connected platform for patients, doctors and hospital teams. CareFlow brings
+          everyday healthcare operations together so your people can focus on what matters most — care.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" th:href="@{/login}">Login to CareFlow <span>→</span></a>
+          <a class="button button-secondary" href="#about">Discover CareFlow</a>
+        </div>
+        <div class="hero-trust">
+          <span class="trust-icon">✚</span>
+          <span><strong>One connected hospital experience</strong><small>Clinical workflows · People ·
+              Operations</small></span>
+        </div>
       </div>
-      <div class="hero-trust">
-        <span class="trust-icon">✚</span>
-        <span><strong>One connected hospital experience</strong><small>Clinical workflows · People · Operations</small></span>
+      <div class="hero-visual">
+        <div class="hero-image" role="img" aria-label="Modern hospital exterior surrounded by trees">
+          <div class="image-caption"><span class="caption-pulse"></span> Connected care. Every day.</div>
+        </div>
+        <div class="floating-card">
+          <span class="float-icon">♥</span>
+          <span><strong>Care, coordinated.</strong><small>From first visit to follow-up</small></span>
+        </div>
+        <div class="visual-accent"></div>
       </div>
-    </div>
-    <div class="hero-visual">
-      <div class="hero-image" role="img" aria-label="Modern hospital exterior surrounded by trees">
-        <div class="image-caption"><span class="caption-pulse"></span> Connected care. Every day.</div>
-      </div>
-      <div class="floating-card">
-        <span class="float-icon">♥</span>
-        <span><strong>Care, coordinated.</strong><small>From first visit to follow-up</small></span>
-      </div>
-      <div class="visual-accent"></div>
-    </div>
-  </section>
+    </section>
 
-  <section class="about-section" id="about">
-    <div class="section-heading">
-      <span class="eyebrow">ABOUT CAREFLOW</span>
-      <h2>Everything working together, <span>for better care.</span></h2>
-      <p>CareFlow HMS helps bring essential hospital workflows into one organised digital workspace.</p>
-    </div>
-    <div class="feature-grid">
-      <article class="feature-card"><span class="feature-icon">✚</span><h3>Patient-first workflows</h3><p>Support patient registration, appointments and coordinated care journeys.</p></article>
-      <article class="feature-card"><span class="feature-icon">⌘</span><h3>Connected departments</h3><p>Bring clinical, laboratory, pharmacy, billing and staff operations together.</p></article>
-      <article class="feature-card"><span class="feature-icon">▤</span><h3>Clearer operations</h3><p>Give authorised teams a consistent view of daily tasks, records and activity.</p></article>
-    </div>
-  </section>
+    <section class="about-section" id="about">
+      <div class="section-heading">
+        <span class="eyebrow">ABOUT CAREFLOW</span>
+        <h2>Everything working together, <span>for better care.</span></h2>
+        <p>CareFlow HMS helps bring essential hospital workflows into one organised digital workspace.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card"><span class="feature-icon">✚</span>
+          <h3>Patient-first workflows</h3>
+          <p>Support patient registration, appointments and coordinated care journeys.</p>
+        </article>
+        <article class="feature-card"><span class="feature-icon">⌘</span>
+          <h3>Connected departments</h3>
+          <p>Bring clinical, laboratory, pharmacy, billing and staff operations together.</p>
+        </article>
+        <article class="feature-card"><span class="feature-icon">▤</span>
+          <h3>Clearer operations</h3>
+          <p>Give authorised teams a consistent view of daily tasks, records and activity.</p>
+        </article>
+      </div>
+    </section>
 
-  <section class="contact-band" id="contact">
-    <div><span class="eyebrow">GET IN TOUCH</span><h2>Let’s make hospital operations simpler.</h2><p>Have a question about CareFlow? Contact the hospital administration team.</p></div>
-    <a class="button button-light" href="mailto:contact@careflowhospital.com">Contact us <span>↗</span></a>
-  </section>
-</main>
+    <section class="contact-band" id="contact">
+      <div><span class="eyebrow">GET IN TOUCH</span>
+        <h2>Let’s make hospital operations simpler.</h2>
+        <p>Have a question about CareFlow? Contact the hospital administration team.</p>
+      </div>
+      <a class="button button-light" href="mailto:contact@careflowhospital.com">Contact us <span>↗</span></a>
+    </section>
+  </main>
 
-<footer class="site-footer">
-  <div class="footer-brand">
-    <a class="brand" th:href="@{/}"><span class="brand-mark">+</span><span><strong>CareFlow HMS</strong><small>HOSPITAL PORTAL</small></span></a>
-    <p>Connected healthcare. Thoughtfully managed.</p>
-  </div>
-  <div class="footer-links"><a href="#about">About</a><a href="#contact">Contact</a><a th:href="@{/login}">Login</a></div>
-  <div class="footer-contact" id="footer-contact"><strong>Contact</strong><a href="mailto:contact@careflowhospital.com">contact@careflowhospital.com</a></div>
-  <div class="footer-bottom"><span>© <span id="year">2026</span> CareFlow HMS. All rights reserved.</span><span>Designed for connected care.</span></div>
-</footer>
-<script>
-  document.getElementById('year').textContent = new Date().getFullYear();
-</script>
+  <footer class="site-footer">
+    <div class="footer-brand">
+      <a class="brand" th:href="@{/}"><span class="brand-mark">+</span><span><strong>CareFlow
+            HMS</strong><small>HOSPITAL PORTAL</small></span></a>
+      <p>Connected healthcare. Thoughtfully managed.</p>
+    </div>
+    <div class="footer-links"><a href="#about">About</a><a href="#contact">Contact</a><a th:href="@{/login}">Login</a>
+    </div>
+    <div class="footer-contact" id="footer-contact"><strong>Contact</strong><a
+        href="mailto:contact@careflowhospital.com">contact@careflowhospital.com</a></div>
+    <div class="footer-bottom"><span>© <span id="year">2026</span> CareFlow HMS. All rights
+        reserved.</span><span>Designed for connected care.</span></div>
+  </footer>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
+
 </html>
