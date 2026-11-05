@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,7 +12,6 @@
   <link rel="stylesheet" th:href="@{/css/ui-polish-phase7-consistency.css}">
   <link rel="stylesheet" th:href="@{/css/careflow-login.css}">
 </head>
-
 <body class="careflow-login-page">
   <main class="login-shell">
     <section class="login-story" aria-label="CareFlow introduction">
@@ -21,25 +19,23 @@
         <span class="story-logo">+</span>
         <span><strong>CareFlow HMS</strong><small>HOSPITAL MANAGEMENT SYSTEM</small></span>
       </a>
+      <img class="story-illustration" src="/images/careflow-login-visual.png" alt="CareFlow hospital illustration">
       <div class="story-content">
         <span class="story-kicker"><i></i> CONNECTED HEALTHCARE PLATFORM</span>
         <h1>Every team.<br>Every patient.<br><span>One connected careflow.</span></h1>
         <p class="story-quote">“Great healthcare happens when every part of the team moves together.”</p>
-        <p class="story-description">A unified workspace for managing patients, clinical teams and hospital operations —
-          designed to keep care moving.</p>
+        <p class="story-description">A unified workspace for managing patients, clinical teams and hospital operations — designed to keep care moving.</p>
         <div class="story-points">
           <span><b>✚</b> Patient-centred care</span>
           <span><b>⌘</b> Connected departments</span>
           <span><b>▤</b> Clear operational insights</span>
         </div>
       </div>
-      <div class="story-bottom"><span class="story-pulse"></span> Secure role-based access <span
-          class="story-separator">•</span> CareFlow Hospital Portal</div>
+      <div class="story-bottom"><span class="story-pulse"></span> Secure role-based access <span class="story-separator">•</span> CareFlow Hospital Portal</div>
     </section>
 
     <section class="login-side">
-      <div class="login-topline"><a th:href="@{/}" class="back-home">← Back to home</a><span class="secure-label">
-          <span>✓</span> Secure sign in</span></div>
+      <div class="login-topline"><a th:href="@{/}" class="back-home">← Back to home</a><span class="secure-label"> <span>✓</span> Secure sign in</span></div>
       <div class="login-content">
         <div class="login-heading">
           <div class="login-symbol">+</div>
@@ -52,87 +48,65 @@
 
         <div class="portal-picker" id="portalPicker">
           <label class="field-label" for="portalToggle">Select your login dashboard</label>
-          <button type="button" class="portal-toggle" id="portalToggle" aria-expanded="false"
-            aria-controls="portalMenu">
+          <button type="button" class="portal-toggle" id="portalToggle" aria-expanded="false" aria-controls="portalMenu">
             <span class="portal-toggle-icon" id="selectedPortalIcon">▦</span>
-            <span class="portal-toggle-text"><strong id="selectedPortalName">Choose a dashboard</strong><small
-                id="selectedPortalHint">Select your department or role</small></span>
+            <span class="portal-toggle-text"><strong id="selectedPortalName">Choose a dashboard</strong><small id="selectedPortalHint">Select your department or role</small></span>
             <span class="portal-chevron">⌄</span>
           </button>
           <div class="portal-menu" id="portalMenu" hidden>
-            <button type="button" class="portal-option" data-role="admin" data-name="Administration" data-icon="🏥"
-              data-hint="Hospital-wide administration">
-              <span class="option-icon">🏥</span><span><strong>Administration</strong><small>System administration and
-                  governance</small></span><span class="option-arrow">→</span>
+            <button type="button" class="portal-option" data-role="admin" data-name="Administration" data-icon="🏥" data-hint="Hospital-wide administration">
+              <span class="option-icon">🏥</span><span><strong>Administration</strong><small>System administration and governance</small></span><span class="option-arrow">→</span>
             </button>
-            <button type="button" class="portal-option" data-role="receptionist" data-name="Reception" data-icon="🗂️"
-              data-hint="Patient registration and appointments">
-              <span class="option-icon">🗂️</span><span><strong>Reception</strong><small>Patient registration and
-                  appointments</small></span><span class="option-arrow">→</span>
+            <button type="button" class="portal-option" data-role="receptionist" data-name="Reception" data-icon="🗂️" data-hint="Patient registration and appointments">
+              <span class="option-icon">🗂️</span><span><strong>Reception</strong><small>Patient registration and appointments</small></span><span class="option-arrow">→</span>
             </button>
-            <button type="button" class="portal-option" data-role="doctor" data-name="Doctor" data-icon="🩺"
-              data-hint="Clinical and patient care workspace">
-              <span class="option-icon">🩺</span><span><strong>Doctor</strong><small>Clinical and patient care
-                  workspace</small></span><span class="option-arrow">→</span>
+            <button type="button" class="portal-option" data-role="doctor" data-name="Doctor" data-icon="🩺" data-hint="Clinical and patient care workspace">
+              <span class="option-icon">🩺</span><span><strong>Doctor</strong><small>Clinical and patient care workspace</small></span><span class="option-arrow">→</span>
             </button>
-            <button type="button" class="portal-option" data-role="patient" data-name="Patient" data-icon="👤"
-              data-hint="Your personal patient portal">
-              <span class="option-icon">👤</span><span><strong>Patient</strong><small>Your personal patient
-                  portal</small></span><span class="option-arrow">→</span>
+            <button type="button" class="portal-option" data-role="patient" data-name="Patient" data-icon="👤" data-hint="Your personal patient portal">
+              <span class="option-icon">👤</span><span><strong>Patient</strong><small>Your personal patient portal</small></span><span class="option-arrow">→</span>
             </button>
-            <button type="button" class="portal-option" data-role="pharmacy" data-name="Pharmacy" data-icon="💊"
-              data-hint="Prescriptions and medicine inventory">
-              <span class="option-icon">💊</span><span><strong>Pharmacy</strong><small>Prescriptions and medicine
-                  inventory</small></span><span class="option-arrow">→</span>
+            <button type="button" class="portal-option" data-role="pharmacy" data-name="Pharmacy" data-icon="💊" data-hint="Prescriptions and medicine inventory">
+              <span class="option-icon">💊</span><span><strong>Pharmacy</strong><small>Prescriptions and medicine inventory</small></span><span class="option-arrow">→</span>
             </button>
-            <button type="button" class="portal-option" data-role="laboratory" data-name="Laboratory" data-icon="🧪"
-              data-hint="Samples, tests and lab results">
-              <span class="option-icon">🧪</span><span><strong>Laboratory</strong><small>Samples, tests and lab
-                  results</small></span><span class="option-arrow">→</span>
+            <button type="button" class="portal-option" data-role="laboratory" data-name="Laboratory" data-icon="🧪" data-hint="Samples, tests and lab results">
+              <span class="option-icon">🧪</span><span><strong>Laboratory</strong><small>Samples, tests and lab results</small></span><span class="option-arrow">→</span>
             </button>
-            <button type="button" class="portal-option" data-role="billing" data-name="Billing & Finance" data-icon="💳"
-              data-hint="Payments, invoices and finance">
-              <span class="option-icon">💳</span><span><strong>Billing &amp; Finance</strong><small>Payments, invoices
-                  and finance</small></span><span class="option-arrow">→</span>
+            <button type="button" class="portal-option" data-role="billing" data-name="Billing & Finance" data-icon="💳" data-hint="Payments, invoices and finance">
+              <span class="option-icon">💳</span><span><strong>Billing &amp; Finance</strong><small>Payments, invoices and finance</small></span><span class="option-arrow">→</span>
             </button>
-            <button type="button" class="portal-option" data-role="nurse" data-name="Staff & Nursing" data-icon="🩹"
-              data-hint="Staff, nursing and ward operations">
-              <span class="option-icon">🩹</span><span><strong>Staff &amp; Nursing</strong><small>Staff, nursing and
-                  ward operations</small></span><span class="option-arrow">→</span>
+            <button type="button" class="portal-option" data-role="nurse" data-name="Staff & Nursing" data-icon="🩹" data-hint="Staff, nursing and ward operations">
+              <span class="option-icon">🩹</span><span><strong>Staff &amp; Nursing</strong><small>Staff, nursing and ward operations</small></span><span class="option-arrow">→</span>
             </button>
           </div>
         </div>
 
         <form th:action="@{/login}" method="post" id="loginForm" class="login-form is-locked">
-          <div class="form-unlock-note" id="formUnlockNote"><span>↳</span> Select a dashboard above to show its sign-in
-            form.</div>
+          <div class="form-unlock-note" id="formUnlockNote"><span>↳</span> Select a dashboard above to show its sign-in form.</div>
           <div class="form-fields" id="formFields" aria-hidden="true">
             <div class="form-group">
               <label for="username" class="field-label">Email address / Username</label>
-              <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username"
-                autocomplete="username" required disabled>
+              <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username" autocomplete="username" required disabled>
             </div>
             <div class="form-group">
               <label for="password" class="field-label">Password</label>
-              <div class="password-wrap"><input type="password" id="password" name="password" class="form-control"
-                  placeholder="Enter your password" autocomplete="current-password" required disabled><button
-                  type="button" id="togglePassword" class="password-toggle" aria-label="Show password">◎</button></div>
+              <div class="password-wrap"><input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" autocomplete="current-password" required disabled><button type="button" id="togglePassword" class="password-toggle" aria-label="Show password">◎</button></div>
             </div>
-            <div class="form-meta"><label class="remember-label"><input type="checkbox" name="remember-me" disabled>
-                <span>Remember me</span></label><span class="demo-note">Demo password: Password@123</span></div>
-            <button type="submit" class="login-submit" id="loginSubmit" disabled><span>Sign in to
-                dashboard</span><b>→</b></button>
+            <div class="form-meta"><label class="remember-label"><input type="checkbox" name="remember-me" disabled> <span>Remember me</span></label><span class="demo-note">Demo password: Password@123</span></div>
+            <button type="submit" class="login-submit" id="loginSubmit" disabled><span>Sign in to dashboard</span><b>→</b></button>
           </div>
         </form>
 
-        <div class="login-footnote">New patient? <a th:href="@{/register}">Create a patient portal account</a></div>
+        <div class="login-footnote" id="registrationPrompt" data-default="Select Patient to create a patient portal account.">
+          <span id="registrationPromptText">Select Patient to create a patient portal account.</span>
+          <a id="patientRegisterLink" th:href="@{/register}" hidden>Create a patient portal account</a>
+          <span id="staffRegistrationNote" hidden>Staff accounts are created by the hospital administrator.</span>
+        </div>
       </div>
-      <footer class="login-footer"><span>© <span id="loginYear">2026</span> CareFlow HMS</span><span>Healthcare,
-          connected.</span></footer>
+      <footer class="login-footer"><span>© <span id="loginYear">2026</span> CareFlow HMS</span><span>Healthcare, connected.</span></footer>
     </section>
   </main>
   <script th:src="@{/js/script.js}"></script>
   <script th:src="@{/js/careflow-login.js}"></script>
 </body>
-
 </html>
