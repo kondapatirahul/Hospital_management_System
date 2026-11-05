@@ -1,0 +1,130 @@
+/* CareFlow focused UI consistency pass — staff, admin, reports and integration pages. */
+:root{
+  --cf-ui-ink:#17365d;--cf-ui-muted:#61748b;--cf-ui-line:#dbe5f1;
+  --cf-ui-panel:#fff;--cf-ui-wash:#f4f7fc;--cf-ui-primary:#1769c2;
+  --cf-ui-primary-dark:#1554a5;--cf-ui-radius:16px;
+}
+body:has(> main.container), body:has(> main.cf-page-shell), body:has(> main.wrap){
+  background:linear-gradient(180deg,#f7faff 0%,#f1f5fb 100%);
+  color:var(--cf-ui-ink);
+}
+main.container, main.cf-page-shell, main.wrap{
+  box-sizing:border-box;width:min(100% - 36px,1320px);margin:28px auto!important;
+  padding:clamp(16px,2.2vw,28px)!important;color:var(--cf-ui-ink);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+main.container *,main.cf-page-shell *,main.wrap *{box-sizing:border-box}
+main.container>header,main.cf-page-shell>.cf-page-header,main.wrap>.hero{
+  display:flex;justify-content:space-between;align-items:center;gap:20px;
+  flex-wrap:wrap;margin:0 0 22px;padding:0 0 4px;
+}
+main.container>header h1,main.cf-page-shell h1,main.wrap h1{
+  margin:4px 0 6px;color:#17365d;font-size:clamp(1.65rem,2.5vw,2.15rem);
+  line-height:1.2;letter-spacing:-.035em;font-weight:760;
+}
+main.container>header p,main.cf-page-shell .cf-page-subtitle,main.wrap>.hero p{color:#536a85}
+main.container>header nav,main.cf-page-shell .cf-page-nav{
+  display:flex;align-items:center;flex-wrap:wrap;gap:9px 16px;
+}
+main.container>header nav a,main.cf-page-shell .cf-page-nav a,main.wrap a{
+  color:#155bb0;text-decoration:none;font-weight:650;
+}
+main.container>header nav a:hover,main.cf-page-shell .cf-page-nav a:hover,main.wrap a:hover{
+  color:#0d4388;text-decoration:underline;text-underline-offset:3px;
+}
+main.container .card,main.cf-page-shell .cf-surface,main.wrap>.hero,
+main.wrap>.metrics article,main.wrap>.table-wrap{
+  background:var(--cf-ui-panel);border:1px solid var(--cf-ui-line);
+  border-radius:var(--cf-ui-radius);box-shadow:0 8px 26px rgba(28,55,90,.055);
+}
+main.container .card,main.cf-page-shell .cf-surface{padding:18px;margin-bottom:18px}
+main.container h2,main.cf-page-shell h2,main.wrap h2{
+  color:#17365d;font-size:1.25rem;line-height:1.3;margin:0 0 12px;font-weight:730;
+}
+main.container h3{font-size:1rem;margin:0 0 8px;color:#284767}
+main.container section[style*="grid"],main.container .cf-stat-grid{
+  gap:14px!important;margin:20px 0!important;
+}
+main.container .card strong,main.cf-page-shell .cf-stat-card strong{
+  display:block;color:#205bd8;font-size:1.75rem;font-weight:780;margin-top:8px;
+}
+main.container form,main.cf-page-shell form,main.wrap form{min-width:0}
+main.container form label,main.cf-page-shell form label,main.wrap form label{
+  display:flex;flex-direction:column;gap:6px;min-width:0;color:#38516f;
+  font-size:.88rem;font-weight:650;
+}
+main.container input:not([type=checkbox]):not([type=radio]):not([type=hidden]),
+main.container select,main.container textarea,
+main.cf-page-shell input:not([type=checkbox]):not([type=radio]):not([type=hidden]),
+main.cf-page-shell select,main.cf-page-shell textarea,
+main.wrap input:not([type=checkbox]):not([type=radio]):not([type=hidden]),
+main.wrap select,main.wrap textarea{
+  width:100%;min-width:0;min-height:44px;padding:10px 13px;
+  border:1px solid #d5e0ee;border-radius:11px;background:#fff;color:#1e3553;
+  font:inherit;font-size:.92rem;box-shadow:0 1px 2px rgba(20,40,70,.025);
+  transition:border-color .16s,box-shadow .16s,background .16s;
+}
+main.container textarea,main.cf-page-shell textarea,main.wrap textarea{min-height:88px;resize:vertical}
+main.container input::placeholder,main.cf-page-shell input::placeholder,main.wrap input::placeholder{color:#8a9bb0}
+main.container :is(input,select,textarea):focus,main.cf-page-shell :is(input,select,textarea):focus,main.wrap :is(input,select,textarea):focus{
+  outline:0;border-color:#65a2e8;box-shadow:0 0 0 3px rgba(37,116,207,.13);
+}
+main.container button,main.cf-page-shell button,main.wrap button,
+main.container .btn,main.cf-page-shell .btn,main.wrap .btn{
+  min-height:42px;padding:10px 17px;border:1px solid transparent;border-radius:11px;
+  background:linear-gradient(135deg,#1688c7,#2458b8);color:#fff;
+  font:inherit;font-size:.9rem;font-weight:700;cursor:pointer;
+  box-shadow:0 3px 9px rgba(28,91,170,.14);transition:transform .15s,filter .15s,box-shadow .15s;
+}
+main.container button:hover,main.cf-page-shell button:hover,main.wrap button:hover,
+main.container .btn:hover,main.cf-page-shell .btn:hover,main.wrap .btn:hover{
+  filter:brightness(.97);box-shadow:0 5px 13px rgba(28,91,170,.2);transform:translateY(-1px);
+}
+main.container button:active,main.cf-page-shell button:active,main.wrap button:active{transform:translateY(0)}
+main.container button.btn-secondary,main.cf-page-shell button.btn-secondary{background:#edf4fc;color:#24558f;border-color:#d4e2f2;box-shadow:none}
+main.container a:not([class]),main.cf-page-shell a:not([class]){color:#175db2;text-underline-offset:3px}
+main.container table,main.cf-page-shell table,main.wrap table{
+  width:100%;border-collapse:separate;border-spacing:0;font-size:.9rem;
+  color:#27415f;background:#fff;
+}
+main.container thead th,main.cf-page-shell thead th,main.wrap thead th{
+  padding:13px 14px;background:#f3f7fc;color:#526b88;text-align:left;
+  font-size:.75rem;font-weight:800;letter-spacing:.045em;text-transform:uppercase;
+  border-bottom:1px solid #dce6f1;white-space:nowrap;
+}
+main.container tbody td,main.cf-page-shell tbody td,main.wrap tbody td{
+  padding:13px 14px;border-bottom:1px solid #e8eef5;vertical-align:middle;
+  overflow-wrap:anywhere;
+}
+main.container tbody tr:last-child td,main.cf-page-shell tbody tr:last-child td,main.wrap tbody tr:last-child td{border-bottom:0}
+main.container tbody tr:hover td,main.cf-page-shell tbody tr:hover td,main.wrap tbody tr:hover td{background:#f9fbfe}
+main.container [style*="overflow-x:auto"],main.cf-page-shell .cf-table-wrap,main.wrap .table-wrap{
+  max-width:100%;overflow-x:auto;border-radius:12px;overscroll-behavior-x:contain;
+}
+main.container .alert{padding:12px 15px;border-radius:11px}
+main.container small,main.cf-page-shell .cf-muted{color:var(--cf-ui-muted)}
+main.container :is(a,button,input,select,textarea):focus-visible,
+main.cf-page-shell :is(a,button,input,select,textarea):focus-visible,
+main.wrap :is(a,button,input,select,textarea):focus-visible{outline:3px solid #83b8f1;outline-offset:2px}
+main.wrap{max-width:1240px}
+main.wrap>.hero{padding:28px 30px;background:linear-gradient(125deg,#fff 0%,#eef4ff 100%)}
+main.wrap>.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:18px 0}
+main.wrap>.metrics article{padding:19px;min-height:100px}
+main.wrap>.metrics article span{display:block;color:#647b97;font-size:.88rem}
+main.wrap>.metrics article strong{display:block;margin-top:9px;font-size:1.55rem;color:#17365d}
+main.wrap>.table-wrap{overflow-x:auto;padding:0;margin-top:18px}
+main.wrap>.table-wrap table{min-width:650px}
+main.cf-page-shell .cf-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:20px 0}
+main.cf-page-shell .cf-stat-card{background:#fff;border:1px solid var(--cf-ui-line);border-radius:15px;padding:16px}
+main.cf-page-shell .cf-attendance-self form{display:flex;align-items:end;gap:10px;flex-wrap:wrap}
+main.cf-page-shell .cf-attendance-self form label{flex:1 1 190px}
+main.cf-page-shell .cf-date-filter{display:flex;align-items:end;gap:9px;flex-wrap:wrap}
+main.cf-page-shell .cf-section-title-row{display:flex;justify-content:space-between;align-items:end;gap:14px;flex-wrap:wrap}
+@media(max-width:720px){
+  main.container,main.cf-page-shell,main.wrap{width:min(100% - 20px,1320px);margin:10px auto!important;padding:12px!important}
+  main.container .card,main.cf-page-shell .cf-surface{padding:14px}
+  main.container>header,main.cf-page-shell>.cf-page-header{align-items:flex-start}
+  main.container>header nav,main.cf-page-shell .cf-page-nav{width:100%}
+  main.container form[style*="grid-template-columns"],main.container section form[style*="grid-template-columns"]{grid-template-columns:1fr!important}
+  main.container table{min-width:720px}
+}
