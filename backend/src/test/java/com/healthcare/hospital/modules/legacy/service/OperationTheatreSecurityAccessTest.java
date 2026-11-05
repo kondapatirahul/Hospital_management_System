@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class OperationTheatreSecurityAccessTest {
 
     @Autowired
-    private MockMvc mockMvc;
+     private MockMvc mockMvc;
 
     @MockBean private CustomUserDetailsService userDetailsService;
     @MockBean private OperationTheatreService theatreService;
