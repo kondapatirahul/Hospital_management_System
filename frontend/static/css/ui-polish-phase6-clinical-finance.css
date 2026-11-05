@@ -1,31 +1,239 @@
 /* CareFlow UI Overhaul Phase 6: clinical, pharmacy, laboratory, billing and scheduling pages. */
-:root{--cf6-border:#dce4ee;--cf6-muted:#64748b;--cf6-surface:#fff;--cf6-soft:#f5f8fc;--cf6-primary:#2563eb;--cf6-radius:14px}
+:root {
+    --cf6-border: #dce4ee;
+    --cf6-muted: #64748b;
+    --cf6-surface: #fff;
+    --cf6-soft: #f5f8fc;
+    --cf6-primary: #2563eb;
+    --cf6-radius: 14px
+}
+
 /* Normalize content widths without overriding intentional dashboard shells. */
-body:has(main.container) main.container{box-sizing:border-box;width:min(100% - 32px,1320px)!important;max-width:1320px!important;margin:24px auto!important;padding:clamp(16px,2.2vw,30px)!important}
-body:has(main.page-content) .page-content{min-width:0;max-width:100%;box-sizing:border-box}
-body:has(main.container) main.container>header{margin-bottom:22px;padding:clamp(16px,2vw,24px);border:1px solid var(--cf6-border);border-radius:var(--cf6-radius);background:linear-gradient(135deg,#fff,#f7faff)}
-body:has(main.container) main.container>header h1{margin:.35rem 0 .5rem;line-height:1.2;letter-spacing:-.025em;font-size:clamp(1.5rem,2.3vw,2.15rem)}
-body:has(main.container) main.container>header p{margin:0;color:var(--cf6-muted);line-height:1.6;max-width:75ch}
+body:has(main.container) main.container {
+    box-sizing: border-box;
+    width: min(100% - 32px, 1320px) !important;
+    max-width: 1320px !important;
+    margin: 24px auto !important;
+    padding: clamp(16px, 2.2vw, 30px) !important
+}
+
+body:has(main.page-content) .page-content {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box
+}
+
+body:has(main.container) main.container>header {
+    margin-bottom: 22px;
+    padding: clamp(16px, 2vw, 24px);
+    border: 1px solid var(--cf6-border);
+    border-radius: var(--cf6-radius);
+    background: linear-gradient(135deg, #fff, #f7faff)
+}
+
+body:has(main.container) main.container>header h1 {
+    margin: .35rem 0 .5rem;
+    line-height: 1.2;
+    letter-spacing: -.025em;
+    font-size: clamp(1.5rem, 2.3vw, 2.15rem)
+}
+
+body:has(main.container) main.container>header p {
+    margin: 0;
+    color: var(--cf6-muted);
+    line-height: 1.6;
+    max-width: 75ch
+}
+
 /* Form layouts: allow fields to shrink and wrap instead of widening the viewport. */
-body:has(main.container) main.container form{min-width:0;max-width:100%;box-sizing:border-box}
-body:has(main.container) main.container form>div:not([class]),body:has(main.container) main.container form .form-row{min-width:0}
-body:has(main.container) main.container label{display:block;margin:0 0 6px;font-size:.9rem;font-weight:600;color:#334155}
-body:has(main.container) main.container input:not([type=checkbox]):not([type=radio]):not([type=hidden]),body:has(main.container) main.container select,body:has(main.container) main.container textarea,body:has(main.page-content) .page-content input:not([type=checkbox]):not([type=radio]):not([type=hidden]),body:has(main.page-content) .page-content select,body:has(main.page-content) .page-content textarea{box-sizing:border-box;max-width:100%;min-width:0;width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:10px 12px;background:#fff;color:#0f172a;font:inherit;line-height:1.45;transition:border-color .15s,box-shadow .15s}
-body:has(main.container) main.container input:focus,body:has(main.container) main.container select:focus,body:has(main.container) main.container textarea:focus,body:has(main.page-content) .page-content input:focus,body:has(main.page-content) .page-content select:focus,body:has(main.page-content) .page-content textarea:focus{outline:none;border-color:var(--cf6-primary);box-shadow:0 0 0 3px #2563eb20}
-body:has(main.container) main.container button,body:has(main.container) main.container .button,body:has(main.page-content) .page-content button{max-width:100%;white-space:normal;overflow-wrap:anywhere;border-radius:9px}
+body:has(main.container) main.container form {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box
+}
+
+body:has(main.container) main.container form>div:not([class]),
+body:has(main.container) main.container form .form-row {
+    min-width: 0
+}
+
+body:has(main.container) main.container label {
+    display: block;
+    margin: 0 0 6px;
+    font-size: .9rem;
+    font-weight: 600;
+    color: #334155
+}
+
+body:has(main.container) main.container input:not([type=checkbox]):not([type=radio]):not([type=hidden]),
+body:has(main.container) main.container select,
+body:has(main.container) main.container textarea,
+body:has(main.page-content) .page-content input:not([type=checkbox]):not([type=radio]):not([type=hidden]),
+body:has(main.page-content) .page-content select,
+body:has(main.page-content) .page-content textarea {
+    box-sizing: border-box;
+    max-width: 100%;
+    min-width: 0;
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    padding: 10px 12px;
+    background: #fff;
+    color: #0f172a;
+    font: inherit;
+    line-height: 1.45;
+    transition: border-color .15s, box-shadow .15s
+}
+
+body:has(main.container) main.container input:focus,
+body:has(main.container) main.container select:focus,
+body:has(main.container) main.container textarea:focus,
+body:has(main.page-content) .page-content input:focus,
+body:has(main.page-content) .page-content select:focus,
+body:has(main.page-content) .page-content textarea:focus {
+    outline: none;
+    border-color: var(--cf6-primary);
+    box-shadow: 0 0 0 3px #2563eb20
+}
+
+body:has(main.container) main.container button,
+body:has(main.container) main.container .button,
+body:has(main.page-content) .page-content button {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    border-radius: 9px
+}
+
 /* Tables should remain usable on narrow screens and never stretch the page. */
-body:has(main.container) main.container table,body:has(main.page-content) .page-content table{width:100%;border-collapse:separate;border-spacing:0;min-width:680px;background:#fff}
-body:has(main.container) main.container table th,body:has(main.page-content) .page-content table th{background:#f3f6fb;color:#334155;font-size:.78rem;text-transform:uppercase;letter-spacing:.035em;white-space:nowrap}
-body:has(main.container) main.container table th,body:has(main.container) main.container table td,body:has(main.page-content) .page-content table th,body:has(main.page-content) .page-content table td{padding:12px 14px;border-bottom:1px solid #e7edf4;text-align:left;vertical-align:middle}
-body:has(main.container) main.container table tr:last-child td,body:has(main.page-content) .page-content table tr:last-child td{border-bottom:0}
-body:has(main.container) main.container table tr:hover td,body:has(main.page-content) .page-content table tr:hover td{background:#f8fbff}
-body:has(main.container) main.container .table-responsive,body:has(main.container) main.container .table-wrap,body:has(main.page-content) .page-content .table-responsive,body:has(main.page-content) .page-content .table-wrap{max-width:100%;overflow-x:auto;border:1px solid var(--cf6-border);border-radius:12px;background:#fff}
+body:has(main.container) main.container table,
+body:has(main.page-content) .page-content table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 680px;
+    background: #fff
+}
+
+body:has(main.container) main.container table th,
+body:has(main.page-content) .page-content table th {
+    background: #f3f6fb;
+    color: #334155;
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .035em;
+    white-space: nowrap
+}
+
+body:has(main.container) main.container table th,
+body:has(main.container) main.container table td,
+body:has(main.page-content) .page-content table th,
+body:has(main.page-content) .page-content table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #e7edf4;
+    text-align: left;
+    vertical-align: middle
+}
+
+body:has(main.container) main.container table tr:last-child td,
+body:has(main.page-content) .page-content table tr:last-child td {
+    border-bottom: 0
+}
+
+body:has(main.container) main.container table tr:hover td,
+body:has(main.page-content) .page-content table tr:hover td {
+    background: #f8fbff
+}
+
+body:has(main.container) main.container .table-responsive,
+body:has(main.container) main.container .table-wrap,
+body:has(main.page-content) .page-content .table-responsive,
+body:has(main.page-content) .page-content .table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--cf6-border);
+    border-radius: 12px;
+    background: #fff
+}
+
 /* Sections and filters are visually separated and wrap naturally. */
-body:has(main.container) main.container section,body:has(main.page-content) .page-content section{min-width:0}
-body:has(main.container) main.container form[role=search],body:has(main.container) main.container .filters,body:has(main.page-content) .page-content .filters{display:flex;flex-wrap:wrap;align-items:end;gap:12px}
-body:has(main.container) main.container .filters>*,body:has(main.page-content) .page-content .filters>*{min-width:min(180px,100%);flex:1 1 180px}
-body:has(main.container) main.container .alert,body:has(main.page-content) .page-content .alert{border-radius:10px;padding:12px 15px;line-height:1.5;overflow-wrap:anywhere}
-body:has(main.container) main.container .card,body:has(main.page-content) .page-content .card{min-width:0;border-radius:var(--cf6-radius)}
-body:has(main.container) main.container a,body:has(main.page-content) .page-content a{overflow-wrap:anywhere}
-@media(max-width:760px){body:has(main.container) main.container{width:calc(100% - 20px)!important;margin:10px auto!important;padding:12px!important}body:has(main.container) main.container>header{padding:16px}body:has(main.container) main.container form[style*=grid],body:has(main.page-content) .page-content form[style*=grid]{grid-template-columns:minmax(0,1fr)!important}body:has(main.container) main.container .filters,body:has(main.page-content) .page-content .filters{align-items:stretch}body:has(main.container) main.container .filters>*,body:has(main.page-content) .page-content .filters>*{flex-basis:100%}body:has(main.container) main.container button,body:has(main.page-content) .page-content button{min-height:40px}}
-@media(prefers-reduced-motion:reduce){body:has(main.container) *,body:has(main.page-content) *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+body:has(main.container) main.container section,
+body:has(main.page-content) .page-content section {
+    min-width: 0
+}
+
+body:has(main.container) main.container form[role=search],
+body:has(main.container) main.container .filters,
+body:has(main.page-content) .page-content .filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 12px
+}
+
+body:has(main.container) main.container .filters>*,
+body:has(main.page-content) .page-content .filters>* {
+    min-width: min(180px, 100%);
+    flex: 1 1 180px
+}
+
+body:has(main.container) main.container .alert,
+body:has(main.page-content) .page-content .alert {
+    border-radius: 10px;
+    padding: 12px 15px;
+    line-height: 1.5;
+    overflow-wrap: anywhere
+}
+
+body:has(main.container) main.container .card,
+body:has(main.page-content) .page-content .card {
+    min-width: 0;
+    border-radius: var(--cf6-radius)
+}
+
+body:has(main.container) main.container a,
+body:has(main.page-content) .page-content a {
+    overflow-wrap: anywhere
+}
+
+@media(max-width:760px) {
+    body:has(main.container) main.container {
+        width: calc(100% - 20px) !important;
+        margin: 10px auto !important;
+        padding: 12px !important
+    }
+
+    body:has(main.container) main.container>header {
+        padding: 16px
+    }
+
+    body:has(main.container) main.container form[style*=grid],
+    body:has(main.page-content) .page-content form[style*=grid] {
+        grid-template-columns: minmax(0, 1fr) !important
+    }
+
+    body:has(main.container) main.container .filters,
+    body:has(main.page-content) .page-content .filters {
+        align-items: stretch
+    }
+
+    body:has(main.container) main.container .filters>*,
+    body:has(main.page-content) .page-content .filters>* {
+        flex-basis: 100%
+    }
+
+    body:has(main.container) main.container button,
+    body:has(main.page-content) .page-content button {
+        min-height: 40px
+    }
+}
+
+@media(prefers-reduced-motion:reduce) {
+
+    body:has(main.container) *,
+    body:has(main.page-content) * {
+        scroll-behavior: auto !important;
+        transition: none !important;
+        animation: none !important
+    }
+}
